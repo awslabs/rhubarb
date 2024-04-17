@@ -1,0 +1,94 @@
+{
+    "type": "array",
+    "description": "A person's resume with one or more pages",
+    "items":{
+        "type": "object",
+        "description": "Properties related to a page in the document",
+        "properties": {
+            "name": {
+                "description": "The person's name",
+                "type": "string"
+            },
+            "address": {
+                "description": "The person's address",
+                "type": "string"
+            },
+            "email": {
+                "description": "The person's email address",
+                "type": "string"
+            },
+            "years_of_experience": {
+                "description": "The person's years of experience",
+                "type": "integer"
+            },
+            "is_available": {
+                "description": "Is the person available to join immediately",
+                "type": "boolean"
+            },
+            "experience": {
+                "description": "The person's past job experiences",
+                "type": "array",
+                "items":{
+                    "type": "object",
+                    "description": "The person's job experience",
+                    "properties":{
+                        "company":{
+                            "description": "The name of the company",
+                            "type": "string"
+                        },
+                        "duration":{
+                            "description": "Duration worked at the company",
+                            "type": "string"
+                        },
+                        "job_role":{
+                            "description": "A brief description of the person's job role at the company",
+                            "type": "string"
+                        }
+                    },
+                    "required": ["company", "duration", "job_role"]
+                }
+            },
+            "location_preference":{
+                "type": "array",
+                "description": "The person's location preference",
+                "items":{
+                    "type": "object",
+                    "description": "The location",
+                    "oneOf":[
+                        {
+                            "type": "object",
+                            "properties": {
+                                "NY": {
+                                    "type": "string",
+                                    "description": "New York"
+                                }
+                            },
+                            "required": ["NY"]
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "CA": {
+                                    "type": "string",
+                                    "description": "California"
+                                }
+                            },
+                            "required": ["CA"]
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "HK": {
+                                    "type": "string",
+                                    "description": "Hong Kong"
+                                }
+                            },
+                            "required": ["HK"]
+                        }
+                    ]
+                }                
+            }
+        },
+        "required": ["name","address", "email", "years_of_experience", "is_available", "experience","location_preference"]
+    }
+}

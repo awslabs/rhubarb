@@ -1,0 +1,23 @@
+{
+    "type": "array",
+    "description": "A document with one or more pages, where each page belongs to one or more class",
+    "items":{
+        "type": "object",
+        "description": "Properties related to a page in the document",
+        "properties": {
+            "page": {
+                "description": "The page number of the document",
+                "type": "integer"
+            },
+            "class": {
+                "description": "List of one or more classes this page belongs to.",
+                "type": "array",
+                "items":{
+                    "type": "string",
+                    "description": "The class."
+                }
+            }
+        },
+        "required": ["page","class"]
+    }
+}

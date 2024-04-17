@@ -1,0 +1,23 @@
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "page": {
+        "description": "The page number of the document",
+        "type": "integer"
+      },
+      "entities": {
+        "description": "Common entities found in this page",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "oneOf": [
+            
+          ]
+        }
+      }
+    },
+    "required": ["page", "entities"]
+  }
+}

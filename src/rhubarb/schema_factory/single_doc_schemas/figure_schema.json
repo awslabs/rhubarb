@@ -1,0 +1,25 @@
+{
+    "type": "array",
+    "items":{
+        "type": "object",
+        "properties": {
+            "page": {
+                "description": "The page number of the document",
+                "type": "integer"
+            },
+            "figure_analysis": {
+                "description": "Your response",
+                "type": "string"
+            },
+            "figure_description": {
+                "description": "The verbatim description of the image as specified in the document.",
+                "type": "string"
+            },
+            "reasoning": {
+                "description": "A step-by-step explanation of your final analysis.",
+                "type": "string"
+            }
+        },
+        "required": ["page","figure_analysis"]
+    }
+}

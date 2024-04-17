@@ -1,0 +1,26 @@
+{    
+    "type": "object",
+    "properties": {
+        "text": {
+            "description": "Your friendly and accurate response",
+            "type": "string"
+        },
+        "sources": {
+            "type": "array",
+            "description": "Page numbers of the document which were used to form the answer",
+            "items":{
+                "type": "integer",
+                "description": "The page number"
+            }
+        },
+        "quotes": {
+            "type": "array",
+            "description": "The various quotes from the document which relates to the answer.",
+            "items":{
+                "type": "string",
+                "description": "The verbatim quote text"
+            }
+        }
+    },
+    "required": ["text"]    
+}
