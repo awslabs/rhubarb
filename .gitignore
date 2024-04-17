@@ -28,7 +28,7 @@ share/python-wheels/
 MANIFEST
 .ruff_cache
 .DS_Store
-
+build_install.sh
 
 # PyInstaller
 # Usually these files are written by a python script from a template
