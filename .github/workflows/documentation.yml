@@ -24,7 +24,7 @@ jobs:
       - name: Install Dependencies
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-          source $HOME/.poetry/env
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
           poetry install
 
       - name: Build Documentation
