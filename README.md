@@ -50,18 +50,11 @@ Rhubarb comes with built-in system prompts that makes it easy to use it for a nu
 
 ## Installation
 
-Start by installing Rhubarb using `pip`. Rhubarb is currently available in Test PyPi which you can install as follows
+Start by installing Rhubarb using `pip`.
 
 ```
-pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ rhubarb_dev
+pip install pyrhubarb
 ```
-<!-- 
- Once it is available in PyPi main index, you would be able to install normally. 
-
-```
-pip install rhubarb 
-```
--->
 
 
 ### Usage
