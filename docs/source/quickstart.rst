@@ -21,7 +21,7 @@ Rhubarb official package is available on PyPI and can be installed with
 
 .. code-block:: bash
 
-    pip install rhubarb
+    pip install pyrhubarb
 
 By default this will install the latest version of Rhubarb.
 
@@ -49,7 +49,7 @@ Navigate into the project directory on the terminal and perform the following st
 
 .. code-block:: bash
 
-    pip install rhubarb-0.0.1-py3-none-any.whl
+    pip install pyrhubarb-0.0.1-py3-none-any.whl
 
 
 Configuration
