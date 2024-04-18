@@ -31,6 +31,10 @@ numpy = "^1.26.4"
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.3.4"
 pre-commit = "^3.7.0"
+sphinx = "^7.3.4"
+furo = "^2024.1.29"
+nbsphinx = "^0.9.3"
+sphinx-copybutton = "^0.5.2"
 
 [tool.ruff]
 line-length = 100

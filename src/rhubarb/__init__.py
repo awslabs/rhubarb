@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+import importlib.metadata
 from logging import NullHandler
 
 from .models import LanguageModels, EmbeddingModels
@@ -12,6 +13,8 @@ from .schema_factory.entities import Entities
 from .system_prompts.system_prompts import SystemPrompts
 
 logging.getLogger(__name__).addHandler(NullHandler())
+
+__version__ = importlib.metadata.version("rhubarb")
 
 __all__ = [
     "DocAnalysis",

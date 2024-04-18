@@ -99,6 +99,10 @@ resp
 
 For more usage examples see [cookbooks](./cookbooks/).
 
+## Security
+
+See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+
 ## License
 
-Apache License 2.0
+This project is licensed under the Apache-2.0 License.
