@@ -17,6 +17,8 @@ Rhubarb is a light-weight Python framework that makes it easy to build document 
 
 ## What can I do with Rhubarb?
 
+Visit Rhubarb [documentation](https://awslabs.github.io/rhubarb/index.html#).
+
 Rhubarb can do multiple document processing tasks such as
 
 - ✅ Document Q&A
