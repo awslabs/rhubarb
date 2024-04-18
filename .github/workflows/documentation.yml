@@ -1,0 +1,38 @@
+name: Build and Deploy Documentation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - 'pyproject.toml'
+      - '.github/workflows/documentation.yml'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'  # Specify your Python version
+
+      - name: Install Dependencies
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          source $HOME/.poetry/env
+          poetry install
+
+      - name: Build Documentation
+        run: |
+          poetry run sphinx-build -b html docs/source docs/build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/build
