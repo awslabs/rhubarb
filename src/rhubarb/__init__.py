@@ -14,7 +14,7 @@ from .system_prompts.system_prompts import SystemPrompts
 
 logging.getLogger(__name__).addHandler(NullHandler())
 
-__version__ = importlib.metadata.version("rhubarb")
+__version__ = importlib.metadata.version("pyrhubarb")
 
 __all__ = [
     "DocAnalysis",
