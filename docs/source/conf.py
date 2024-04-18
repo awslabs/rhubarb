@@ -63,6 +63,8 @@ html_sidebars = {
     ]
 }
 
+html_favicon = "_static/favicon.ico"
+
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
 html_show_sphinx = True
 
