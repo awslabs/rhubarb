@@ -1,0 +1,475 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Chat with Documents" href="chatdoc.html" /><link rel="prev" title="Schema Creation Assistant" href="schemassist.html" />
+
+    <!-- Generated with Sphinx 7.3.4 and Furo 2024.01.29 -->
+        <title>Document Summarization - Rhubarb 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=6eb3cf62" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    <script>
+        document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="svg-close" viewBox="0 0 24 24">
+            <title>Close Menu</title>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor"
+              stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+                <line x1="2" y1="22" x2="22" y2="2"/>
+                <line x1="2" y1="2" x2="22" y2="22"/>
+            </svg>
+        </symbol>
+    </svg>
+    
+    <input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+    <input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+    <label class="overlay sidebar-overlay" for="__navigation">
+      <div class="visually-hidden">Hide navigation sidebar</div>
+    </label>
+    <label class="overlay toc-overlay" for="__toc">
+      <div class="visually-hidden">Hide table of contents sidebar</div>
+    </label>
+    
+    
+    
+    <div class="page">
+      <header class="mobile-header">
+        <div class="header-left">
+          <label class="nav-overlay-icon" id="nav-menu-open" for="__navigation" tabindex="0">
+            <div class="visually-hidden">Toggle site navigation sidebar</div>
+            <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+          </label>
+        </div>
+        <div class="header-center">
+          <a href="../index.html"><div class="brand">Rhubarb 0.0.1 documentation</div></a>
+        </div>
+        <div class="header-right">
+          <div class="theme-toggle-container theme-toggle-header">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-header-icon" id="toc-menu-open-sm" for="__toc" tabindex="0">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+      </header>
+      <aside class="sidebar-drawer">
+        <div class="sidebar-container">
+          
+          <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo" src="../_static/Rhubarb@0.5x.png" alt="Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">Rhubarb 0.0.1 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-div">
+    <p class="sidebar-heading">Feedback</p>
+    <p class="sidebar-text">
+        Do you have a suggestion to improve this website or Rhubarb?
+        <a href="https://github.com/awslabs/rhubarb/issues">Give us feedback</a>.
+    </p>
+</div><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="usage.html">Usage</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Usage</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="docqa.html">Document Q&amp;A</a></li>
+<li class="toctree-l2"><a class="reference internal" href="specifymodels.html">Change Default Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="specifypages.html">Specify Document Pages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ner.html">Named Entity Recognition (NER)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pii.html">PII Recognition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="keyvalues.html">Key-Values Extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tables.html">Tables Extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="schemassist.html">Schema Creation Assistant</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Document Summarization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chatdoc.html">Chat with Documents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="figures.html">Working with images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classification.html">Document Classification</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="configurations.html">Global Configuration</a></li>
+</ul>
+
+</div></div>
+          </div>
+          
+        </div>
+      </aside>
+      <div class="main">
+        <div class="content">
+          <div class="article-container">
+            <a href="#" class="back-to-top muted-link">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+              </svg>
+              <span>Back to top</span>
+            </a>
+            <div class="content-icon-container">
+              
+<div class="theme-toggle-container theme-toggle-content">
+                <button class="theme-toggle">
+                  <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+                  <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+                  <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+                  <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+                </button>
+              </div>
+              <label class="toc-overlay-icon toc-content-icon" id="toc-menu-open-md" for="__toc" tabindex="0">
+                <div class="visually-hidden">Toggle table of contents sidebar</div>
+                <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+              </label>
+            </div>
+            <article role="main">
+              <section id="document-summarization">
+<h1>Document Summarization<a class="headerlink" href="#document-summarization" title="Link to this heading">¶</a></h1>
+<p>Rhubarb can generate sumarries of a document. You can generate summary for an entire document (20 pages max), or selective pages.</p>
+<section id="page-level-summaries">
+<h2>Page level summaries<a class="headerlink" href="#page-level-summaries" title="Link to this heading">¶</a></h2>
+<p>By default <code class="code docutils literal notranslate"><span class="pre">DocAnalysis</span></code> generates page level summaries.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocAnalysis</span>
+
+<span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;./test_docs/employee_enrollment.pdf&quot;</span><span class="p">,</span>
+                 <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">)</span>
+<span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Give me a brief summary for each page.&quot;</span><span class="p">)</span>
+<span class="n">resp</span>
+</pre></div>
+</div>
+<p>Sample output</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;page&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;detected_languages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;English&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;This page contains an employee enrollment form for 401(k) plans with designated Roth contributions. It includes fields for the employer&#39;s name, employee&#39;s personal information, salary details, contribution percentages, and effective dates.&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;page&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;detected_languages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;English&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;This page outlines the allocation of contributions across various investment funds offered by the company, including interest accumulation accounts, equity funds, real estate funds, retirement funds, balanced funds, asset allocation funds, and fixed income funds.&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;page&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;detected_languages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;English&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;This page allows the employee to designate primary and secondary beneficiaries for their retirement account. It includes fields for beneficiary information such as name, relationship, address, and benefit percentage. It also contains a spouse&#39;s waiver section and the employee&#39;s signature confirming participation in the plan.&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;token_usage&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;input_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5077</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;output_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">269</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="full-document-summary">
+<h2>Full document summary<a class="headerlink" href="#full-document-summary" title="Link to this heading">¶</a></h2>
+<p>You can generate an overall summary of the entire document. In this case, we will override the default System Prompt which
+breaks down the response per page. Rhubarb comes with a Summary specific System Prompt for the model, available via
+<code class="code docutils literal notranslate"><span class="pre">SystemPrompts</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocAnalysis</span><span class="p">,</span> <span class="n">SystemPrompts</span>
+
+ <span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;./test_docs/employee_enrollment.pdf&quot;</span><span class="p">,</span>
+                  <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
+<span class="hll">                  <span class="n">system_prompt</span><span class="o">=</span><span class="n">SystemPrompts</span><span class="p">()</span><span class="o">.</span><span class="n">SummarySysPrompt</span><span class="p">)</span>
+</span> <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Give me a brief summary of this document.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Sample output</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;This document is an Employee Enrollment Form for 401(k) Plans with Designated Roth Contributions from AnyCompany of America Life Insurance Co. It contains the following key information:\\n\\n- Employee details: A female employee named Martha C. Rivera, hired on 07/19/2023 as a full-time employee with an annual salary of $79,930. Her personal information like address, date of birth, and contact details are provided.\\n\\n- Contribution details: The employee is enrolling in the company&#39;s 401(k) plan with 10% of salary allocated to Traditional Pre-Tax Contributions effective 08/19/23 and 08/19/23 for employer matching and non-matching contributions respectively. No Designated Roth Contributions are specified.\\n\\n- Investment allocation: 50% of contributions will be placed in the AnyCompany of America Interest Accumulation Account, while the remaining investment options are listed.\\n\\n- Beneficiary designations: The employee has named her spouse as the primary beneficiary with 50% benefit and her child as the secondary beneficiary with 50% benefit. The spouse has signed a waiver allowing this arrangement.\\n\\n- Signature: The employee has signed the form on 3/25/2022, indicating she has reviewed the plan materials and finds it suitable for her financial needs.&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;token_usage&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;input_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4755</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;output_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">292</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="specific-page-s-summary">
+<h2>Specific page(s) summary<a class="headerlink" href="#specific-page-s-summary" title="Link to this heading">¶</a></h2>
+<p>You can also perform summarization of specific pages using the <code class="code docutils literal notranslate"><span class="pre">pages</span></code> parameter.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocAnalysis</span><span class="p">,</span> <span class="n">SystemPrompts</span>
+
+ <span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;./test_docs/employee_enrollment.pdf&quot;</span><span class="p">,</span>
+                  <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
+                  <span class="n">system_prompt</span><span class="o">=</span><span class="n">SystemPrompts</span><span class="p">()</span><span class="o">.</span><span class="n">SummarySysPrompt</span><span class="p">,</span>
+<span class="hll">                  <span class="n">pages</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+</span> <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Give me a brief summary of this document.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Sample output</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;## Summary\n\nThis document is an employee enrollment form for a 401(k) plan with designated Roth contributions from AnyCompany of America Life Insurance Co. The key details are:\n\n- The employee is Martha C. Rivera, hired on 07/19/2023 as a full-time employee with an annual salary of $79,930. \n- Her employer is AnyCompany Constructions Inc. with the employer number 784371.\n- Traditional pre-tax contributions are set at 10% of salary effective 08/19/23 and employer matching contributions effective 08/19/23.\n- Martha has designated her spouse Mateo Rivera as the primary beneficiary at 50% and her child Pat Rivera as the secondary beneficiary at 50%.\n- Mateo has signed a spouse&#39;s waiver allowing Martha to receive the death benefit after his death.\n- Martha has signed the form on 3/25/2022, indicating she has read the plan materials and wishes to participate in the Thrift Plan.&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;token_usage&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;input_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3207</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;output_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">228</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="streaming-summary">
+<h2>Streaming summary<a class="headerlink" href="#streaming-summary" title="Link to this heading">¶</a></h2>
+<p>In some cases, you may want to stream the summaries for example let’s say a real time chat application. You can easily do that
+using the <code class="code docutils literal notranslate"><span class="pre">run_stream()</span></code> method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocAnalysis</span><span class="p">,</span> <span class="n">SystemPrompts</span>
+
+ <span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;./test_docs/employee_enrollment.pdf&quot;</span><span class="p">,</span>
+                  <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
+                  <span class="n">system_prompt</span><span class="o">=</span><span class="n">SystemPrompts</span><span class="p">()</span><span class="o">.</span><span class="n">SummarySysPrompt</span><span class="p">)</span>
+
+<span class="hll"> <span class="k">for</span> <span class="n">resp</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">run_stream</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Give me a brief summary of this document.&quot;</span><span class="p">):</span>
+</span>     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">resp</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+         <span class="nb">print</span><span class="p">(</span><span class="n">resp</span><span class="p">,</span><span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+     <span class="k">else</span><span class="p">:</span>
+         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+         <span class="nb">print</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Sample output</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>|-START-|
+This document is an Employee Enrollment Form for 401(k) Plans with Designated Roth Contributions from AnyCompany of America Life Insurance Co. It contains the following key information:
+
+- Employee details: A female employee named Martha C. Rivera, hired on 07/19/2023 as a full-time employee with an annual salary of $79,930. Her personal information like address, date of birth, and contact details are provided.
+
+- Contribution details: The employee is enrolling in the company&#39;s 401(k) plan with 10% of salary allocated to Traditional Pre-Tax Contributions effective 08/19/23 and 08/19/23 for employer matching and non-matching contributions respectively. No Designated Roth Contributions are specified.
+
+- Investment allocation: 50% of contributions will be placed in the AnyCompany of America Interest Accumulation Account, while the remaining options for separate investment funds like equity, real estate, retirement, balanced, asset allocation, and fixed income funds are listed.
+
+- Beneficiary designations: Martha has designated her spouse (Mateo Rivera) as the primary beneficiary at 50% and her son (Pat Rivera) as the secondary beneficiary at 50%. The spouse has signed a waiver allowing this arrangement.
+
+- Employee signature: Martha has signed the form on 3/25/2022, indicating she has reviewed the plan materials and finds it suitable for her financial needs.
+|-END-|
+
+{&#39;input_tokens&#39;: 4755, &#39;output_tokens&#39;: 317}
+</pre></div>
+</div>
+<p>Text streaming starts with a <code class="code docutils literal notranslate"><span class="pre">|-START-|</span></code> marker and the end of streaming is marked with an <code class="code docutils literal notranslate"><span class="pre">|-END-|</span></code> marker. This is to make sure that the application client recieving the stream has a clear demarcation of when the streaming starts and ends.
+Currently Rhubarb doesn’t support <code class="code docutils literal notranslate"><span class="pre">stop_words</span></code> kwargs during model invocation but that is coming soon.</p>
+<p>One thing to keep in mind is that streaming may only makes sense for a couple of use cases</p>
+<ul class="simple">
+<li><p>One where a lot of text (like summary) is expected from the model and you have a specific need to reduce the time to first token</p></li>
+<li><p>A real time conversational chat interface a.k.a. ChatBot</p></li>
+</ul>
+<p>You can also view the chat history by accessing the <code class="code docutils literal notranslate"><span class="pre">history</span></code> property.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">da</span><span class="o">.</span><span class="n">history</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+            </article>
+          </div>
+          <footer>
+            
+            <div class="related-pages">
+              <a class="next-page" href="chatdoc.html">
+                  <div class="page-info">
+                    <div class="context">
+                      <span>Next</span>
+                    </div>
+                    <div class="title">Chat with Documents</div>
+                  </div>
+                  <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+                </a>
+              <a class="prev-page" href="schemassist.html">
+                  <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+                  <div class="page-info">
+                    <div class="context">
+                      <span>Previous</span>
+                    </div>
+                    
+                    <div class="title">Schema Creation Assistant</div>
+                    
+                  </div>
+                </a>
+            </div>
+            <div class="bottom-of-page">
+              <div class="left-details">
+                <div class="copyright">
+                    Copyright &#169; 2024, Amazon Web Services, Inc
+                </div>
+                Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+                
+                <a href="https://github.com/pradyunsg/furo">Furo</a>
+                
+                
+                <div class="legal-info">
+                    <script type="text/javascript" src="../_static/shortbreadv1.js"></script>
+                    <script type="text/javascript">
+                            const shortbread = AWSCShortbread({
+                                domain: ".amazonaws.com",
+                });
+                            shortbread.checkForCookieConsent();
+                    </script>
+                    <a href="https://aws.amazon.com/privacy">Privacy</a> | <a href="https://aws.amazon.com/terms">Site Terms</a> | <a
+                        href="#" onclick="shortbread.customizeCookies();">Cookie preferences</a>
+                </div>
+                
+              </div>
+              <div class="right-details">
+                <div class="icons">
+                  <a class="muted-link " href="https://github.com/awslabs/rhubarb" aria-label="GitHub">
+                <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+                </svg>
+            </a>
+                  
+                </div>
+              </div>
+            </div>
+            
+          </footer>
+        </div>
+        <aside class="toc-drawer">
+          
+          
+          <div class="toc-sticky toc-scroll">
+            <div class="sidebar-div show-div-md justify-content-left">
+                <label class="nav-close-icon" id="toc-menu-close" for="__toc" tabindex="0">
+                    <div class="visually-hidden">Toggle site table of content right sidebar</div>
+                    <i class="icon"><svg><use href="#svg-close"></use></svg></i>
+                </label>
+            </div>
+            <div class="toc-title-container">
+              <span class="toc-title">
+                On this page
+              </span>
+            </div>
+            <div class="toc-tree-container">
+              <div class="toc-tree">
+                <ul>
+<li><a class="reference internal" href="#">Document Summarization</a><ul>
+<li><a class="reference internal" href="#page-level-summaries">Page level summaries</a></li>
+<li><a class="reference internal" href="#full-document-summary">Full document summary</a></li>
+<li><a class="reference internal" href="#specific-page-s-summary">Specific page(s) summary</a></li>
+<li><a class="reference internal" href="#streaming-summary">Streaming summary</a></li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </div>
+          
+          
+        </aside>
+      </div>
+    </div><script src="../_static/documentation_options.js?v=d45e8c67"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>
