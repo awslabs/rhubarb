@@ -17,7 +17,7 @@ Before installing Boto3, install Python 3.9 or later. For information about how 
 Install Rhubarb
 ~~~~~~~~~~~~~~~
 
-Rhubarb official package is available on PyPI and can be installed with 
+Rhubarb official package is available on PyPI and can be installed with
 
 .. code-block:: bash
 
