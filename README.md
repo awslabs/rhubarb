@@ -32,9 +32,7 @@ Rhubarb can do multiple document processing tasks such as
   - 🚀 Full summaries
   - 🚀 Summaries of specific pages
   - 🚀 Streaming Summaries
-- ✅ Extraction based on a JSON schema
-  - 🚀 Key-value extractions
-  - 🚀 Table extractions
+- ✅ Structured data extraction
 - ✅ Named entity recognition (NER) 
   - 🚀 With 50 built-in common entities
 - ✅ PII recognition with built-in entities
@@ -42,7 +40,6 @@ Rhubarb can do multiple document processing tasks such as
   - 🚀 Explain charts, graphs, and figures
   - 🚀 Perform table reasoning (as figures)
 - ✅ Document Classification with vector sampling using multi-modal embedding models
-- ✅ Auto generation of JSON schema from natural language prompts for document extraction
 - ✅ Logs token usage to help keep track of costs
 
 Rhubarb comes with built-in system prompts that makes it easy to use it for a number of different document understanding use-cases. You can customize Rhubarb by passing in your own system prompts. It supports exact JSON schema based output generation which makes it easy to integrate into downstream applications.
