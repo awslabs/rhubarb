@@ -162,11 +162,11 @@ certain values from the document and it will respond back with a JSON schema. Yo
     da = DocAnalysis(file_path="./test_docs/employee_enrollment.pdf", 
                     boto3_session=session,
                     pages=[1])
-    resp = da.generate_schema(message="I want to extract the employee name, employee SSN, employee address, \
-                                       date of birth and phone number from this document.")        
-    response = da.run(message="I want to extract the employee name, employee SSN, employee address, date of \
-                           birth and phone number from this document. Use the schema provided.", 
-                  output_schema=resp['output'])
+    prompt="I want to extract the employee name, employee SSN, employee address, \
+            date of birth and phone number from this document."
+    resp = da.generate_schema(message=prompt)        
+    response = da.run(message=prompt, 
+                      output_schema=resp['output'])
 
 
 Sample output
