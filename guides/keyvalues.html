@@ -382,81 +382,9 @@ certain values from the document and it will respond back with a JSON schema. Yo
                 <span class="n">pages</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">generate_schema</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;I want to extract the employee name, employee SSN, employee address, </span><span class="se">\</span>
 <span class="s2">                                   date of birth and phone number from this document.&quot;</span><span class="p">)</span>
-<span class="n">resp</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span>
-</pre></div>
-</div>
-<p>Sample output</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;employeeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;first&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s first name&quot;</span>
-<span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">&quot;initial&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s middle initial&quot;</span>
-<span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">&quot;last&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s last name&quot;</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;first&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;last&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;employeeSSN&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s social security number&quot;</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;employeeAddress&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;street&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s street address&quot;</span>
-<span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">&quot;city&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s city&quot;</span>
-<span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s state&quot;</span>
-<span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">&quot;zipCode&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">          </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s zip code&quot;</span>
-<span class="w">        </span><span class="p">}</span>
-<span class="w">      </span><span class="p">},</span>
-<span class="w">      </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;street&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;city&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;state&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;zipCode&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;dateOfBirth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s date of birth in MM/DD/YY format&quot;</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;phoneNumber&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s phone number&quot;</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="s2">&quot;employeeName&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;employeeSSN&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;employeeAddress&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;dateOfBirth&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="s2">&quot;phoneNumber&quot;</span>
-<span class="w">  </span><span class="p">]</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>We can then use this schema to perform extraction on the same document.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">output_schema</span> <span class="o">=</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span>
-<span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;I want to extract the employee name, employee SSN, employee address, date of </span><span class="se">\</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;I want to extract the employee name, employee SSN, employee address, date of </span><span class="se">\</span>
 <span class="s2">                       birth and phone number from this document. Use the schema provided.&quot;</span><span class="p">,</span>
-              <span class="n">output_schema</span><span class="o">=</span><span class="n">output_schema</span><span class="p">)</span>
+              <span class="n">output_schema</span><span class="o">=</span><span class="n">resp</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Sample output</p>
@@ -489,7 +417,7 @@ certain values from the document and it will respond back with a JSON schema. Yo
 <h2>Auto schema with question rephrase<a class="headerlink" href="#auto-schema-with-question-rephrase" title="Link to this heading">¶</a></h2>
 <p>In many cases you may want to quickly get started with creating a JSON Schema for your document wihtout spending too much
 time crafting a proper prompt for the document. For example, in a birth certificate you could be vague in asking a question
-such as “<em>I want to get the child’s, the mother’s and father’s details from the given document</em>”. In such cases Rhubarb can
+such as “<em>the child’s, the mother’s and father’s details from the given document</em>”. In such cases Rhubarb can
 help rephrasing the question and create an appropriate rephrased question based on the document and generate a subsequent
 schema for it which can directly be used to extract the data. For this, you use the <code class="code docutils literal notranslate"><span class="pre">assistive_rephrase</span></code> parameter in your call
 to <code class="code docutils literal notranslate"><span class="pre">generate_schema()</span></code> function.</p>
@@ -497,7 +425,7 @@ to <code class="code docutils literal notranslate"><span class="pre">generate_sc
 
  <span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;./test_docs/birth_cert.jpeg&quot;</span><span class="p">,</span>
                   <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">)</span>
-<span class="hll"> <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">generate_schema</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;I want to get the child&#39;s, the mother&#39;s and father&#39;s details from the given document&quot;</span><span class="p">,</span>
+<span class="hll"> <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">generate_schema</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;the child&#39;s, the mother&#39;s and father&#39;s details from the given document&quot;</span><span class="p">,</span>
 </span><span class="hll">                           <span class="n">assistive_rephrase</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span>
 </pre></div>

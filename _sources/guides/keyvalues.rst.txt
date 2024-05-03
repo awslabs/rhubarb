@@ -163,87 +163,11 @@ certain values from the document and it will respond back with a JSON schema. Yo
                     boto3_session=session,
                     pages=[1])
     resp = da.generate_schema(message="I want to extract the employee name, employee SSN, employee address, \
-                                       date of birth and phone number from this document.")
-    resp['output']
-
-Sample output
-
-.. code-block:: json
-
-    {
-      "type": "object",
-      "properties": {
-        "employeeName": {
-          "type": "object",
-          "properties": {
-            "first": {
-              "type": "string",
-              "description": "The employee's first name"
-            },
-            "initial": {
-              "type": "string",
-              "description": "The employee's middle initial"
-            },
-            "last": {
-              "type": "string",
-              "description": "The employee's last name"
-            }
-          },
-          "required": ["first", "last"]
-        },
-        "employeeSSN": {
-          "type": "string",
-          "description": "The employee's social security number"
-        },
-        "employeeAddress": {
-          "type": "object",
-          "properties": {
-            "street": {
-              "type": "string",
-              "description": "The employee's street address"
-            },
-            "city": {
-              "type": "string",
-              "description": "The employee's city"
-            },
-            "state": {
-              "type": "string",
-              "description": "The employee's state"
-            },
-            "zipCode": {
-              "type": "string",
-              "description": "The employee's zip code"
-            }
-          },
-          "required": ["street", "city", "state", "zipCode"]
-        },
-        "dateOfBirth": {
-          "type": "string",
-          "description": "The employee's date of birth in MM/DD/YY format"
-        },
-        "phoneNumber": {
-          "type": "string",
-          "description": "The employee's phone number"
-        }
-      },
-      "required": [
-        "employeeName",
-        "employeeSSN",
-        "employeeAddress",
-        "dateOfBirth",
-        "phoneNumber"
-      ]
-    }
-
-
-We can then use this schema to perform extraction on the same document.
-
-.. code:: python
-
-    output_schema = resp['output']
-    resp = da.run(message="I want to extract the employee name, employee SSN, employee address, date of \
+                                       date of birth and phone number from this document.")        
+    response = da.run(message="I want to extract the employee name, employee SSN, employee address, date of \
                            birth and phone number from this document. Use the schema provided.", 
-                  output_schema=output_schema)
+                  output_schema=resp['output'])
+
 
 Sample output
 
@@ -277,7 +201,7 @@ Auto schema with question rephrase
 
 In many cases you may want to quickly get started with creating a JSON Schema for your document wihtout spending too much 
 time crafting a proper prompt for the document. For example, in a birth certificate you could be vague in asking a question 
-such as "*I want to get the child's, the mother's and father's details from the given document*". In such cases Rhubarb can 
+such as "*the child's, the mother's and father's details from the given document*". In such cases Rhubarb can 
 help rephrasing the question and create an appropriate rephrased question based on the document and generate a subsequent 
 schema for it which can directly be used to extract the data. For this, you use the :code:`assistive_rephrase` parameter in your call 
 to :code:`generate_schema()` function.
@@ -289,7 +213,7 @@ to :code:`generate_schema()` function.
 
     da = DocAnalysis(file_path="./test_docs/birth_cert.jpeg",
                      boto3_session=session)
-    resp = da.generate_schema(message="I want to get the child's, the mother's and father's details from the given document",
+    resp = da.generate_schema(message="the child's, the mother's and father's details from the given document",
                               assistive_rephrase=True)
     resp['output']
 
