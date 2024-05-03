@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Tables Extraction" href="tables.html" /><link rel="prev" title="PII Recognition" href="pii.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Document Summarization" href="summary.html" /><link rel="prev" title="PII Recognition" href="pii.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.3.4 and Furo 2024.01.29 -->
-        <title>Key-Values Extraction - Rhubarb 0.0.1 documentation</title>
+        <title>Structured Data Extraction - Rhubarb 0.0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -144,7 +144,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-header-icon no-toc" id="toc-menu-open-sm" for="__toc" tabindex="0">
+          <label class="toc-overlay-icon toc-header-icon" id="toc-menu-open-sm" for="__toc" tabindex="0">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -185,9 +185,7 @@
 <li class="toctree-l2"><a class="reference internal" href="specifypages.html">Specify Document Pages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ner.html">Named Entity Recognition (NER)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pii.html">PII Recognition</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Key-Values Extraction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tables.html">Tables Extraction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="schemassist.html">Schema Creation Assistant</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Structured Data Extraction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="summary.html">Document Summarization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="chatdoc.html">Chat with Documents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="figures.html">Working with images</a></li>
@@ -223,16 +221,19 @@
                   <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
                 </button>
               </div>
-              <label class="toc-overlay-icon toc-content-icon no-toc" id="toc-menu-open-md" for="__toc" tabindex="0">
+              <label class="toc-overlay-icon toc-content-icon" id="toc-menu-open-md" for="__toc" tabindex="0">
                 <div class="visually-hidden">Toggle table of contents sidebar</div>
                 <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
               </label>
             </div>
             <article role="main">
-              <section id="key-values-extraction">
-<h1>Key-Values Extraction<a class="headerlink" href="#key-values-extraction" title="Link to this heading">¶</a></h1>
-<p>Rhubarb supports extraction of key values using <a class="reference external" href="https://json-schema.org/learn/getting-started-step-by-step">JSON Schema</a>. You
-can pass in a valid JSON schema to extract specific data out of your document.</p>
+              <section id="structured-data-extraction">
+<h1>Structured Data Extraction<a class="headerlink" href="#structured-data-extraction" title="Link to this heading">¶</a></h1>
+<p>Rhubarb supports extraction of key values using JSON Schemas. You can pass in a valid JSON schema to extract specific data out of your document.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>JSON Schema is a declarative language that you can use to annotate and validate the structure, constraints, and data types of your JSON documents. It provides a way to standardize and define expectations for your JSON data. <a class="reference external" href="https://json-schema.org/learn/getting-started-step-by-step">Learn more</a>.</p>
+</div>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">schema</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
     <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
@@ -368,6 +369,385 @@ can pass in a valid JSON schema to extract specific data out of your document.</
 <span class="p">}</span>
 </pre></div>
 </div>
+<section id="auto-schemas">
+<h2>Auto Schemas<a class="headerlink" href="#auto-schemas" title="Link to this heading">¶</a></h2>
+<p>Rhubarb can also help create accurate JSON schemas from plain text prompts. You can provide a document and ask it to extract
+certain values from the document and it will respond back with a JSON schema. You can then use the JSON schema with the
+<code class="code docutils literal notranslate"><span class="pre">output_schema</span></code> as shown above, or you can tweak and modify it to fit your need further. You do this using the
+<code class="code docutils literal notranslate"><span class="pre">generate_schema()</span></code> function.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocAnalysis</span>
+
+<span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;./test_docs/employee_enrollment.pdf&quot;</span><span class="p">,</span>
+                <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
+                <span class="n">pages</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">generate_schema</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;I want to extract the employee name, employee SSN, employee address, </span><span class="se">\</span>
+<span class="s2">                                   date of birth and phone number from this document.&quot;</span><span class="p">)</span>
+<span class="n">resp</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Sample output</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;employeeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;first&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s first name&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;initial&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s middle initial&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;last&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s last name&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;first&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;last&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;employeeSSN&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s social security number&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;employeeAddress&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;street&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s street address&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;city&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s city&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s state&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;zipCode&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s zip code&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;street&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;city&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;state&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;zipCode&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;dateOfBirth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s date of birth in MM/DD/YY format&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;phoneNumber&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The employee&#39;s phone number&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;employeeName&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;employeeSSN&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;employeeAddress&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;dateOfBirth&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;phoneNumber&quot;</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>We can then use this schema to perform extraction on the same document.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">output_schema</span> <span class="o">=</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span>
+<span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;I want to extract the employee name, employee SSN, employee address, date of </span><span class="se">\</span>
+<span class="s2">                       birth and phone number from this document. Use the schema provided.&quot;</span><span class="p">,</span>
+              <span class="n">output_schema</span><span class="o">=</span><span class="n">output_schema</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Sample output</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;employeeName&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;first&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Martha&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;initial&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;C&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;last&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Rivera&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;employeeSSN&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;376 12 1987&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;employeeAddress&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;street&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;8 Any Plaza, 21 Street&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;city&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Any City&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;state&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CA&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;zipCode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;90210&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;dateOfBirth&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;09/19/80&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;phoneNumber&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;(383) 555-0100&quot;</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;token_usage&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;input_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2107</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;output_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">146</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="auto-schema-with-question-rephrase">
+<h2>Auto schema with question rephrase<a class="headerlink" href="#auto-schema-with-question-rephrase" title="Link to this heading">¶</a></h2>
+<p>In many cases you may want to quickly get started with creating a JSON Schema for your document wihtout spending too much
+time crafting a proper prompt for the document. For example, in a birth certificate you could be vague in asking a question
+such as “<em>I want to get the child’s, the mother’s and father’s details from the given document</em>”. In such cases Rhubarb can
+help rephrasing the question and create an appropriate rephrased question based on the document and generate a subsequent
+schema for it which can directly be used to extract the data. For this, you use the <code class="code docutils literal notranslate"><span class="pre">assistive_rephrase</span></code> parameter in your call
+to <code class="code docutils literal notranslate"><span class="pre">generate_schema()</span></code> function.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocAnalysis</span>
+
+ <span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;./test_docs/birth_cert.jpeg&quot;</span><span class="p">,</span>
+                  <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">)</span>
+<span class="hll"> <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">generate_schema</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;I want to get the child&#39;s, the mother&#39;s and father&#39;s details from the given document&quot;</span><span class="p">,</span>
+</span><span class="hll">                           <span class="n">assistive_rephrase</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Sample output</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;rephrased_question&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Extract the child&#39;s name, date of birth, sex, place of birth, mother&#39;s name, mother&#39;s date of birth, mother&#39;s place of birth, mother&#39;s address, father&#39;s name, and father&#39;s place of birth from the given birth certificate document.&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;output_schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;child&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The child&#39;s full name&quot;</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;dateOfBirth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The child&#39;s date of birth&quot;</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;sex&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The child&#39;s sex&quot;</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;placeOfBirth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The child&#39;s place of birth&quot;</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;dateOfBirth&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;sex&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;placeOfBirth&quot;</span><span class="p">]</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;mother&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The mother&#39;s full name&quot;</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;dateOfBirth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The mother&#39;s date of birth&quot;</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;placeOfBirth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The mother&#39;s place of birth&quot;</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;address&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The mother&#39;s address&quot;</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;dateOfBirth&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;placeOfBirth&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;address&quot;</span><span class="p">]</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;father&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The father&#39;s full name&quot;</span>
+<span class="w">          </span><span class="p">},</span>
+<span class="w">          </span><span class="nt">&quot;placeOfBirth&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The father&#39;s place of birth&quot;</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;placeOfBirth&quot;</span><span class="p">]</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;child&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;mother&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;father&quot;</span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>And then use the rephrased question and the <code class="code docutils literal notranslate"><span class="pre">output_schema</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="hll"> <span class="n">output_schema</span> <span class="o">=</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;output_schema&#39;</span><span class="p">]</span>
+</span><span class="hll"> <span class="n">question</span> <span class="o">=</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">][</span><span class="s1">&#39;rephrased_question&#39;</span><span class="p">]</span>
+</span>
+ <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span> <span class="o">=</span> <span class="n">question</span><span class="p">,</span>
+               <span class="n">output_schema</span> <span class="o">=</span> <span class="n">output_schema</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="tables-extraction-experimental">
+<h2>Tables Extraction (experimental)<a class="headerlink" href="#tables-extraction-experimental" title="Link to this heading">¶</a></h2>
+<p>You can also perform table extraction using custom JSON schema. In this case we will use a rather complex table from an
+AMZN 10-k filing document and attempt to extract the data from it. Here’s what a JSON schema might look like.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">table_schema</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;additionalProperties&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;patternProperties&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;^(2022|2023)$&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;Net Sales&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;North America&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;International&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;AWS&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;Consolidated&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span>
+                <span class="p">}</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;North America&quot;</span><span class="p">,</span> <span class="s2">&quot;International&quot;</span><span class="p">,</span> <span class="s2">&quot;AWS&quot;</span><span class="p">,</span> <span class="s2">&quot;Consolidated&quot;</span><span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;Year-over-year Percentage Growth (Decline)&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;North America&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;International&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;AWS&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;Consolidated&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span>
+                <span class="p">}</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;North America&quot;</span><span class="p">,</span> <span class="s2">&quot;International&quot;</span><span class="p">,</span> <span class="s2">&quot;AWS&quot;</span><span class="p">,</span> <span class="s2">&quot;Consolidated&quot;</span><span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;Year-over-year Percentage Growth, excluding the effect of foreign exchange rates&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;North America&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;International&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;AWS&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;Consolidated&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span>
+                <span class="p">}</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;North America&quot;</span><span class="p">,</span> <span class="s2">&quot;International&quot;</span><span class="p">,</span> <span class="s2">&quot;AWS&quot;</span><span class="p">,</span> <span class="s2">&quot;Consolidated&quot;</span><span class="p">]</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;Net Sales Mix&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;object&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;North America&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;International&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;AWS&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;Consolidated&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;number&quot;</span>
+                <span class="p">}</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;North America&quot;</span><span class="p">,</span> <span class="s2">&quot;International&quot;</span><span class="p">,</span> <span class="s2">&quot;AWS&quot;</span><span class="p">,</span> <span class="s2">&quot;Consolidated&quot;</span><span class="p">]</span>
+            <span class="p">}</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Net Sales&quot;</span><span class="p">,</span> <span class="s2">&quot;Year-over-year Percentage Growth (Decline)&quot;</span><span class="p">,</span> <span class="s2">&quot;Year-over-year Percentage Growth, excluding the effect of foreign exchange rates&quot;</span><span class="p">,</span> <span class="s2">&quot;Net Sales Mix&quot;</span><span class="p">]</span>
+        <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>We are only interested in the results of operation which we know is in the first page, we will call Rhubarb with just the first page in this case to save costs. However, in situations where the
+table’s exact location isn’t known, the full document can be passed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocAnalysis</span>
+
+<span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;./test_docs/amzn-10k.pdf&quot;</span><span class="p">,</span>
+                <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
+                <span class="n">pages</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Give me data in the results of operation table from this 10-K SEC filing document. Use the schema provided.&quot;</span><span class="p">,</span>
+              <span class="n">output_schema</span><span class="o">=</span><span class="n">table_schema</span><span class="p">)</span>
+<span class="n">resp</span>
+</pre></div>
+</div>
+<p>Sample output in table table schema</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;2022&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;Net Sales&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;North America&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">315880</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;International&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">118007</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;AWS&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">80096</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;Consolidated&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">513983</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;Year-over-year Percentage Growth (Decline)&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;North America&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;International&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">-8</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;AWS&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">29</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;Consolidated&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">9</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;Year-over-year Percentage Growth, excluding the effect of foreign exchange rates&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;North America&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;International&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;AWS&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">29</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;Consolidated&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">13</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;Net Sales Mix&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;North America&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">61</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;International&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">23</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;AWS&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;Consolidated&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;2023&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;Net Sales&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;North America&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">352828</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;International&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">131200</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;AWS&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">90757</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;Consolidated&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">574785</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;Year-over-year Percentage Growth (Decline)&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;North America&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;International&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">11</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;AWS&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;Consolidated&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;Year-over-year Percentage Growth, excluding the effect of foreign exchange rates&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;North America&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;International&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">11</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;AWS&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;Consolidated&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nt">&quot;Net Sales Mix&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;North America&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">61</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;International&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">23</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;AWS&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;Consolidated&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;token_usage&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;input_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2181</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;output_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">433</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
 </section>
 
             </article>
@@ -375,12 +755,12 @@ can pass in a valid JSON schema to extract specific data out of your document.</
           <footer>
             
             <div class="related-pages">
-              <a class="next-page" href="tables.html">
+              <a class="next-page" href="summary.html">
                   <div class="page-info">
                     <div class="context">
                       <span>Next</span>
                     </div>
-                    <div class="title">Tables Extraction</div>
+                    <div class="title">Document Summarization</div>
                   </div>
                   <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
                 </a>
@@ -433,8 +813,35 @@ can pass in a valid JSON schema to extract specific data out of your document.</
             
           </footer>
         </div>
-        <aside class="toc-drawer no-toc">
+        <aside class="toc-drawer">
           
+          
+          <div class="toc-sticky toc-scroll">
+            <div class="sidebar-div show-div-md justify-content-left">
+                <label class="nav-close-icon" id="toc-menu-close" for="__toc" tabindex="0">
+                    <div class="visually-hidden">Toggle site table of content right sidebar</div>
+                    <i class="icon"><svg><use href="#svg-close"></use></svg></i>
+                </label>
+            </div>
+            <div class="toc-title-container">
+              <span class="toc-title">
+                On this page
+              </span>
+            </div>
+            <div class="toc-tree-container">
+              <div class="toc-tree">
+                <ul>
+<li><a class="reference internal" href="#">Structured Data Extraction</a><ul>
+<li><a class="reference internal" href="#auto-schemas">Auto Schemas</a></li>
+<li><a class="reference internal" href="#auto-schema-with-question-rephrase">Auto schema with question rephrase</a></li>
+<li><a class="reference internal" href="#tables-extraction-experimental">Tables Extraction (experimental)</a></li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </div>
           
           
         </aside>
