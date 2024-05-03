@@ -25,8 +25,6 @@ Before running codes from this section, your AWS credentials must be configured 
    ner
    pii
    keyvalues
-   tables
-   schemassist
    summary
    chatdoc
    figures
