@@ -380,11 +380,11 @@ certain values from the document and it will respond back with a JSON schema. Yo
 <span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;./test_docs/employee_enrollment.pdf&quot;</span><span class="p">,</span>
                 <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
                 <span class="n">pages</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-<span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">generate_schema</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;I want to extract the employee name, employee SSN, employee address, </span><span class="se">\</span>
-<span class="s2">                                   date of birth and phone number from this document.&quot;</span><span class="p">)</span>
-<span class="n">response</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;I want to extract the employee name, employee SSN, employee address, date of </span><span class="se">\</span>
-<span class="s2">                       birth and phone number from this document. Use the schema provided.&quot;</span><span class="p">,</span>
-              <span class="n">output_schema</span><span class="o">=</span><span class="n">resp</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">])</span>
+<span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;I want to extract the employee name, employee SSN, employee address, </span><span class="se">\</span>
+<span class="s2">        date of birth and phone number from this document.&quot;</span>
+<span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">generate_schema</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">prompt</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span>
+                  <span class="n">output_schema</span><span class="o">=</span><span class="n">resp</span><span class="p">[</span><span class="s1">&#39;output&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>Sample output</p>
