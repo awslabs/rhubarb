@@ -29,7 +29,7 @@ MANIFEST
 .ruff_cache
 .DS_Store
 build_install.sh
-rhubarb
+rhubarb/
 
 # PyInstaller
 # Usually these files are written by a python script from a template
