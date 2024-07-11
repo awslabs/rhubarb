@@ -1,5 +1,5 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-# SPDX-License-Identifier: Apache-2.0 
+# SPDX-License-Identifier: Apache-2.0
 
 import logging
 from typing import Any, List, Optional, Generator
@@ -90,9 +90,7 @@ class DocAnalysis(BaseModel):
 
         if 0 in pages and len(pages) > 1:
             logger.error("If specific pages are provided, page number 0 is invalid.")
-            raise ValueError(
-                "If specific pages are provided, page number 0 is invalid."
-            )
+            raise ValueError("If specific pages are provided, page number 0 is invalid.")
 
         if len(pages) > 20:
             logger.error("Cannot process more than 20 pages at a time.")
@@ -101,9 +99,7 @@ class DocAnalysis(BaseModel):
         blocked_schemes = ["http://", "https://", "ftp://"]
         if any(file_path.startswith(scheme) for scheme in blocked_schemes):
             logger.error("file_path must be a local file system path or an s3:// path")
-            raise ValueError(
-                "file_path must be a local file system path or an s3:// path"
-            )
+            raise ValueError("file_path must be a local file system path or an s3:// path")
 
         s3_config = Config(
             retries={"max_attempts": 0, "mode": "standard"}, signature_version="s3v4"
@@ -150,10 +146,11 @@ class DocAnalysis(BaseModel):
         Args:
         - `message` (`str`): The input message or prompt for the language model.
         - `output_schema` (`Optional[dict]`, optional): The output JSON schema for the language model response. Defaults to None.
-        """        
+        """
         if (
             self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
+            or self.modelId == LanguageModels.CLAUDE_SONNET_V2
         ):
             a_msg = self._get_anthropic_prompt(
                 message=message,
@@ -185,6 +182,7 @@ class DocAnalysis(BaseModel):
         if (
             self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
+            or self.modelId == LanguageModels.CLAUDE_SONNET_V2
         ):
             a_msg = self._get_anthropic_prompt(
                 message=message, sys_prompt=self.system_prompt, history=history
@@ -209,6 +207,7 @@ class DocAnalysis(BaseModel):
         if (
             self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
+            or self.modelId == LanguageModels.CLAUDE_SONNET_V2
         ):
             sys_prompt = SystemPrompts(entities=entities).NERSysPrompt
             a_msg = self._get_anthropic_prompt(message=message, sys_prompt=sys_prompt)
@@ -220,9 +219,7 @@ class DocAnalysis(BaseModel):
         response = model_invoke.invoke_model_json()
         return response
 
-    def generate_schema(
-        self, message: str, assistive_rephrase: Optional[bool] = False
-    ) -> dict:
+    def generate_schema(self, message: str, assistive_rephrase: Optional[bool] = False) -> dict:
         """
         Invokes the specified language model with the given message to genereate a JSON
         schema for a given document.
@@ -234,6 +231,7 @@ class DocAnalysis(BaseModel):
         if (
             self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
+            or self.modelId == LanguageModels.CLAUDE_SONNET_V2
         ):
             if assistive_rephrase:
                 sys_prompt = SystemPrompts().SchemaGenSysPromptWithRephrase
