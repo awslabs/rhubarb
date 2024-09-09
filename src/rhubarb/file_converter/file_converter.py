@@ -3,6 +3,7 @@
 
 import base64
 import logging
+import mimetypes
 from io import BytesIO
 from typing import Dict, List, Union, Optional
 
@@ -16,9 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class FileConverter:
-    def __init__(
-        self, file_path: str, pages: List[int], s3_client: Optional[boto3.client]
-    ):
+    def __init__(self, file_path: str, pages: List[int], s3_client: Optional[boto3.client]):
         """
         Initialize the FileConverter object.
 
@@ -64,18 +63,36 @@ class FileConverter:
         Raises:
             ValueError: If the file type is not supported.
         """
-        if file_bytes.startswith(b"\x89PNG\r\n\x1a\n"):
-            return "image/png"
-        elif file_bytes.startswith(b"\xff\xd8"):
-            return "image/jpeg"
-        elif file_bytes.startswith(b"%PDF"):
-            return "application/pdf"
-        elif file_bytes.startswith(b"\x49\x49\x2a\x00") or file_bytes.startswith(
-            b"\x4d\x4d\x00\x2a"
-        ):
-            return "image/tiff"
-        else:
+        mime_type, _ = mimetypes.guess_type(self.file_path)
+        if mime_type is None:
             raise ValueError("Unsupported file type")
+        return mime_type
+
+    # def _get_mime_type(self, file_bytes: bytes) -> str:
+    #     """
+    #     Determine the MIME type of the file based on its contents.
+
+    #     Args:
+    #         file_bytes (bytes): The file bytes.
+
+    #     Returns:
+    #         str: The MIME type of the file.
+
+    #     Raises:
+    #         ValueError: If the file type is not supported.
+    #     """
+    #     if file_bytes.startswith(b"\x89PNG\r\n\x1a\n"):
+    #         return "image/png"
+    #     elif file_bytes.startswith(b"\xff\xd8"):
+    #         return "image/jpeg"
+    #     elif file_bytes.startswith(b"%PDF"):
+    #         return "application/pdf"
+    #     elif file_bytes.startswith(b"\x49\x49\x2a\x00") or file_bytes.startswith(
+    #         b"\x4d\x4d\x00\x2a"
+    #     ):
+    #         return "image/tiff"
+    #     else:
+    #         raise ValueError("Unsupported file type")
 
     def _parse_s3_path(self, s3_path: str) -> tuple[str, str]:
         """
@@ -124,21 +141,15 @@ class FileConverter:
                     if self.pages == [0]:
                         page_nums = range(min(20, len(pdf.pages)))
                     else:
-                        page_nums = [
-                            p - 1 for p in self.pages if p <= len(pdf.pages) and p > 0
-                        ]
+                        page_nums = [p - 1 for p in self.pages if p <= len(pdf.pages) and p > 0]
 
                     for page_num in page_nums:
                         page = pdf.pages[page_num]
                         img = page.to_image(resolution=150).original
                         img_bytes = BytesIO()
                         img.save(img_bytes, format="PNG")
-                        base64_string = base64.b64encode(img_bytes.getvalue()).decode(
-                            "utf-8"
-                        )
-                        base64_strings.append(
-                            {"page": page_num + 1, "base64string": base64_string}
-                        )
+                        base64_string = base64.b64encode(img_bytes.getvalue()).decode("utf-8")
+                        base64_strings.append({"page": page_num + 1, "base64string": base64_string})
                 return base64_strings
 
             elif self.mime_type == "image/tiff":
@@ -151,19 +162,13 @@ class FileConverter:
                     if self.pages == [0]:
                         frame_nums = range(min(20, img.n_frames))
                     else:
-                        frame_nums = [
-                            p - 1 for p in self.pages if p <= img.n_frames and p > 0
-                        ]
+                        frame_nums = [p - 1 for p in self.pages if p <= img.n_frames and p > 0]
                     for i in frame_nums:
                         img.seek(i)
                         img_byte_arr = BytesIO()
                         img.save(img_byte_arr, format="PNG")
-                        base64_string = base64.b64encode(
-                            img_byte_arr.getvalue()
-                        ).decode("utf-8")
-                        base64_strings.append(
-                            {"page": i + 1, "base64string": base64_string}
-                        )
+                        base64_string = base64.b64encode(img_byte_arr.getvalue()).decode("utf-8")
+                        base64_strings.append({"page": i + 1, "base64string": base64_string})
                 return base64_strings
             else:
                 logger.error("Unsupported file type")
