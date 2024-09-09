@@ -68,32 +68,6 @@ class FileConverter:
             raise ValueError("Unsupported file type")
         return mime_type
 
-    # def _get_mime_type(self, file_bytes: bytes) -> str:
-    #     """
-    #     Determine the MIME type of the file based on its contents.
-
-    #     Args:
-    #         file_bytes (bytes): The file bytes.
-
-    #     Returns:
-    #         str: The MIME type of the file.
-
-    #     Raises:
-    #         ValueError: If the file type is not supported.
-    #     """
-    #     if file_bytes.startswith(b"\x89PNG\r\n\x1a\n"):
-    #         return "image/png"
-    #     elif file_bytes.startswith(b"\xff\xd8"):
-    #         return "image/jpeg"
-    #     elif file_bytes.startswith(b"%PDF"):
-    #         return "application/pdf"
-    #     elif file_bytes.startswith(b"\x49\x49\x2a\x00") or file_bytes.startswith(
-    #         b"\x4d\x4d\x00\x2a"
-    #     ):
-    #         return "image/tiff"
-    #     else:
-    #         raise ValueError("Unsupported file type")
-
     def _parse_s3_path(self, s3_path: str) -> tuple[str, str]:
         """
         Parse the S3 file path and extract the bucket name and key.
