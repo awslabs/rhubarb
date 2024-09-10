@@ -9,7 +9,8 @@ from typing import Dict, List, Union, Optional
 
 import boto3
 import pdfplumber
-from PIL import Image
+from PIL import Image, ImageDraw
+from docx import Document
 
 from .image_validator import ImageValidator
 
@@ -143,6 +144,34 @@ class FileConverter:
                         img.save(img_byte_arr, format="PNG")
                         base64_string = base64.b64encode(img_byte_arr.getvalue()).decode("utf-8")
                         base64_strings.append({"page": i + 1, "base64string": base64_string})
+                return base64_strings
+            elif self.mime_type in [
+                "application/msword",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ]:
+                document = Document(
+                    BytesIO(self.file_bytes)
+                    if self.file_path.startswith("s3://")
+                    else self.file_path
+                )
+                base64_strings = []
+                page_count = len(document.paragraphs)  # Assuming paragraphs as a proxy for pages
+                if self.pages == [0]:
+                    page_nums = range(min(20, page_count))
+                else:
+                    page_nums = [p - 1 for p in self.pages if p <= page_count and p > 0]
+
+                for page_num in page_nums:
+                    paragraph = document.paragraphs[page_num].text
+                    img = Image.new(
+                        "RGB", (800, 600), color=(255, 255, 255)
+                    )  # Placeholder image for paragraph
+                    d = ImageDraw.Draw(img)
+                    d.text((10, 10), paragraph, fill=(0, 0, 0))
+                    img_bytes = BytesIO()
+                    img.save(img_bytes, format="PNG")
+                    base64_string = base64.b64encode(img_bytes.getvalue()).decode("utf-8")
+                    base64_strings.append({"page": page_num + 1, "base64string": base64_string})
                 return base64_strings
             else:
                 logger.error("Unsupported file type")
