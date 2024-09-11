@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Uninstall rhubarb_dev
-pip uninstall rhubarb -y
+pip uninstall pyrhubarb -y
 
 # Build the package
 poetry build
@@ -10,4 +10,4 @@ poetry build
 # poetry install
 
 # install the built package
-pip install dist/rhubarb-0.0.1a1-py3-none-any.whl
+pip install dist/pyrhubarb-0.0.1-py3-none-any.whl
