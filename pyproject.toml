@@ -21,8 +21,6 @@ packages = [
 python = ">=3.9"
 pillow = "^10.3.0"
 pdfplumber = "^0.11.0"
-boto3 = "^1.34.71"
-botocore = "^1.34.71"
 jsonschema = "^4.21.1"
 pydantic = "^2.6.4"
 fastparquet = "^2024.5.0"
