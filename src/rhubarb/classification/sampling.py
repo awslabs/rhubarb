@@ -208,8 +208,6 @@ class VectorSampler:
         classifier_samples = {"classifier": self.classifier_id, "samples": combined_embeddings}
 
         self._embeddings_to_pq(data=classifier_samples, update=update)
-        # with open(f'{self.cache_dir}/embeddings.json', 'w') as f:
-        #     json.dump(classifier_samples, f)
 
     def _convert_to_base64(self, file_path: str, page: int) -> List[Dict[str, Any]]:
         """
@@ -279,7 +277,7 @@ class VectorSampler:
                 object_path=f"{self.config.classification_prefix}/{self.classifier_id}/{self.classifier_id}.parquet"
             )
 
-        sample_source = manifest_data  # self._process_manifest()
+        sample_source = manifest_data
         base64_list = self._batch_convert_to_base64(manifest_content=sample_source)
         self._gen_embeddings(base64_list=base64_list, update=update)
         return self.classifier_id
