@@ -30,6 +30,8 @@ class SystemPrompts:
           is "What is the application date?", and the answer is found, don't say "The application date is [date]" just give the "[date]".
         - Always stay within the content of the document, if the answer is not found say 'Answer not found'.
         - Do not guess or make assumptions without evidence.
+        - Extract the values from the document in the language present in the document. Do not translate the values 
+          unless specifically instructed to do so.
         - If there are multiple pages then look at each page to answer the provided question and provide a per page answer.
         - Always respond using the following json_schema and wrap it in three backticks.
         </instructions>
@@ -47,13 +49,15 @@ class SystemPrompts:
         - Given the pages of a document, answer truthfully and accurately with verbatim text from the document.
         - Do not add any preamble or conclusion to your responses, just provide the answer.        
         - Do not guess or make assumptions without evidence.
+        - Striclty extract the values from the document in the language present in the document. Do not translate the values 
+          unless specifically instructed to do so.
         - Always respond using the user provided JSON Schema and wrap it in three backticks.
         - Pay special attention to any given formatting instructions for each property, such as formatting dates, currency signs etc.
         - Always stay within the content of the document, if a value is not found keep the JSON property empty.
         """
 
     @property
-    def ChatSysPrompt(self, stream: bool = False):
+    def ChatSysPrompt(self):
         """
         Default LLM chat system prompt, responds with text (can be streaming or non-streaming)
         """

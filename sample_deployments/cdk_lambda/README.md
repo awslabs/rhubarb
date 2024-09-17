@@ -1,7 +1,7 @@
 
-# Welcome to your CDK Python project!
+# Deploy an AWS Lambda Container with Rhubarb
 
-This is a blank project for CDK development with Python.
+This is sample CDK project that demonstrates how you can deploy an AWS Lambda function with a docker container with Rhubarb. You can modify the Lambda source code under `/source/lambda` to modify the Lambda function. Modify the main handler function `handler.py` to incorporate your business logic.
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 

@@ -87,3 +87,21 @@ Once the `requirements.txt` is generated (or updated), run the `pip-audit` comma
 ```bash
 pip-audit -r requirements.txt
 ```
+
+#### Build and publish 
+
+To bump up the Library version.
+
+```bash
+poetry version 0.X.X
+```
+
+Then add the changes to repo, create a tag and push to Github. Make sure that version `0.X.X` is consistent across the new Poetry version created above and the for Github Tag.
+
+```bash
+git add -A
+git commit -m "Release v0.X.X"
+git tag -a v0.X.X -m "Release 0.X.X"
+git push --tags
+git push origin main
+```
