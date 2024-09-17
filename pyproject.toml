@@ -32,6 +32,8 @@ sphinx = "^7.3.4"
 furo = "^2024.1.29"
 nbsphinx = "^0.9.3"
 sphinx-copybutton = "^0.5.2"
+boto3 = "^1.35.20"
+botocore = "^1.35.20"
 
 [tool.ruff]
 line-length = 100
