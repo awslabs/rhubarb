@@ -48,7 +48,7 @@ class DocAnalysis(BaseModel):
     file_path: str
     """File path of the document, local or S3 path"""
 
-    modelId: LanguageModels = Field(default=LanguageModels.CLAUDE_SONNET_V1)
+    modelId: LanguageModels = Field(default=LanguageModels.CLAUDE_SONNET_V2)
     """Bedrock Model ID"""
 
     system_prompt: str = Field(default=SystemPrompts().DefaultSysPrompt)
