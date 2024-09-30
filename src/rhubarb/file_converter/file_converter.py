@@ -10,8 +10,13 @@ from typing import Dict, List, Union, Optional
 import boto3
 import pdfplumber
 from PIL import Image, ImageDraw
-from docx import Document
 
+try:
+    from docx import Document
+
+    DOCX_AVAILABLE = True
+except ImportError:
+    DOCX_AVAILABLE = False
 from .image_validator import ImageValidator
 
 logger = logging.getLogger(__name__)
@@ -149,6 +154,10 @@ class FileConverter:
                 "application/msword",
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             ]:
+                if not DOCX_AVAILABLE:
+                    raise ImportError(
+                        "The 'python-docx' library is not installed. Please install it to process .docx files."
+                    )
                 document = Document(
                     BytesIO(self.file_bytes)
                     if self.file_path.startswith("s3://")
