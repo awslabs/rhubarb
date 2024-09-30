@@ -50,16 +50,16 @@ Resources:
                   if event['RequestType'] in ['Create', 'Update']:
                       packages = event['ResourceProperties']['Packages']
                       
-                      if os.path.exists('/tmp/python'):
-                          shutil.rmtree('/tmp/python')
-                      os.makedirs('/tmp/python', exist_ok=True)
+                      if os.path.exists('/tmp/layer_content/python'):
+                          shutil.rmtree('/tmp/layer_content/python')
+                      os.makedirs('/tmp/layer_content/python', exist_ok=True)
                       
                       # Install packages
-                      subprocess.check_call(['/var/lang/bin/pip', 'install', '-t', '/tmp/python'] + packages.split(','))
+                      subprocess.check_call(['/var/lang/bin/pip', 'install', '-t', '/tmp/layer_content/python'] + packages.split(','))
                       
                       # Create a ZIP file
                       zip_file_path = f'/tmp/{layer_name}.zip'
-                      shutil.make_archive('/tmp/layer', 'zip', '/tmp/python')
+                      shutil.make_archive('/tmp/layer', 'zip', '/tmp/layer_content')
                       os.rename('/tmp/layer.zip', zip_file_path)
                       
                       # Upload ZIP to S3
