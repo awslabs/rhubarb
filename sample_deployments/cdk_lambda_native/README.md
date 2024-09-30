@@ -1,4 +1,4 @@
-# Welcome to your CDK JavaScript project
+# Deploy an AWS Lambda with a Lambda Layer with Rhubarb
 
 This is a temlate CDK project demonstrating deployment of a Lambda function with Rhubarb as a Lambda layer without using docker images. To execute this CDK project, follow the steps below -
 
@@ -11,6 +11,8 @@ This is a temlate CDK project demonstrating deployment of a Lambda function with
 7. Optional: to delete the stack, run `cdk destroy`
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app. The build step is not required when using JavaScript.
+
+NOTE: This is deployment will not work for v0.0.1 and v0.0.2
 
 ## Useful commands
 
