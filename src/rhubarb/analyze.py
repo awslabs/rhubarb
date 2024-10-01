@@ -21,7 +21,7 @@ class DocAnalysis(BaseModel):
 
     Args:
     - `file_path` (str): File path of the document, local or S3 path.
-    - `modelId` (LanguageModels, optional): Bedrock Model ID. Defaults to LanguageModels.CLAUDE_SONNET_V1.
+    - `modelId` (LanguageModels, optional): Bedrock Model ID. Defaults to LanguageModels.CLAUDE_SONNET_V2.
     - `system_prompt` (str, optional): System prompt. Defaults to SystemPrompts().DefaultSysPrompt.
     - `boto3_session` (Any): Instance of boto3.session.Session.
     - `max_tokens` (int, optional): The maximum number of tokens to generate before stopping. Max 4096 tokens for Claude models. Defaults to 1024.
@@ -148,9 +148,10 @@ class DocAnalysis(BaseModel):
         - `output_schema` (`Optional[dict]`, optional): The output JSON schema for the language model response. Defaults to None.
         """
         if (
-            self.modelId == LanguageModels.CLAUDE_HAIKU_V1
+            self.modelId == LanguageModels.CLAUDE_OPUS_V1
+            or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
-            or self.modelId == LanguageModels.CLAUDE_SONNET_V2
+            or self.modelId == LanguageModels.CLAUDE_SONNET_V2 
         ):
             a_msg = self._get_anthropic_prompt(
                 message=message,
@@ -180,9 +181,10 @@ class DocAnalysis(BaseModel):
         - `message` (`Any`): The input message or prompt for the language model.
         """
         if (
-            self.modelId == LanguageModels.CLAUDE_HAIKU_V1
+            self.modelId == LanguageModels.CLAUDE_OPUS_V1
+            or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
-            or self.modelId == LanguageModels.CLAUDE_SONNET_V2
+            or self.modelId == LanguageModels.CLAUDE_SONNET_V2 
         ):
             a_msg = self._get_anthropic_prompt(
                 message=message, sys_prompt=self.system_prompt, history=history
@@ -205,9 +207,10 @@ class DocAnalysis(BaseModel):
         - `entities` (`List[Entities.entity]`): A list of entities to be detected
         """
         if (
-            self.modelId == LanguageModels.CLAUDE_HAIKU_V1
+               self.modelId == LanguageModels.CLAUDE_OPUS_V1
+            or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
-            or self.modelId == LanguageModels.CLAUDE_SONNET_V2
+            or self.modelId == LanguageModels.CLAUDE_SONNET_V2            
         ):
             sys_prompt = SystemPrompts(entities=entities).NERSysPrompt
             a_msg = self._get_anthropic_prompt(message=message, sys_prompt=sys_prompt)

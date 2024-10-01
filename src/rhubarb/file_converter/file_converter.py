@@ -11,12 +11,6 @@ import boto3
 import pdfplumber
 from PIL import Image, ImageDraw
 
-try:
-    from docx import Document
-
-    DOCX_AVAILABLE = True
-except ImportError:
-    DOCX_AVAILABLE = False
 from .image_validator import ImageValidator
 
 logger = logging.getLogger(__name__)
@@ -154,37 +148,47 @@ class FileConverter:
                 "application/msword",
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             ]:
-                if not DOCX_AVAILABLE:
-                    raise ImportError(
-                        "The 'python-docx' library is not installed. Please install it to process .docx files."
+                try:
+                    from docx import Document
+                    
+                    document = Document(
+                        BytesIO(self.file_bytes)
+                        if self.file_path.startswith("s3://")
+                        else self.file_path
                     )
-                document = Document(
-                    BytesIO(self.file_bytes)
-                    if self.file_path.startswith("s3://")
-                    else self.file_path
-                )
-                base64_strings = []
-                page_count = len(document.paragraphs)  # Assuming paragraphs as a proxy for pages
-                if self.pages == [0]:
-                    page_nums = range(min(20, page_count))
-                else:
-                    page_nums = [p - 1 for p in self.pages if p <= page_count and p > 0]
 
-                for page_num in page_nums:
-                    paragraph = document.paragraphs[page_num].text
-                    img = Image.new(
-                        "RGB", (800, 600), color=(255, 255, 255)
-                    )  # Placeholder image for paragraph
-                    d = ImageDraw.Draw(img)
-                    d.text((10, 10), paragraph, fill=(0, 0, 0))
-                    img_bytes = BytesIO()
-                    img.save(img_bytes, format="PNG")
-                    base64_string = base64.b64encode(img_bytes.getvalue()).decode("utf-8")
-                    base64_strings.append({"page": page_num + 1, "base64string": base64_string})
-                return base64_strings
+                    base64_strings = []
+                    page_count = len(document.paragraphs)  # Assuming paragraphs as a proxy for pages
+                    if self.pages == [0]:
+                        page_nums = range(min(20, page_count))
+                    else:
+                        page_nums = [p - 1 for p in self.pages if p <= page_count and p > 0]
+
+                    for page_num in page_nums:
+                        paragraph = document.paragraphs[page_num].text
+                        img = Image.new(
+                            "RGB", (800, 600), color=(255, 255, 255)
+                        )  # Placeholder image for paragraph
+                        d = ImageDraw.Draw(img)
+                        d.text((10, 10), paragraph, fill=(0, 0, 0))
+                        img_bytes = BytesIO()
+                        img.save(img_bytes, format="PNG")
+                        base64_string = base64.b64encode(img_bytes.getvalue()).decode("utf-8")
+                        base64_strings.append({"page": page_num + 1, "base64string": base64_string})
+                    return base64_strings
+                except ImportError as e:
+                    raise e
+                except Exception as e:
+                    raise e
             else:
                 logger.error("Unsupported file type")
                 raise ValueError("Unsupported file type")
+        except ImportError as e:
+            logger.error(f"Error importing module: {str(e)}")
+            raise ImportError(
+                            "The 'python-docx' library is not installed. Please install it to process .docx files.",
+                            "pip install python-docx"
+                        )
         except Exception as e:
             logger.error(f"Error converting file to Base64: {str(e)}")
-            raise RuntimeError(f"Error converting file to Base64: {str(e)}")
+            raise RuntimeError(f"Error converting file to Base64: {str(e)}")        
