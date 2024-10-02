@@ -29,7 +29,7 @@ class DocAnalysis(BaseModel):
     - `pages` (List[int], optional): Pages of a multi-page PDF or TIF to process. [0] will process all pages upto 20 pages max,
     [1,3,5] will process pages 1, 3 and 5. Defaults to [0].
     - `use_converse_api` (bool, optional): Use Bedrock `converse` API to enable tool use. Defaults to `False` and uses `invoke_model`.
-    - `enable_cri` (book, optional): Enables Cross-region inference for certain models. Defaults to `True`.
+    - `enable_cri` (book, optional): Enables Cross-region inference for certain models. Defaults to `False`.
 
     Attributes:
     - `bedrock_client` (Optional[Any]): boto3 bedrock-runtime client, will get overriten by boto3_session.
@@ -81,7 +81,7 @@ class DocAnalysis(BaseModel):
     https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-runtime/client/converse.html
     """
 
-    enable_cri: bool = Field(default=True)
+    enable_cri: bool = Field(default=False)
     """Whether to use Cross-region inference (CRI) or not
     Some models may only be available via `inference_profiles` for CRI
     https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference.html

@@ -139,7 +139,7 @@ class AnthropicMessages:
         if self.use_converse_api:
             body["system"] = [{ "text": self.system_prompt}]
             body["inferenceConfig"] = {
-                "max_tokens" : self.max_tokens,
+                "maxTokens" : self.max_tokens,
                 "temperature" : self.temperature
             }
         else:

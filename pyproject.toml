@@ -18,7 +18,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.9"
+python = ">=3.11"
 pillow = "^10.3.0"
 pdfplumber = "^0.11.0"
 jsonschema = "^4.21.1"

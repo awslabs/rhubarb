@@ -217,6 +217,7 @@ class Invocations:
             - If the output is not a valid JSON, it is returned as a string in the 'output' key of the result dictionary.
             - Any other exception is raised to the caller without any retries.
         """
+        logger.info("Calling Bedrock invke_model API...")
         with retry_with_backoff(
             self.bedrock_client, self.config.max_retries, self.config.initial_backoff
         ):
@@ -367,12 +368,13 @@ class Invocations:
             - If the output is not a valid JSON, it is returned as a string in the 'output' key of the result dictionary.
             - Any other exception is raised to the caller without any retries.
         """
+        logger.info("Calling Bedrock converse API...")
         with retry_with_backoff(
             self.bedrock_client, self.config.max_retries, self.config.initial_backoff
         ):
             response = self.bedrock_client.converse(
                 modelId=self.model_id,
-                body=self.body["messages"],
+                messages=self.body["messages"],
                 system=self.body["system"],
                 inferenceConfig=self.body["inferenceConfig"]
             )
@@ -425,7 +427,7 @@ class Invocations:
         ):
             response = self.bedrock_client.converse_stream(
                 modelId=self.model_id,
-                body=self.body["messages"],
+                messages=self.body["messages"],
                 system=self.body["system"],
                 inferenceConfig=self.body["inferenceConfig"]
             )
