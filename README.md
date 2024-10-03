@@ -33,6 +33,7 @@ Rhubarb can do multiple document processing tasks such as
   - 🚀 Summaries of specific pages
   - 🚀 Streaming Summaries
 - ✅ Structured data extraction
+- ✅ Extraction Schema creation assistance
 - ✅ Named entity recognition (NER) 
   - 🚀 With 50 built-in common entities
 - ✅ PII recognition with built-in entities
