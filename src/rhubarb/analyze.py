@@ -29,7 +29,7 @@ class DocAnalysis(BaseModel):
     - `pages` (List[int], optional): Pages of a multi-page PDF or TIF to process. [0] will process all pages upto 20 pages max,
     [1,3,5] will process pages 1, 3 and 5. Defaults to [0].
     - `use_converse_api` (bool, optional): Use Bedrock `converse` API to enable tool use. Defaults to `False` and uses `invoke_model`.
-    - `enable_cri` (book, optional): Enables Cross-region inference for certain models. Defaults to `False`.
+    - `enable_cri` (bool, optional): Enables Cross-region inference for certain models. Defaults to `False`.
 
     Attributes:
     - `bedrock_client` (Optional[Any]): boto3 bedrock-runtime client, will get overriten by boto3_session.

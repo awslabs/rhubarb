@@ -150,7 +150,7 @@ class FileConverter:
             ]:
                 try:
                     from docx import Document
-                    
+
                     document = Document(
                         BytesIO(self.file_bytes)
                         if self.file_path.startswith("s3://")
@@ -158,7 +158,9 @@ class FileConverter:
                     )
 
                     base64_strings = []
-                    page_count = len(document.paragraphs)  # Assuming paragraphs as a proxy for pages
+                    page_count = len(
+                        document.paragraphs
+                    )  # Assuming paragraphs as a proxy for pages
                     if self.pages == [0]:
                         page_nums = range(min(20, page_count))
                     else:
@@ -184,12 +186,12 @@ class FileConverter:
         except ImportError as e:
             logger.error(f"Error importing module: {str(e)}")
             raise ImportError(
-                            "The 'python-docx' library is not installed. Please install it to process .docx files.",
-                            "pip install python-docx"
-                        )
+                "The 'python-docx' library is not installed. Please install it to process .docx files.",
+                "pip install python-docx",
+            )
         except Exception as e:
             logger.error(f"Error converting file to Base64: {str(e)}")
-            raise RuntimeError(f"Error converting file to Base64: {str(e)}")        
+            raise RuntimeError(f"Error converting file to Base64: {str(e)}")
 
     def convert_to_bytes(self) -> List[Dict[str, Union[int, bytes]]]:
         """
@@ -229,7 +231,9 @@ class FileConverter:
                         img = page.to_image(resolution=150).original
                         img_byte_arr = BytesIO()
                         img.save(img_byte_arr, format="PNG")
-                        image_bytes_list.append({"page": page_num + 1, "image_bytes": img_byte_arr.getvalue()})
+                        image_bytes_list.append(
+                            {"page": page_num + 1, "image_bytes": img_byte_arr.getvalue()}
+                        )
                 return image_bytes_list
 
             elif self.mime_type == "image/tiff":
@@ -247,7 +251,9 @@ class FileConverter:
                         img.seek(i)
                         img_byte_arr = BytesIO()
                         img.save(img_byte_arr, format="PNG")
-                        image_bytes_list.append({"page": i + 1, "image_bytes": img_byte_arr.getvalue()})
+                        image_bytes_list.append(
+                            {"page": i + 1, "image_bytes": img_byte_arr.getvalue()}
+                        )
                 return image_bytes_list
 
             elif self.mime_type in [
@@ -256,7 +262,7 @@ class FileConverter:
             ]:
                 try:
                     from docx import Document
-                    
+
                     document = Document(
                         BytesIO(self.file_bytes)
                         if self.file_path.startswith("s3://")
@@ -264,7 +270,9 @@ class FileConverter:
                     )
 
                     image_bytes_list = []
-                    page_count = len(document.paragraphs)  # Assuming paragraphs as a proxy for pages
+                    page_count = len(
+                        document.paragraphs
+                    )  # Assuming paragraphs as a proxy for pages
                     if self.pages == [0]:
                         page_nums = range(min(20, page_count))
                     else:
@@ -279,7 +287,9 @@ class FileConverter:
                         d.text((10, 10), paragraph, fill=(0, 0, 0))
                         img_byte_arr = BytesIO()
                         img.save(img_byte_arr, format="PNG")
-                        image_bytes_list.append({"page": page_num + 1, "image_bytes": img_byte_arr.getvalue()})
+                        image_bytes_list.append(
+                            {"page": page_num + 1, "image_bytes": img_byte_arr.getvalue()}
+                        )
                     return image_bytes_list
                 except ImportError as e:
                     raise e
@@ -289,9 +299,9 @@ class FileConverter:
         except ImportError as e:
             logger.error(f"Error importing module: {str(e)}")
             raise ImportError(
-                            "The 'python-docx' library is not installed. Please install it to process .docx files.",
-                            "pip install python-docx"
-                        )
+                "The 'python-docx' library is not installed. Please install it to process .docx files.",
+                "pip install python-docx",
+            )
         except Exception as e:
             logger.error(f"Error converting file to bytes: {str(e)}")
             raise RuntimeError(f"Error converting file to bytes: {str(e)}")

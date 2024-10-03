@@ -1,6 +1,7 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+
 class Entities:
     ADDRESS = {
         "type": "object",
@@ -120,9 +121,7 @@ class Entities:
 
     IP_ADDRESS = {
         "type": "object",
-        "properties": {
-            "IP_ADDRESS": {"type": "string", "description": "An IPv4 address."}
-        },
+        "properties": {"IP_ADDRESS": {"type": "string", "description": "An IPv4 address."}},
         "required": ["IP_ADDRESS"],
     }
 
@@ -150,9 +149,7 @@ class Entities:
 
     NAME = {
         "type": "object",
-        "properties": {
-            "NAME": {"type": "string", "description": "An individual's name."}
-        },
+        "properties": {"NAME": {"type": "string", "description": "An individual's name."}},
         "required": ["NAME"],
     }
 
@@ -186,9 +183,7 @@ class Entities:
 
     SWIFT_CODE = {
         "type": "object",
-        "properties": {
-            "SWIFT_CODE": {"type": "string", "description": "A SWIFT code."}
-        },
+        "properties": {"SWIFT_CODE": {"type": "string", "description": "A SWIFT code."}},
         "required": ["SWIFT_CODE"],
     }
 
@@ -395,9 +390,7 @@ class Entities:
 
     PL_PESEL_NUMBER = {
         "type": "object",
-        "properties": {
-            "PL_PESEL_NUMBER": {"type": "string", "description": "Polish PESEL number"}
-        },
+        "properties": {"PL_PESEL_NUMBER": {"type": "string", "description": "Polish PESEL number"}},
         "required": ["PL_PESEL_NUMBER"],
     }
 
@@ -458,9 +451,7 @@ class Entities:
 
     COMMERCIAL_ITEM = {
         "type": "object",
-        "properties": {
-            "COMMERCIAL_ITEM": {"type": "string", "description": "A branded product."}
-        },
+        "properties": {"COMMERCIAL_ITEM": {"type": "string", "description": "A branded product."}},
         "required": ["COMMERCIAL_ITEM"],
     }
 

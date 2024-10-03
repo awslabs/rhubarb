@@ -3,4 +3,4 @@
 
 from .s3utility import S3Utility
 
-__all__=[ "S3Utility" ]
+__all__ = ["S3Utility"]

@@ -8,6 +8,7 @@ from botocore.exceptions import ClientError
 
 logger = logging.getLogger(__name__)
 
+
 class S3Utility:
     def __init__(self, s3_client: Any) -> None:
         self.s3_client = s3_client
@@ -17,7 +18,7 @@ class S3Utility:
         bucket_name, object_key = self._parse_s3_path(s3_path)
         try:
             response = self.s3_client.get_object(Bucket=bucket_name, Key=object_key)
-            return response['Body'].read()
+            return response["Body"].read()
         except ClientError as e:
             logger.error(f"Failed to read file {s3_path}: {e}")
             raise e
@@ -26,7 +27,7 @@ class S3Utility:
         """Saves data to a file in S3."""
         bucket_name, object_key = self._parse_s3_path(s3_path)
         try:
-            self.s3_client.put_object(Bucket=bucket_name, Key=object_key, Body=data)            
+            self.s3_client.put_object(Bucket=bucket_name, Key=object_key, Body=data)
         except ClientError as e:
             logger.error(f"Failed to save file {s3_path}: {e}")
             raise e
@@ -35,7 +36,7 @@ class S3Utility:
         """Uploads a local file to S3."""
         bucket_name, object_key = self._parse_s3_path(s3_path)
         try:
-            self.s3_client.upload_file(local_path, bucket_name, object_key)            
+            self.s3_client.upload_file(local_path, bucket_name, object_key)
         except ClientError as e:
             logger.error(f"Failed to upload file {local_path} to {s3_path}: {e}")
             raise e
@@ -44,7 +45,7 @@ class S3Utility:
         """Deletes a file from S3."""
         bucket_name, object_key = self._parse_s3_path(s3_path)
         try:
-            self.s3_client.delete_object(Bucket=bucket_name, Key=object_key)            
+            self.s3_client.delete_object(Bucket=bucket_name, Key=object_key)
         except ClientError as e:
             logger.error(f"Failed to delete file {s3_path}: {e}")
             raise e

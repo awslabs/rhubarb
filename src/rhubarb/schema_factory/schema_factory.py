@@ -48,5 +48,5 @@ class SchemaFactory:
 
             with open(filepath, "r") as json_file:
                 return json.load(json_file)
-            
+
         raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
