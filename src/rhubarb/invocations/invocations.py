@@ -9,10 +9,12 @@ import logging
 from typing import Any, List, Optional, Generator
 from contextlib import contextmanager
 
+from botocore.config import Config
 from jsonschema import ValidationError, validate
 
 from rhubarb.config import GlobalConfig
 from rhubarb.models import EmbeddingModels
+from rhubarb.services import BedrockService
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +63,7 @@ class Invocations:
         self,
         body: Any,
         bedrock_client: Any,
+        boto3_session: Any,
         model_id: str,
         use_converse_api: bool,
         enable_cri: bool,
@@ -69,6 +72,7 @@ class Invocations:
         
         self.body = body
         self.bedrock_client = bedrock_client
+        self.session = boto3_session
         self.model_id = model_id
         self.output_schema = output_schema
         self.config = GlobalConfig.get_instance()
@@ -77,34 +81,16 @@ class Invocations:
         self.token_usage = None
         self.use_converse_api = use_converse_api
         
-        if enable_cri:
-            self._get_inference_profile()
-            logger.info(f"CRI is enabled. Model inference profile Id {self.model_id} in use.")
+        if enable_cri and boto3_session:
+            self._get_inference_profile()            
         else:
             logger.warning(f"Cross-region Inference (CRI) is not enabled, parameter enable_cri={enable_cri}." 
                            f"Certain models may only be available via CRI."
                            f"Refer to Amazon Bedrock Documentation for more details")
 
-    def _get_inference_profile(self) -> str:
-        """
-        Search for a model name in the the inference profile list and return the corresponding inferenceProfileId.
-
-        Args:
-        None
-
-        Returns:
-        str: The inferenceProfileId if found, otherwise returns the on-demand model ID.
-        """
-        try:
-            response = self.bedrock_client.list_inference_profiles()
-            for profile in response["inferenceProfileSummaries"]:
-                for model in profile['models']:
-                    if self.model_id in model['modelArn']:
-                        self.model_id = profile['inferenceProfileId']                        
-                        break
-        except Exception as e:
-            logger.error(f"An unexpected error occurred: {str(e)}, falling back to using model_id = {self.model_id}")            
-
+    def _get_inference_profile(self) -> str:        
+        bedrock = BedrockService(session=self.session, model_id=self.model_id)
+        self.model_id = bedrock.get_inference_profile()           
 
     def _reprompt_for_proper_json(self) -> None:
         self.reprompt_count = self.reprompt_count - 1

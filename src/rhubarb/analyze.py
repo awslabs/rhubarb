@@ -179,6 +179,7 @@ class DocAnalysis(BaseModel):
         model_invoke = Invocations(
             body=body,
             bedrock_client=self._bedrock_client,
+            boto3_session=self.boto3_session,
             model_id=self.modelId.value,
             output_schema=output_schema,
             use_converse_api = self.use_converse_api,
@@ -211,6 +212,7 @@ class DocAnalysis(BaseModel):
         model_invoke = Invocations(
             body=body, 
             bedrock_client=self._bedrock_client,
+            boto3_session=self.boto3_session,
             model_id=self.modelId.value,
             use_converse_api = self.use_converse_api,
             enable_cri = self.enable_cri
@@ -239,7 +241,8 @@ class DocAnalysis(BaseModel):
 
         model_invoke = Invocations(
             body=body, 
-            bedrock_client=self._bedrock_client, 
+            bedrock_client=self._bedrock_client,
+            boto3_session=self.boto3_session,
             model_id=self.modelId.value,
             use_converse_api = self.use_converse_api,
             enable_cri = self.enable_cri
@@ -271,7 +274,8 @@ class DocAnalysis(BaseModel):
 
         model_invoke = Invocations(
             body=body, 
-            bedrock_client=self._bedrock_client, 
+            bedrock_client=self._bedrock_client,
+            boto3_session=self.boto3_session,
             model_id=self.modelId.value,
             use_converse_api = self.use_converse_api,
             enable_cri = self.enable_cri
