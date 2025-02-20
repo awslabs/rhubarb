@@ -4,4 +4,4 @@
 from .sampling import VectorSampler
 from .classification import Classification
 
-__all__ = [ "VectorSampler", "Classification" ]
+__all__ = ["VectorSampler", "Classification"]

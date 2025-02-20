@@ -21,13 +21,15 @@ class DocAnalysis(BaseModel):
 
     Args:
     - `file_path` (str): File path of the document, local or S3 path.
-    - `modelId` (LanguageModels, optional): Bedrock Model ID. Defaults to LanguageModels.CLAUDE_SONNET_V1.
+    - `modelId` (LanguageModels, optional): Bedrock Model ID. Defaults to LanguageModels.CLAUDE_SONNET_V2.
     - `system_prompt` (str, optional): System prompt. Defaults to SystemPrompts().DefaultSysPrompt.
     - `boto3_session` (Any): Instance of boto3.session.Session.
     - `max_tokens` (int, optional): The maximum number of tokens to generate before stopping. Max 4096 tokens for Claude models. Defaults to 1024.
     - `temperature` (int, optional): Amount of randomness injected into the response. Ranges from 0.0 to 1.0. Defaults to 0.
     - `pages` (List[int], optional): Pages of a multi-page PDF or TIF to process. [0] will process all pages upto 20 pages max,
     [1,3,5] will process pages 1, 3 and 5. Defaults to [0].
+    - `use_converse_api` (bool, optional): Use Bedrock `converse` API to enable tool use. Defaults to `False` and uses `invoke_model`.
+    - `enable_cri` (bool, optional): Enables Cross-region inference for certain models. Defaults to `False`.
 
     Attributes:
     - `bedrock_client` (Optional[Any]): boto3 bedrock-runtime client, will get overriten by boto3_session.
@@ -71,6 +73,18 @@ class DocAnalysis(BaseModel):
     """Pages of a multi-page PDF or TIF to process
     - [0] will process all pages upto 20 pages max
     - [1,3,5] will process pages 1, 3 and 5
+    """
+
+    use_converse_api: bool = Field(default=False)
+    """Whether to use `converse` API or not
+    defaults to `invoke_model` API
+    https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-runtime/client/converse.html
+    """
+
+    enable_cri: bool = Field(default=False)
+    """Whether to use Cross-region inference (CRI) or not
+    Some models may only be available via `inference_profiles` for CRI
+    https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference.html
     """
 
     _message_history: List[Any] = PrivateAttr(default=None)
@@ -131,6 +145,7 @@ class DocAnalysis(BaseModel):
             max_tokens=self.max_tokens,
             temperature=self.temperature,
             pages=self.pages,
+            use_converse_api=self.use_converse_api,
             message_history=history,
         )
 
@@ -148,9 +163,10 @@ class DocAnalysis(BaseModel):
         - `output_schema` (`Optional[dict]`, optional): The output JSON schema for the language model response. Defaults to None.
         """
         if (
-            self.modelId == LanguageModels.CLAUDE_HAIKU_V1
+            self.modelId == LanguageModels.CLAUDE_OPUS_V1
+            or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
-            or self.modelId == LanguageModels.CLAUDE_SONNET_V2
+            or self.modelId == LanguageModels.CLAUDE_SONNET_V2 
         ):
             a_msg = self._get_anthropic_prompt(
                 message=message,
@@ -163,10 +179,13 @@ class DocAnalysis(BaseModel):
         model_invoke = Invocations(
             body=body,
             bedrock_client=self._bedrock_client,
+            boto3_session=self.boto3_session,
             model_id=self.modelId.value,
             output_schema=output_schema,
+            use_converse_api = self.use_converse_api,
+            enable_cri = self.enable_cri
         )
-        response = model_invoke.invoke_model_json()
+        response = model_invoke.run_inference()
         self._message_history = model_invoke.message_history
         return response
 
@@ -180,9 +199,10 @@ class DocAnalysis(BaseModel):
         - `message` (`Any`): The input message or prompt for the language model.
         """
         if (
-            self.modelId == LanguageModels.CLAUDE_HAIKU_V1
+            self.modelId == LanguageModels.CLAUDE_OPUS_V1
+            or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
-            or self.modelId == LanguageModels.CLAUDE_SONNET_V2
+            or self.modelId == LanguageModels.CLAUDE_SONNET_V2 
         ):
             a_msg = self._get_anthropic_prompt(
                 message=message, sys_prompt=self.system_prompt, history=history
@@ -190,9 +210,14 @@ class DocAnalysis(BaseModel):
             body = a_msg.messages()
 
         model_invoke = Invocations(
-            body=body, bedrock_client=self._bedrock_client, model_id=self.modelId.value
+            body=body, 
+            bedrock_client=self._bedrock_client,
+            boto3_session=self.boto3_session,
+            model_id=self.modelId.value,
+            use_converse_api = self.use_converse_api,
+            enable_cri = self.enable_cri
         )
-        for response in model_invoke.invoke_model_stream():
+        for response in model_invoke.run_inference_stream():
             yield response
         self._message_history = model_invoke.message_history
 
@@ -205,18 +230,24 @@ class DocAnalysis(BaseModel):
         - `entities` (`List[Entities.entity]`): A list of entities to be detected
         """
         if (
-            self.modelId == LanguageModels.CLAUDE_HAIKU_V1
+            self.modelId == LanguageModels.CLAUDE_OPUS_V1
+            or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
-            or self.modelId == LanguageModels.CLAUDE_SONNET_V2
+            or self.modelId == LanguageModels.CLAUDE_SONNET_V2            
         ):
             sys_prompt = SystemPrompts(entities=entities).NERSysPrompt
             a_msg = self._get_anthropic_prompt(message=message, sys_prompt=sys_prompt)
             body = a_msg.messages()
 
         model_invoke = Invocations(
-            body=body, bedrock_client=self._bedrock_client, model_id=self.modelId.value
+            body=body, 
+            bedrock_client=self._bedrock_client,
+            boto3_session=self.boto3_session,
+            model_id=self.modelId.value,
+            use_converse_api = self.use_converse_api,
+            enable_cri = self.enable_cri
         )
-        response = model_invoke.invoke_model_json()
+        response = model_invoke.run_inference()
         return response
 
     def generate_schema(self, message: str, assistive_rephrase: Optional[bool] = False) -> dict:
@@ -229,7 +260,8 @@ class DocAnalysis(BaseModel):
         - `assistive_rephrase` (`bool`): If set to true, will rephrase the question properly for subsequent use
         """
         if (
-            self.modelId == LanguageModels.CLAUDE_HAIKU_V1
+            self.modelId == LanguageModels.CLAUDE_OPUS_V1
+            or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V2
         ):
@@ -241,7 +273,12 @@ class DocAnalysis(BaseModel):
             body = a_msg.messages()
 
         model_invoke = Invocations(
-            body=body, bedrock_client=self._bedrock_client, model_id=self.modelId.value
+            body=body, 
+            bedrock_client=self._bedrock_client,
+            boto3_session=self.boto3_session,
+            model_id=self.modelId.value,
+            use_converse_api = self.use_converse_api,
+            enable_cri = self.enable_cri
         )
-        response = model_invoke.invoke_model_json()
+        response = model_invoke.run_inference()
         return response

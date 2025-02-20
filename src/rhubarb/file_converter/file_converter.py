@@ -11,12 +11,6 @@ import boto3
 import pdfplumber
 from PIL import Image, ImageDraw
 
-try:
-    from docx import Document
-
-    DOCX_AVAILABLE = True
-except ImportError:
-    DOCX_AVAILABLE = False
 from .image_validator import ImageValidator
 
 logger = logging.getLogger(__name__)
@@ -154,37 +148,160 @@ class FileConverter:
                 "application/msword",
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             ]:
-                if not DOCX_AVAILABLE:
-                    raise ImportError(
-                        "The 'python-docx' library is not installed. Please install it to process .docx files."
-                    )
-                document = Document(
-                    BytesIO(self.file_bytes)
-                    if self.file_path.startswith("s3://")
-                    else self.file_path
-                )
-                base64_strings = []
-                page_count = len(document.paragraphs)  # Assuming paragraphs as a proxy for pages
-                if self.pages == [0]:
-                    page_nums = range(min(20, page_count))
-                else:
-                    page_nums = [p - 1 for p in self.pages if p <= page_count and p > 0]
+                try:
+                    from docx import Document
 
-                for page_num in page_nums:
-                    paragraph = document.paragraphs[page_num].text
-                    img = Image.new(
-                        "RGB", (800, 600), color=(255, 255, 255)
-                    )  # Placeholder image for paragraph
-                    d = ImageDraw.Draw(img)
-                    d.text((10, 10), paragraph, fill=(0, 0, 0))
-                    img_bytes = BytesIO()
-                    img.save(img_bytes, format="PNG")
-                    base64_string = base64.b64encode(img_bytes.getvalue()).decode("utf-8")
-                    base64_strings.append({"page": page_num + 1, "base64string": base64_string})
-                return base64_strings
+                    document = Document(
+                        BytesIO(self.file_bytes)
+                        if self.file_path.startswith("s3://")
+                        else self.file_path
+                    )
+
+                    base64_strings = []
+                    page_count = len(
+                        document.paragraphs
+                    )  # Assuming paragraphs as a proxy for pages
+                    if self.pages == [0]:
+                        page_nums = range(min(20, page_count))
+                    else:
+                        page_nums = [p - 1 for p in self.pages if p <= page_count and p > 0]
+
+                    for page_num in page_nums:
+                        paragraph = document.paragraphs[page_num].text
+                        img = Image.new(
+                            "RGB", (800, 600), color=(255, 255, 255)
+                        )  # Placeholder image for paragraph
+                        d = ImageDraw.Draw(img)
+                        d.text((10, 10), paragraph, fill=(0, 0, 0))
+                        img_bytes = BytesIO()
+                        img.save(img_bytes, format="PNG")
+                        base64_string = base64.b64encode(img_bytes.getvalue()).decode("utf-8")
+                        base64_strings.append({"page": page_num + 1, "base64string": base64_string})
+                    return base64_strings
+                except ImportError as e:
+                    raise e
             else:
                 logger.error("Unsupported file type")
                 raise ValueError("Unsupported file type")
+        except ImportError as e:
+            logger.error(f"Error importing module: {str(e)}")
+            raise ImportError(
+                "The 'python-docx' library is not installed. Please install it to process .docx files.",
+                "pip install python-docx",
+            )
         except Exception as e:
             logger.error(f"Error converting file to Base64: {str(e)}")
             raise RuntimeError(f"Error converting file to Base64: {str(e)}")
+
+    def convert_to_bytes(self) -> List[Dict[str, Union[int, bytes]]]:
+        """
+        Convert the file to bytes.
+
+        Returns:
+            List[Dict[str, Union[int, bytes]]]: A list of dictionaries containing the page number and bytes.
+
+        Raises:
+            RuntimeError: If an error occurs during the file conversion process.
+        """
+        try:
+            if self.mime_type in ["image/jpeg", "image/png"]:
+                if self.file_path.startswith("s3://"):
+                    image_bytes = self.file_bytes
+                else:
+                    with open(self.file_path, "rb") as f:
+                        image_bytes = f.read()
+                validator = ImageValidator(image_bytes)
+                validator.validate_image()
+                return [{"page": 1, "image_bytes": image_bytes}]
+
+            elif self.mime_type == "application/pdf":
+                with pdfplumber.open(
+                    BytesIO(self.file_bytes)
+                    if self.file_path.startswith("s3://")
+                    else self.file_path
+                ) as pdf:
+                    image_bytes_list = []
+                    if self.pages == [0]:
+                        page_nums = range(min(20, len(pdf.pages)))
+                    else:
+                        page_nums = [p - 1 for p in self.pages if p <= len(pdf.pages) and p > 0]
+
+                    for page_num in page_nums:
+                        page = pdf.pages[page_num]
+                        img = page.to_image(resolution=150).original
+                        img_byte_arr = BytesIO()
+                        img.save(img_byte_arr, format="PNG")
+                        image_bytes_list.append(
+                            {"page": page_num + 1, "image_bytes": img_byte_arr.getvalue()}
+                        )
+                return image_bytes_list
+
+            elif self.mime_type == "image/tiff":
+                with Image.open(
+                    BytesIO(self.file_bytes)
+                    if self.file_path.startswith("s3://")
+                    else self.file_path
+                ) as img:
+                    image_bytes_list = []
+                    if self.pages == [0]:
+                        frame_nums = range(min(20, img.n_frames))
+                    else:
+                        frame_nums = [p - 1 for p in self.pages if p <= img.n_frames and p > 0]
+                    for i in frame_nums:
+                        img.seek(i)
+                        img_byte_arr = BytesIO()
+                        img.save(img_byte_arr, format="PNG")
+                        image_bytes_list.append(
+                            {"page": i + 1, "image_bytes": img_byte_arr.getvalue()}
+                        )
+                return image_bytes_list
+
+            elif self.mime_type in [
+                "application/msword",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ]:
+                try:
+                    from docx import Document
+
+                    document = Document(
+                        BytesIO(self.file_bytes)
+                        if self.file_path.startswith("s3://")
+                        else self.file_path
+                    )
+
+                    image_bytes_list = []
+                    page_count = len(
+                        document.paragraphs
+                    )  # Assuming paragraphs as a proxy for pages
+                    if self.pages == [0]:
+                        page_nums = range(min(20, page_count))
+                    else:
+                        page_nums = [p - 1 for p in self.pages if p <= page_count and p > 0]
+
+                    for page_num in page_nums:
+                        paragraph = document.paragraphs[page_num].text
+                        img = Image.new(
+                            "RGB", (800, 600), color=(255, 255, 255)
+                        )  # Placeholder image for paragraph
+                        d = ImageDraw.Draw(img)
+                        d.text((10, 10), paragraph, fill=(0, 0, 0))
+                        img_byte_arr = BytesIO()
+                        img.save(img_byte_arr, format="PNG")
+                        image_bytes_list.append(
+                            {"page": page_num + 1, "image_bytes": img_byte_arr.getvalue()}
+                        )
+                    return image_bytes_list
+                except ImportError as e:
+                    raise e
+            else:
+                logger.error("Unsupported file type")
+                raise ValueError("Unsupported file type")
+        except ImportError as e:
+            logger.error(f"Error importing module: {str(e)}")
+            raise ImportError(
+                "The 'python-docx' library is not installed. Please install it to process .docx files.",
+                "pip install python-docx",
+            )
+        except Exception as e:
+            logger.error(f"Error converting file to bytes: {str(e)}")
+            raise RuntimeError(f"Error converting file to bytes: {str(e)}")

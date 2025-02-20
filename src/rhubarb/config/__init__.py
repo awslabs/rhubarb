@@ -3,4 +3,4 @@
 
 from .config import GlobalConfig
 
-__all__ = [ "GlobalConfig" ]
+__all__ = ["GlobalConfig"]

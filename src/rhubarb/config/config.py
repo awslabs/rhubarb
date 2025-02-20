@@ -13,9 +13,7 @@ class GlobalConfig(BaseModel):
         initial_backoff (float): Initial backoff interval for retries, in seconds.
     """
 
-    max_retries: int = Field(
-        default=5, gt=0, description="Maximum number of retries for API calls"
-    )
+    max_retries: int = Field(default=5, gt=0, description="Maximum number of retries for API calls")
     initial_backoff: float = Field(
         default=1.0,
         gt=0,
@@ -29,7 +27,7 @@ class GlobalConfig(BaseModel):
     classification_prefix: str = Field(
         default="rb_classification", description="Default Classification S3 prefix"
     )
-    
+
     @classmethod
     def update_config(cls, **kwargs):
         """
