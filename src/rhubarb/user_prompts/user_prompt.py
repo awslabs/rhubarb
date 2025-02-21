@@ -10,7 +10,7 @@ from rhubarb.file_converter import FileConverter
 from rhubarb.system_prompts import SystemPrompts
 
 
-class AnthropicMessages:
+class UserMessages:
     def __init__(
         self,
         file_path: str,
@@ -23,6 +23,7 @@ class AnthropicMessages:
         use_converse_api: bool,
         output_schema: Optional[dict] = None,
         message_history: Optional[List[dict]] = None,
+        modelId: Optional[Any] = None,
     ) -> None:
         self.file_path = file_path
         self.s3_client = s3_client
@@ -34,6 +35,7 @@ class AnthropicMessages:
         self.pages = pages
         self.use_converse_api = use_converse_api
         self.message_history = message_history
+        self.modelId = modelId
 
     def _get_pages_from_doc(self) -> List[dict]:
         fc = FileConverter(file_path=self.file_path, s3_client=self.s3_client, pages=self.pages)
@@ -74,23 +76,41 @@ class AnthropicMessages:
         return messages
 
     def _construct_invoke_messages(self, base64_pages: List[Any]) -> List[dict]:
-        content = [
-            item
-            for page in base64_pages
-            for item in [
-                {"type": "text", "text": f"Page: {page['page']}"},
-                {
-                    "type": "image",
-                    "source": {
-                        "type": "base64",
-                        "media_type": "image/png",
-                        "data": page["base64string"],
+        if str(self.modelId).__contains__("NOVA"):
+            # Nova format
+            content = []
+
+            # Add the initial text prompt if message exists
+            if self.message:
+                content.append({"text": self.message})
+
+            # Add images from pages
+            for page in base64_pages:
+                content.append(
+                    {"image": {"format": "png", "source": {"bytes": page["base64string"]}}}
+                )
+
+            # Construct the final message structure
+            user_message = [{"role": "user", "content": content}]
+        else:
+            # Claude format
+            content = [
+                item
+                for page in base64_pages
+                for item in [
+                    {"type": "text", "text": f"Page: {page['page']}"},
+                    {
+                        "type": "image",
+                        "source": {
+                            "type": "base64",
+                            "media_type": "image/png",
+                            "data": page["base64string"],
+                        },
                     },
-                },
+                ]
             ]
-        ]
-        content.append({"type": "text", "text": self.message})
-        user_message = [{"role": "user", "content": content}]
+            content.append({"type": "text", "text": self.message})
+            user_message = [{"role": "user", "content": content}]
         return user_message
 
     def _construct_converse_messages(self, byte_pages: List[Any]) -> List[dict]:
@@ -132,8 +152,14 @@ class AnthropicMessages:
                 "temperature": self.temperature,
             }
         else:
-            body["system"] = self.system_prompt
-            body["anthropic_version"] = "bedrock-2023-05-31"
-            body["max_tokens"] = self.max_tokens
-            body["temperature"] = self.temperature
+            # Check if it's a Nova model
+            if str(self.modelId).__contains__("NOVA"):
+                body["system"] = [{"text": self.system_prompt}]
+            else:
+                # Claude models
+                body["system"] = self.system_prompt
+                body["max_tokens"] = self.max_tokens
+                body["temperature"] = self.temperature
+                body["anthropic_version"] = "bedrock-2023-05-31"
+
         return body

@@ -4,12 +4,12 @@
 import logging
 from typing import Any, List, Optional, Generator
 
-from pydantic import Field, BaseModel, PrivateAttr, model_validator
+from pydantic import Field, BaseModel, PrivateAttr, validator, model_validator
 from botocore.config import Config
 
 from rhubarb.models import LanguageModels
 from rhubarb.invocations import Invocations
-from rhubarb.user_prompts import AnthropicMessages
+from rhubarb.user_prompts import UserMessages
 from rhubarb.system_prompts import SystemPrompts
 
 logger = logging.getLogger(__name__)
@@ -53,8 +53,14 @@ class DocAnalysis(BaseModel):
     modelId: LanguageModels = Field(default=LanguageModels.CLAUDE_SONNET_V2)
     """Bedrock Model ID"""
 
-    system_prompt: str = Field(default=SystemPrompts().DefaultSysPrompt)
+    system_prompt: str = Field(default="")
     """System prompt"""
+
+    @validator("system_prompt", pre=True, always=True)
+    def set_system_prompt(cls, v, values):
+        return SystemPrompts(
+            model_id=values.get("modelId", LanguageModels.CLAUDE_SONNET_V2)
+        ).DefaultSysPrompt
 
     boto3_session: Any
     """Instance of boto3.session.Session"""
@@ -129,14 +135,14 @@ class DocAnalysis(BaseModel):
     def history(self) -> Any:
         return self._message_history
 
-    def _get_anthropic_prompt(
+    def _get_user_prompt(
         self,
         message: Any,
         sys_prompt: str,
         output_schema: Optional[dict] = None,
         history: Optional[List[dict]] = None,
     ) -> Any:
-        return AnthropicMessages(
+        return UserMessages(
             file_path=self.file_path,
             s3_client=self._s3_client,
             system_prompt=sys_prompt,
@@ -147,6 +153,7 @@ class DocAnalysis(BaseModel):
             pages=self.pages,
             use_converse_api=self.use_converse_api,
             message_history=history,
+            modelId=self.modelId,
         )
 
     def run(
@@ -163,12 +170,14 @@ class DocAnalysis(BaseModel):
         - `output_schema` (`Optional[dict]`, optional): The output JSON schema for the language model response. Defaults to None.
         """
         if (
-            self.modelId == LanguageModels.CLAUDE_OPUS_V1
-            or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
+            self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
-            or self.modelId == LanguageModels.CLAUDE_SONNET_V2 
+            or self.modelId == LanguageModels.CLAUDE_SONNET_V2
+            or self.modelId == LanguageModels.NOVA_LITE
+            or self.modelId == LanguageModels.NOVA_PRO
         ):
-            a_msg = self._get_anthropic_prompt(
+            # sys_prompt = SystemPrompts(model_id=self.modelId).DefaultSysPrompt
+            a_msg = self._get_user_prompt(
                 message=message,
                 output_schema=output_schema,
                 sys_prompt=self.system_prompt,
@@ -182,8 +191,8 @@ class DocAnalysis(BaseModel):
             boto3_session=self.boto3_session,
             model_id=self.modelId.value,
             output_schema=output_schema,
-            use_converse_api = self.use_converse_api,
-            enable_cri = self.enable_cri
+            use_converse_api=self.use_converse_api,
+            enable_cri=self.enable_cri,
         )
         response = model_invoke.run_inference()
         self._message_history = model_invoke.message_history
@@ -202,20 +211,22 @@ class DocAnalysis(BaseModel):
             self.modelId == LanguageModels.CLAUDE_OPUS_V1
             or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
-            or self.modelId == LanguageModels.CLAUDE_SONNET_V2 
+            or self.modelId == LanguageModels.CLAUDE_SONNET_V2
+            or self.modelId == LanguageModels.NOVA_LITE
+            or self.modelId == LanguageModels.NOVA_PRO
         ):
-            a_msg = self._get_anthropic_prompt(
+            a_msg = self._get_user_prompt(
                 message=message, sys_prompt=self.system_prompt, history=history
             )
             body = a_msg.messages()
 
         model_invoke = Invocations(
-            body=body, 
+            body=body,
             bedrock_client=self._bedrock_client,
             boto3_session=self.boto3_session,
             model_id=self.modelId.value,
-            use_converse_api = self.use_converse_api,
-            enable_cri = self.enable_cri
+            use_converse_api=self.use_converse_api,
+            enable_cri=self.enable_cri,
         )
         for response in model_invoke.run_inference_stream():
             yield response
@@ -233,26 +244,28 @@ class DocAnalysis(BaseModel):
             self.modelId == LanguageModels.CLAUDE_OPUS_V1
             or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
-            or self.modelId == LanguageModels.CLAUDE_SONNET_V2            
+            or self.modelId == LanguageModels.CLAUDE_SONNET_V2
+            or self.modelId == LanguageModels.NOVA_LITE
+            or self.modelId == LanguageModels.NOVA_PRO
         ):
-            sys_prompt = SystemPrompts(entities=entities).NERSysPrompt
-            a_msg = self._get_anthropic_prompt(message=message, sys_prompt=sys_prompt)
+            sys_prompt = SystemPrompts(entities=entities, model_id=self.modelId).NERSysPrompt
+            a_msg = self._get_user_prompt(message=message, sys_prompt=sys_prompt)
             body = a_msg.messages()
 
         model_invoke = Invocations(
-            body=body, 
+            body=body,
             bedrock_client=self._bedrock_client,
             boto3_session=self.boto3_session,
             model_id=self.modelId.value,
-            use_converse_api = self.use_converse_api,
-            enable_cri = self.enable_cri
+            use_converse_api=self.use_converse_api,
+            enable_cri=self.enable_cri,
         )
         response = model_invoke.run_inference()
         return response
 
     def generate_schema(self, message: str, assistive_rephrase: Optional[bool] = False) -> dict:
         """
-        Invokes the specified language model with the given message to genereate a JSON
+        Invokes the specified language model with the given message to generate a JSON
         schema for a given document.
 
         Args:
@@ -264,21 +277,23 @@ class DocAnalysis(BaseModel):
             or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V2
+            or self.modelId == LanguageModels.NOVA_LITE
+            or self.modelId == LanguageModels.NOVA_PRO
         ):
             if assistive_rephrase:
-                sys_prompt = SystemPrompts().SchemaGenSysPromptWithRephrase
+                sys_prompt = SystemPrompts(model_id=self.modelId).SchemaGenSysPromptWithRephrase
             else:
-                sys_prompt = SystemPrompts().SchemaGenSysPrompt
-            a_msg = self._get_anthropic_prompt(message=message, sys_prompt=sys_prompt)
+                sys_prompt = SystemPrompts(model_id=self.modelId).SchemaGenSysPrompt
+            a_msg = self._get_user_prompt(message=message, sys_prompt=sys_prompt)
             body = a_msg.messages()
 
         model_invoke = Invocations(
-            body=body, 
+            body=body,
             bedrock_client=self._bedrock_client,
             boto3_session=self.boto3_session,
             model_id=self.modelId.value,
-            use_converse_api = self.use_converse_api,
-            enable_cri = self.enable_cri
+            use_converse_api=self.use_converse_api,
+            enable_cri=self.enable_cri,
         )
         response = model_invoke.run_inference()
         return response
