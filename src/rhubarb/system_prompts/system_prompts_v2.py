@@ -33,6 +33,8 @@ class SystemPrompts:
             or self.model_id == LanguageModels.CLAUDE_SONNET_V2
         ):
             return "anthropic"
+        elif self.model_id == LanguageModels.NOVA_LITE or self.model_id == LanguageModels.NOVA_PRO:
+            return "nova"
 
     def get_prompt(self, prompt_name: str) -> str:
         if prompt_name not in self.prompts:

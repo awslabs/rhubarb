@@ -219,9 +219,14 @@ class Invocations:
         with response["body"] as stream:
             response_body = json.load(stream)
 
-        response_text = response_body["content"][0]["text"]
-        input_tokens = response_body["usage"]["input_tokens"]
-        output_tokens = response_body["usage"]["output_tokens"]
+        if "nova" in str((self.model_id)).lower():
+            response_text = response_body["output"]["message"]["content"][0]["text"]
+            input_tokens = response_body["usage"]["inputTokens"]
+            output_tokens = response_body["usage"]["outputTokens"]
+        else:
+            response_text = response_body["content"][0]["text"]
+            input_tokens = response_body["usage"]["input_tokens"]
+            output_tokens = response_body["usage"]["output_tokens"]
         total_tokens = input_tokens + output_tokens
 
         self.token_usage = {
@@ -231,7 +236,13 @@ class Invocations:
         }
 
         messages = self.body["messages"]
-        messages.append({"role": response_body["role"], "content": response_body["content"]})
+        messages.append(
+            {
+                "role": response_body.get("role", "assistant"),
+                "content": response_body.get("content")
+                or response_body.get("output", {}).get("message", {}).get("content", ""),
+            }
+        )
 
         self.history = messages
         output = self._extract_json_from_markdown(response_text)

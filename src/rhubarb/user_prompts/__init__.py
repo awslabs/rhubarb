@@ -1,6 +1,6 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from .anthropic_prompt import AnthropicMessages
+from .user_prompt import UserMessages
 
-__all__ = ["AnthropicMessages"]
+__all__ = ["UserMessages"]

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyrhubarb"
-version = "0.0.3"
+version = "0.0.4"
 description = "A Python framework for multi-modal document understanding with generative AI"
 authors = ["Rhubarb Developers <rhubarb-developers@amazon.com>"]
 license = "Apache 2.0"
