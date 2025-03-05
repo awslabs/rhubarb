@@ -36,7 +36,7 @@ Things to know
 
 In it's current form Rhubarb-
 
-1. Supports PDF, TIFF, PNG, JPG files. You can use upto 20 page PDF or TIFF documents
+1. Supports PDF, TIFF, PNG, DOCX, JPG files. You can use upto 20 page PDF or TIFF documents
 2. Performs document to image conversion internally to work with the multi-modal models
 3. Works on local files or files stored in S3
 4. Supports specifying page numbers for multi-page documents
