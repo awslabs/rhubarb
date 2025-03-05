@@ -17,7 +17,8 @@
 
 # Rhubarb
 
-Rhubarb is a light-weight Python framework that makes it easy to build document understanding applications using Multi-modal Large Language Models (LLMs) and Embedding models. Rhubarb is created from the ground up to work with Amazon Bedrock and Anthropic Claude V3 Multi-modal Language Models, and Amazon Titan Multi-modal Embedding model.
+Rhubarb is a light-weight Python framework that makes it easy to build document understanding applications using Multi-modal Large Language Models (LLMs) and Embedding models. Rhubarb is created from the ground up to work with Amazon Bedrock and supports multiple foundation models including Anthropic Claude V3 Multi-modal Language Models and Amazon Nova models for document processing, along with Amazon Titan Multi-modal Embedding model for embeddings.
+
 
 ## What can I do with Rhubarb?
 
@@ -45,12 +46,14 @@ Rhubarb can do multiple document processing tasks such as
 
 Rhubarb comes with built-in system prompts that makes it easy to use it for a number of different document understanding use-cases. You can customize Rhubarb by passing in your own system prompts. It supports exact JSON schema based output generation which makes it easy to integrate into downstream applications.
 
-- Supports PDF, TIFF, PNG, JPG files (support for Word, Excel, PowerPoint, CSV, Webp, eml files coming soon)
+- Supports PDF, TIFF, PNG, JPG, DOCX files (support for Excel, PowerPoint, CSV, Webp, eml files coming soon)
 - Performs document to image conversion internally to work with the multi-modal models
 - Works on local files or files stored in S3
 - Supports specifying page numbers for multi-page documents
 - Supports chat-history based chat for documents
 - Supports streaming and non-streaming mode
+- Supports Converse API 
+- Supports Cross-Region Inference
 
 ## Installation
 
