@@ -46,7 +46,7 @@ Rhubarb can do multiple document processing tasks such as
 
 Rhubarb comes with built-in system prompts that makes it easy to use it for a number of different document understanding use-cases. You can customize Rhubarb by passing in your own system prompts. It supports exact JSON schema based output generation which makes it easy to integrate into downstream applications.
 
-- Supports PDF, TIFF, PNG, JPG files (support for Word, Excel, PowerPoint, CSV, Webp, eml files coming soon)
+- Supports PDF, TIFF, PNG, JPG, DOCX files (support for Excel, PowerPoint, CSV, Webp, eml files coming soon)
 - Performs document to image conversion internally to work with the multi-modal models
 - Works on local files or files stored in S3
 - Supports specifying page numbers for multi-page documents
