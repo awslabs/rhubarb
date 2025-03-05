@@ -52,6 +52,8 @@ Rhubarb comes with built-in system prompts that makes it easy to use it for a nu
 - Supports specifying page numbers for multi-page documents
 - Supports chat-history based chat for documents
 - Supports streaming and non-streaming mode
+- Supports Converse API 
+- Supports Cross-Region Inference
 
 ## Installation
 
