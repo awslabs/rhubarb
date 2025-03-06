@@ -6,7 +6,7 @@
 Rhubarb documentation
 ======================
 
-**Rhubarb** is a light-weight Python framework that makes it easy to build document understanding applications using Multi-modal Large Language Models (LLMs) and Embedding models. Rhubarb is created from the ground-up to work with Amazon Bedrock and Anthropic Claude V3 Multi-modal Language Models, and Amazon Titan Multi-modal Embedding model.
+**Rhubarb** is a light-weight Python framework that makes it easy to build document understanding applications using Multi-modal Large Language Models (LLMs) and Embedding models. Rhubarb is created from the ground-up to work with Amazon Bedrock and supports multiple foundation models including Anthropic Claude V3 Multi-modal Language Models, Amazon Nova Pro and Nova Lite models for document processing, and Amazon Titan Multi-modal Embedding model for embeddings.
 
 Quickstart
 ----------
