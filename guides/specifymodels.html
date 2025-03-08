@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Specify Document Pages" href="specifypages.html" /><link rel="prev" title="Document Q&amp;A" href="docqa.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Using Converse API" href="useconverseapi.html" /><link rel="prev" title="Document Q&amp;A" href="docqa.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
         <title>Change Default Model - Rhubarb 0.0.4 documentation</title>
@@ -223,6 +223,8 @@
 <li class="toctree-l1 current has-children"><a class="reference internal" href="usage.html">Usage</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Usage</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="docqa.html">Document Q&amp;A</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Change Default Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="useconverseapi.html">Using Converse API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usecrossregioninference.html">Using Cross-Region Inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="specifypages.html">Specify Document Pages</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ner.html">Named Entity Recognition (NER)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pii.html">PII Recognition</a></li>
@@ -271,12 +273,15 @@
             <article role="main">
               <section id="change-default-model">
 <h1>Change Default Model<a class="headerlink" href="#change-default-model" title="Link to this heading">¶</a></h1>
-<p>By default Rhubarb uses Claude Sonnet model, however you can also use Haiku or Opus. Different Language Models are available via
+<p>By default Rhubarb uses Claude Sonnet model, however you can also use Haiku, Opus, Nova Pro, or Nova Lite. Different Language Models are available via
 <code class="code docutils literal notranslate"><span class="pre">LanguageModel</span></code> class.</p>
 <ul class="simple">
 <li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.CLAUDE_HAIKU_V1</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.CLAUDE_SONNET_V1</span></code> (default)</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.CLAUDE_SONNET_V1</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.CLAUDE_SONNET_V2</span></code> (default)</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.CLAUDE_OPUS_V1</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.NOVA_PRO</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.NOVA_LITE</span></code></p></li>
 </ul>
 <p>Use Claude Haiku -</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>  <span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocAnalysis</span><span class="p">,</span> <span class="n">LanguageModels</span>
@@ -296,6 +301,15 @@
 </span>  <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;What is the employee&#39;s name?&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Or Nova Pro -</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>  <span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocAnalysis</span><span class="p">,</span> <span class="n">LanguageModels</span>
+
+  <span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;s3://your-bucket/employee_enrollment.pdf&quot;</span><span class="p">,</span>
+                   <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
+<span class="hll">                   <span class="n">modelId</span><span class="o">=</span><span class="n">LanguageModels</span><span class="o">.</span><span class="n">NOVA_PRO</span><span class="p">)</span>
+</span>  <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;What is the employee&#39;s name?&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 
             </article>
@@ -303,12 +317,12 @@
           <footer>
             
             <div class="related-pages">
-              <a class="next-page" href="specifypages.html">
+              <a class="next-page" href="useconverseapi.html">
                   <div class="page-info">
                     <div class="context">
                       <span>Next</span>
                     </div>
-                    <div class="title">Specify Document Pages</div>
+                    <div class="title">Using Converse API</div>
                   </div>
                   <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
                 </a>
