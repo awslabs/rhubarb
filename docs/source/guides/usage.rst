@@ -21,6 +21,8 @@ Before running codes from this section, your AWS credentials must be configured 
 
    docqa
    specifymodels
+   useconverseapi
+   usecrossregioninference
    specifypages
    ner
    pii
