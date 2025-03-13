@@ -31,8 +31,7 @@ class DocAnalysis(BaseModel):
     [1,3,5] will process pages 1, 3 and 5. Defaults to [0].
     - `use_converse_api` (bool, optional): Use Bedrock `converse` API to enable tool use. Defaults to `False` and uses `invoke_model`.
     - `enable_cri` (bool, optional): Enables Cross-region inference for certain models. Defaults to `False`.
-    - `enable_sliding_window` (bool, optional): Enable sliding window approach for documents with more than 20 pages. Defaults to `False`.
-    - `sliding_window_overlap` (int, optional): Number of pages to overlap between windows when using sliding window. Defaults to 2.
+    - `sliding_window_overlap` (int, optional): Number of pages to overlap between windows when using sliding window. 0 disables sliding window, 1-10 enables it. Defaults to 0.
 
     Attributes:
     - `bedrock_client` (Optional[Any]): boto3 bedrock-runtime client, will get overriten by boto3_session.
@@ -96,14 +95,11 @@ class DocAnalysis(BaseModel):
     https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference.html
     """
 
-    enable_sliding_window: bool = Field(default=False)
-    """Whether to use sliding window approach for documents with more than 20 pages
-    When enabled, documents with more than 20 pages will be processed in chunks
-    """
-
-    sliding_window_overlap: int = Field(default=2)
+    sliding_window_overlap: int = Field(default=0)
     """Number of pages to overlap between windows when using sliding window
-    Helps maintain context between chunks
+    - 0: Sliding window is disabled
+    - 1-10: Number of pages to overlap between windows
+    - Values > 10 are not allowed
     """
 
     _message_history: List[Any] = PrivateAttr(default=None)
@@ -122,7 +118,12 @@ class DocAnalysis(BaseModel):
         """
         Initialize the LargeDocumentProcessor if not already initialized.
         """
-        if self._large_doc_processor is None and self.enable_sliding_window:
+        # Validate sliding_window_overlap
+        if self.sliding_window_overlap > 10:
+            raise ValueError("sliding_window_overlap cannot be greater than 10")
+
+        # Initialize if sliding window is enabled (overlap > 0)
+        if self._large_doc_processor is None and self.sliding_window_overlap > 0:
             self._large_doc_processor = LargeDocumentProcessor(
                 file_path=self.file_path, s3_client=self._s3_client
             )
@@ -413,12 +414,12 @@ class DocAnalysis(BaseModel):
             logger.error("If specific pages are provided, page number 0 is invalid.")
             raise ValueError("If specific pages are provided, page number 0 is invalid.")
 
-        if len(pages) > 20 and not values.get("enable_sliding_window", False):
+        if len(pages) > 20 and values.get("sliding_window_overlap", 0) <= 0:
             logger.error(
-                "Cannot process more than 20 pages at a time without enabling sliding_window."
+                "Cannot process more than 20 pages at a time without enabling sliding window (set sliding_window_overlap > 0)."
             )
             raise ValueError(
-                "Cannot process more than 20 pages at a time without enabling sliding_window."
+                "Cannot process more than 20 pages at a time without enabling sliding window (set sliding_window_overlap > 0)."
             )
 
         blocked_schemes = ["http://", "https://", "ftp://"]
@@ -475,7 +476,7 @@ class DocAnalysis(BaseModel):
         - `output_schema` (`Optional[dict]`, optional): The output JSON schema for the language model response. Defaults to None.
         """
         # If sliding window is enabled and we're not using history, use the sliding window approach
-        if self.enable_sliding_window and not history:
+        if self.sliding_window_overlap > 0 and not history:
             return self._process_with_sliding_window(message, output_schema)
 
         if (
@@ -517,7 +518,7 @@ class DocAnalysis(BaseModel):
         - `message` (`Any`): The input message or prompt for the language model.
         """
         # Streaming mode doesn't support sliding window approach
-        if self.enable_sliding_window:
+        if self.sliding_window_overlap > 0:
             logger.warning(
                 "Sliding window approach is not supported in streaming mode. Using standard approach."
             )
@@ -556,7 +557,7 @@ class DocAnalysis(BaseModel):
         - `entities` (`List[Entities.entity]`): A list of entities to be detected
         """
         # Entity extraction doesn't support sliding window approach
-        if self.enable_sliding_window:
+        if self.sliding_window_overlap > 0:
             logger.warning(
                 "Sliding window approach is not supported for entity extraction. Using standard approach."
             )
@@ -594,7 +595,7 @@ class DocAnalysis(BaseModel):
         - `assistive_rephrase` (`bool`): If set to true, will rephrase the question properly for subsequent use
         """
         # Schema generation doesn't support sliding window approach
-        if self.enable_sliding_window:
+        if self.sliding_window_overlap > 0:
             logger.warning(
                 "Sliding window approach is not supported for schema generation. Using standard approach."
             )

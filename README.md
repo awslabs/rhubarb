@@ -45,14 +45,13 @@ Rhubarb can do multiple document processing tasks such as
 
 Rhubarb now supports processing documents with more than 20 pages using a sliding window approach. This feature is particularly useful when working with Claude models, which have a limitation of processing only 20 pages at a time.
 
-To enable this feature, set `enable_sliding_window=True` when creating a `DocAnalysis` object:
+To enable this feature, set `sliding_window_overlap` to a value between 1 and 10 when creating a `DocAnalysis` object:
 
 ```python
 doc_analysis = DocAnalysis(
     file_path="path/to/large-document.pdf",
     boto3_session=session,
-    enable_sliding_window=True,  # Enable sliding window approach
-    sliding_window_overlap=2     # Number of pages to overlap between windows
+    sliding_window_overlap=2     # Number of pages to overlap between windows (1-10)
 )
 ```
 
