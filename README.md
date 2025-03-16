@@ -41,28 +41,8 @@ Rhubarb can do multiple document processing tasks such as
 - ✅ Figure and image understanding from documents
   - 🚀 Explain charts, graphs, and figures
   - 🚀 Perform table reasoning (as figures)
-## Large Document Processing
-
-Rhubarb now supports processing documents with more than 20 pages using a sliding window approach. This feature is particularly useful when working with Claude models, which have a limitation of processing only 20 pages at a time.
-
-To enable this feature, set `sliding_window_overlap` to a value between 1 and 10 when creating a `DocAnalysis` object:
-
-```python
-doc_analysis = DocAnalysis(
-    file_path="path/to/large-document.pdf",
-    boto3_session=session,
-    sliding_window_overlap=2     # Number of pages to overlap between windows (1-10)
-)
-```
-
-When the sliding window approach is enabled, Rhubarb will:
-1. Break the document into chunks of 20 pages
-2. Process each chunk separately
-3. Combine the results from all chunks
-
-Note: The sliding window technique is not yet supported for document classification. When using classification with large documents, only the first 20 pages will be considered.
-
-For more details, see the [Large Document Processing Cookbook](cookbooks/2-large-document-processing.ipynb).- ✅ Document Classification with vector sampling using multi-modal embedding models
+- ✅ Large document processing with sliding window approach
+- ✅ Document Classification with vector sampling using multi-modal embedding models
 - ✅ Logs token usage to help keep track of costs
 
 Rhubarb comes with built-in system prompts that makes it easy to use it for a number of different document understanding use-cases. You can customize Rhubarb by passing in your own system prompts. It supports exact JSON schema based output generation which makes it easy to integrate into downstream applications.
@@ -83,6 +63,29 @@ Start by installing Rhubarb using `pip`.
 ```
 pip install pyrhubarb
 ```
+
+## Large Document Processing
+
+Rhubarb supports processing documents with more than 20 pages using a sliding window approach. This feature is particularly useful when working with Claude models, which have a limitation of processing only 20 pages at a time.
+
+To enable this feature, set `sliding_window_overlap` to a value between 1 and 10 when creating a `DocAnalysis` object:
+
+```python
+doc_analysis = DocAnalysis(
+    file_path="path/to/large-document.pdf",
+    boto3_session=session,
+    sliding_window_overlap=2     # Number of pages to overlap between windows (1-10)
+)
+```
+
+When the sliding window approach is enabled, Rhubarb will:
+1. Break the document into chunks of 20 pages
+2. Process each chunk separately
+3. Combine the results from all chunks
+
+Note: The sliding window technique is not yet supported for document classification. When using classification with large documents, only the first 20 pages will be considered.
+
+For more details, see the [Large Document Processing Cookbook](cookbooks/2-large-document-processing.ipynb).
 
 
 ### Usage
