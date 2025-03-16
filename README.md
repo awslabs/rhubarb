@@ -60,6 +60,8 @@ When the sliding window approach is enabled, Rhubarb will:
 2. Process each chunk separately
 3. Combine the results from all chunks
 
+Note: The sliding window technique is not yet supported for document classification. When using classification with large documents, only the first 20 pages will be considered.
+
 For more details, see the [Large Document Processing Cookbook](cookbooks/2-large-document-processing.ipynb).- ✅ Document Classification with vector sampling using multi-modal embedding models
 - ✅ Logs token usage to help keep track of costs
 

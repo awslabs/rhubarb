@@ -25,6 +25,7 @@ Usage
 
    introduction
    guides/usage
+   guides/large_document_processing
 
 Configuration
 -------------
