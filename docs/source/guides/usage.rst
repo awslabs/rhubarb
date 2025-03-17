@@ -24,6 +24,7 @@ Before running codes from this section, your AWS credentials must be configured 
    useconverseapi
    usecrossregioninference
    specifypages
+   large_document_processing
    ner
    pii
    keyvalues

@@ -11,8 +11,9 @@ The sliding window technique works by:
 1. Breaking the document into chunks of 20 pages (Claude's maximum page limit)
 2. Processing each chunk separately
 3. Combining the results from all chunks
+4. Making an additional call to Bedrock to synthesize all outputs from the sliding windows into one consolidated response
 
-When enabled, Rhubarb will automatically handle the chunking and processing of large documents, making it seamless to work with documents of any size.
+When enabled, Rhubarb will automatically handle the chunking, processing, and synthesis of large documents, making it seamless to work with documents of any size. Note that the additional Bedrock call for synthesis will incur extra costs beyond the calls for each window.
 
 Enabling Sliding Window Processing
 ---------------------------------
@@ -106,5 +107,7 @@ While the sliding window approach allows processing of large documents, there ar
 2. **Context Across Windows**: Although overlap helps maintain some context between windows, information that spans across multiple windows might not be fully captured in responses that require understanding the entire document.
 
 3. **Performance**: Processing large documents with the sliding window approach will take longer and consume more tokens compared to processing smaller documents.
+
+4. **Cost**: The additional Bedrock call required to synthesize results from all windows will increase the overall cost of processing large documents compared to processing a single document of 20 pages or less.
 
 For more examples and detailed usage, see the `Large Document Processing Cookbook <https://github.com/awslabs/rhubarb/blob/main/cookbooks/2-large-document-processing.ipynb>`_.
