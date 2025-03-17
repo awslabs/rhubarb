@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Working with images" href="figures.html" /><link rel="prev" title="Document Summarization" href="summary.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Named Entity Recognition (NER)" href="ner.html" /><link rel="prev" title="Specify Document Pages" href="specifypages.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
-        <title>Chat with Documents - Rhubarb 0.0.5 documentation</title>
+        <title>Large Document Processing - Rhubarb 0.0.5 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -226,13 +226,13 @@
 <li class="toctree-l2"><a class="reference internal" href="useconverseapi.html">Using Converse API</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usecrossregioninference.html">Using Cross-Region Inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="specifypages.html">Specify Document Pages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="large_document_processing.html">Large Document Processing</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Large Document Processing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ner.html">Named Entity Recognition (NER)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pii.html">PII Recognition</a></li>
 <li class="toctree-l2"><a class="reference internal" href="keyvalues.html">Structured Data Extraction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="schemassist.html">Schema Creation Assistant</a></li>
 <li class="toctree-l2"><a class="reference internal" href="summary.html">Document Summarization</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Chat with Documents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="chatdoc.html">Chat with Documents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="figures.html">Working with images</a></li>
 <li class="toctree-l2"><a class="reference internal" href="classification.html">Document Classification</a></li>
 </ul>
@@ -272,94 +272,105 @@
               </label>
             </div>
             <article role="main">
-              <section id="chat-with-documents">
-<h1>Chat with Documents<a class="headerlink" href="#chat-with-documents" title="Link to this heading">¶</a></h1>
-<p>You can chat with your documents with Rhubarb using the Chat System Prompt <code class="code docutils literal notranslate"><span class="pre">ChatSysPrompt</span></code> available via <code class="code docutils literal notranslate"><span class="pre">SystemPrompts</span></code>
-class. Here’s an example of a (non-streaming) chat. Note, that internally Rhubarb does support chat history, however, much of
-the history implementation is left to the developer. This coupled with the fact that Claude models only accept 20 images per
-invocation, makes it a little complicated to properly implement chat history based conversational system. We are working on
-simplifying this more, and will add support in upcoming releases.</p>
-<p>Also note that there isn’t a lot of fundamental difference between the default invocation using Rhubarb vs. invocation using
-the <code class="code docutils literal notranslate"><span class="pre">ChatSysPrompt</span></code>. The difference is in the response structure. While default is capable of giving you responses to
-your question on a per page basis, chat gives you the output (i.e. response to your chat) and optionally cites the source
-(i.e. the page number). So in conclusion, the only difference is the response payload structure.</p>
-<p>For non streaming chat responses, below is the output structure-</p>
+              <section id="large-document-processing">
+<h1>Large Document Processing<a class="headerlink" href="#large-document-processing" title="Link to this heading">¶</a></h1>
+<p>Rhubarb now supports processing documents with more than 20 pages using a sliding window approach. This feature is particularly useful when working with Claude models, which have a limitation of processing only 20 pages at a time.</p>
+<section id="how-it-works">
+<h2>How it works<a class="headerlink" href="#how-it-works" title="Link to this heading">¶</a></h2>
+<p>The sliding window technique works by:</p>
+<ol class="arabic simple">
+<li><p>Breaking the document into chunks of 20 pages (Claude’s maximum page limit)</p></li>
+<li><p>Processing each chunk separately</p></li>
+<li><p>Combining the results from all chunks</p></li>
+<li><p>Making an additional call to Bedrock to synthesize all outputs from the sliding windows into one consolidated response</p></li>
+</ol>
+<p>When enabled, Rhubarb will automatically handle the chunking, processing, and synthesis of large documents, making it seamless to work with documents of any size. Note that the additional Bedrock call for synthesis will incur extra costs beyond the calls for each window.</p>
+</section>
+<section id="enabling-sliding-window-processing">
+<h2>Enabling Sliding Window Processing<a class="headerlink" href="#enabling-sliding-window-processing" title="Link to this heading">¶</a></h2>
+<p>To enable the sliding window approach, set the <code class="docutils literal notranslate"><span class="pre">sliding_window_overlap</span></code> parameter when creating a <code class="docutils literal notranslate"><span class="pre">DocAnalysis</span></code> object:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocAnalysis</span>
+<span class="kn">import</span> <span class="nn">boto3</span>
+
+<span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+
+<span class="n">doc_analysis</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;path/to/large-document.pdf&quot;</span><span class="p">,</span>
+    <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
+    <span class="n">sliding_window_overlap</span><span class="o">=</span><span class="mi">2</span>     <span class="c1"># Number of pages to overlap between windows (1-10)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">sliding_window_overlap</span></code> parameter determines how many pages will overlap between consecutive windows. This overlap helps maintain context between chunks and ensures that information that spans page boundaries is not lost.</p>
+</section>
+<section id="processing-a-large-document">
+<h2>Processing a Large Document<a class="headerlink" href="#processing-a-large-document" title="Link to this heading">¶</a></h2>
+<p>Once you’ve created a <code class="docutils literal notranslate"><span class="pre">DocAnalysis</span></code> object with sliding window enabled, you can use it just like you would with smaller documents:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Ask a question about the document</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">doc_analysis</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;What are the main points discussed in this document?&quot;</span><span class="p">)</span>
+
+<span class="c1"># Summarize the document</span>
+<span class="n">summary</span> <span class="o">=</span> <span class="n">doc_analysis</span><span class="o">.</span><span class="n">summarize</span><span class="p">()</span>
+
+<span class="c1"># Extract information using a schema</span>
+<span class="n">extracted_data</span> <span class="o">=</span> <span class="n">doc_analysis</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">my_schema</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="understanding-the-response">
+<h2>Understanding the Response<a class="headerlink" href="#understanding-the-response" title="Link to this heading">¶</a></h2>
+<p>When using the sliding window approach, the response will include a synthesized result from all windows and the individual window results:</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;output&quot;</span><span class="p">:</span>
-<span class="w">    </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Response&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;sources&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">],</span><span class="w">  </span><span class="c1">// these are the page numbers</span>
-<span class="w">        </span><span class="nt">&quot;quotes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;quote 1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;quote 2&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;quote 3&quot;</span><span class="p">]</span><span class="w"> </span><span class="c1">// these are the verbatim quotes from the document</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;token_usage&quot;</span><span class="p">:</span>
-<span class="w">    </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;input_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5029</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;output_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">215</span>
-<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="nt">&quot;synthesized_response&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The document discusses...&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;window_results&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;answer&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;In pages 1-20, the document covers...&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;window_info&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;total_pages&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;current_window_start&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;current_window_end&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;current_window_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;has_previous_window&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;has_next_window&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;answer&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;In pages 18-37, the document discusses...&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;window_info&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;total_pages&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;current_window_start&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">18</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;current_window_end&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">37</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;current_window_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;has_previous_window&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;has_next_window&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;answer&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;In pages 35-45, the document concludes with...&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;window_info&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;total_pages&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;current_window_start&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">35</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;current_window_end&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;current_window_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">11</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;has_previous_window&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;has_next_window&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocAnalysis</span><span class="p">,</span> <span class="n">SystemPrompts</span>
-
- <span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;./test_docs/amzn-10k.pdf&quot;</span><span class="p">,</span>
-                  <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
-<span class="hll">                  <span class="n">system_prompt</span><span class="o">=</span><span class="n">SystemPrompts</span><span class="p">()</span><span class="o">.</span><span class="n">ChatSysPrompt</span><span class="p">)</span>
-</span> <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;What is this document about?&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Sample output</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;text&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;This document appears to be a financial report or annual report for a company, likely Amazon, based on the references to business segments like North America, International, and AWS (Amazon Web Services). It provides details on the company&#39;s results of operations, net sales, operating income/loss, operating expenses, cost of sales, and fulfillment costs across these segments for the years 2022 and 2023.&quot;</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;sources&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">],</span>
-<span class="w">        </span><span class="nt">&quot;quotes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">            </span><span class="s2">&quot;We have organized our operations into three segments: North America, International, and AWS. These segments reflect the way the Company evaluates its business performance and manages its operations.&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;Operating income (loss) by segment is as follows (in millions):&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="s2">&quot;Cost of sales primarily consists of the purchase price of consumer products, inbound and outbound shipping costs, including costs related to sortation and delivery centers and Where we are the transportation service provider, and digital media content costs where we record revenue gross, including video and music.&quot;</span>
-<span class="w">        </span><span class="p">]</span>
-<span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;token_usage&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;input_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5060</span><span class="p">,</span>
-<span class="w">        </span><span class="nt">&quot;output_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">237</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<section id="streaming-chat">
-<h2>Streaming chat<a class="headerlink" href="#streaming-chat" title="Link to this heading">¶</a></h2>
-<p>You can perform streaming chat using <code class="code docutils literal notranslate"><span class="pre">run_stream()</span></code> function. Note <code class="code docutils literal notranslate"><span class="pre">SystemPrompts(streaming=True)</span></code>, this tells Rhubarb not to respond back with JSON output
-since JSON output in streaming text is hard to parse and re-construct.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocAnalysis</span><span class="p">,</span> <span class="n">SystemPrompts</span>
-
- <span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;./test_docs/amzn-10k.pdf&quot;</span><span class="p">,</span>
-                  <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
-<span class="hll">                  <span class="n">system_prompt</span><span class="o">=</span><span class="n">SystemPrompts</span><span class="p">(</span><span class="n">streaming</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">ChatSysPrompt</span><span class="p">)</span>
-</span>
-<span class="hll"> <span class="k">for</span> <span class="n">resp</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">run_stream</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;What is this document about?&quot;</span><span class="p">):</span>
-</span>     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">resp</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-         <span class="nb">print</span><span class="p">(</span><span class="n">resp</span><span class="p">,</span><span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
-     <span class="k">else</span><span class="p">:</span>
-         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-         <span class="nb">print</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Sample output</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>|-START-|
-Based on the content in these pages, this document appears to be Amazon&#39;s annual report or financial statements, specifically discussing the company&#39;s results of operations for the fiscal year 2023 compared to 2022.
-
-The key points covered include:
-
-- Net sales breakdown by segment - North America, International, and AWS (Amazon Web Services) (Page 1)
-- Operating income/(loss) by segment (Page 2)
-- Detailed operating expenses like cost of sales, fulfillment, technology/infrastructure, marketing etc. (Page 3)
-- Explanations for changes in net sales, operating income, and operating expenses across the different segments (Pages 1-3)
-
-This report provides an overview of Amazon&#39;s financial performance, growth rates, and underlying factors driving the results in its core business segments for the fiscal year.
-|-END-|
-
-{&#39;input_tokens&#39;: 4933, &#39;output_tokens&#39;: 178}
-</pre></div>
-</div>
+</section>
+<section id="current-limitations">
+<h2>Current Limitations<a class="headerlink" href="#current-limitations" title="Link to this heading">¶</a></h2>
+<p>While the sliding window approach allows processing of large documents, there are some limitations to be aware of:</p>
+<ol class="arabic simple">
+<li><p><strong>Classification</strong>: The sliding window technique is not yet supported for document classification. When using classification with large documents, only the first 20 pages will be considered.</p></li>
+<li><p><strong>Context Across Windows</strong>: Although overlap helps maintain some context between windows, information that spans across multiple windows might not be fully captured in responses that require understanding the entire document.</p></li>
+<li><p><strong>Performance</strong>: Processing large documents with the sliding window approach will take longer and consume more tokens compared to processing smaller documents.</p></li>
+<li><p><strong>Cost</strong>: The additional Bedrock call required to synthesize results from all windows will increase the overall cost of processing large documents compared to processing a single document of 20 pages or less.</p></li>
+</ol>
+<p>For more examples and detailed usage, see the <a class="reference external" href="https://github.com/awslabs/rhubarb/blob/main/cookbooks/2-large-document-processing.ipynb">Large Document Processing Cookbook</a>.</p>
 </section>
 </section>
 
@@ -368,23 +379,23 @@ This report provides an overview of Amazon&#39;s financial performance, growth r
           <footer>
             
             <div class="related-pages">
-              <a class="next-page" href="figures.html">
+              <a class="next-page" href="ner.html">
                   <div class="page-info">
                     <div class="context">
                       <span>Next</span>
                     </div>
-                    <div class="title">Working with images</div>
+                    <div class="title">Named Entity Recognition (NER)</div>
                   </div>
                   <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
                 </a>
-              <a class="prev-page" href="summary.html">
+              <a class="prev-page" href="specifypages.html">
                   <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
                   <div class="page-info">
                     <div class="context">
                       <span>Previous</span>
                     </div>
                     
-                    <div class="title">Document Summarization</div>
+                    <div class="title">Specify Document Pages</div>
                     
                   </div>
                 </a>
@@ -444,8 +455,12 @@ This report provides an overview of Amazon&#39;s financial performance, growth r
             <div class="toc-tree-container">
               <div class="toc-tree">
                 <ul>
-<li><a class="reference internal" href="#">Chat with Documents</a><ul>
-<li><a class="reference internal" href="#streaming-chat">Streaming chat</a></li>
+<li><a class="reference internal" href="#">Large Document Processing</a><ul>
+<li><a class="reference internal" href="#how-it-works">How it works</a></li>
+<li><a class="reference internal" href="#enabling-sliding-window-processing">Enabling Sliding Window Processing</a></li>
+<li><a class="reference internal" href="#processing-a-large-document">Processing a Large Document</a></li>
+<li><a class="reference internal" href="#understanding-the-response">Understanding the Response</a></li>
+<li><a class="reference internal" href="#current-limitations">Current Limitations</a></li>
 </ul>
 </li>
 </ul>
