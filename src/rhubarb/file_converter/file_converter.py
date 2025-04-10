@@ -1,9 +1,8 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-import warnings
-warnings.filterwarnings("ignore", message="CropBox missing from /Page, defaulting to MediaBox")
 import base64
 import logging
+import warnings
 import mimetypes
 from io import BytesIO
 from typing import Dict, List, Union, Optional
@@ -15,6 +14,7 @@ from PIL import Image, ImageDraw
 from .image_validator import ImageValidator
 
 logger = logging.getLogger(__name__)
+warnings.filterwarnings("ignore", message="CropBox missing from /Page, defaulting to MediaBox")
 
 
 class FileConverter:
