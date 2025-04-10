@@ -58,12 +58,9 @@ class DocAnalysis(BaseModel):
     system_prompt: str = Field(default=None)
     """System prompt"""
         
-    # Use only model validator to ensure system_prompt is always set properly
     @model_validator(mode='after')
     def validate_system_prompt(self):
-        print("Running model validator")
         if self.system_prompt is None or (isinstance(self.system_prompt, str) and (self.system_prompt == "" or self.system_prompt.strip() == "")):
-            print("Model validator - Setting default system prompt")
             self.system_prompt = SystemPrompts(
                 model_id=self.modelId
             ).DefaultSysPrompt
