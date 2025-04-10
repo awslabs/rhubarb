@@ -4,7 +4,7 @@
 import logging
 from typing import Any, Dict, List, Optional, Generator
 
-from pydantic import Field, BaseModel, PrivateAttr, validator, model_validator
+from pydantic import Field, BaseModel, PrivateAttr, model_validator
 from botocore.config import Config
 
 from rhubarb.models import LanguageModels
