@@ -55,14 +55,19 @@ class DocAnalysis(BaseModel):
     modelId: LanguageModels = Field(default=LanguageModels.CLAUDE_SONNET_V2)
     """Bedrock Model ID"""
 
-    system_prompt: str = Field(default="")
+    system_prompt: str = Field(default=None)
     """System prompt"""
-
-    @validator("system_prompt", pre=True, always=True)
-    def set_system_prompt(cls, v, values):
-        return SystemPrompts(
-            model_id=values.get("modelId", LanguageModels.CLAUDE_SONNET_V2)
-        ).DefaultSysPrompt
+        
+    # Use only model validator to ensure system_prompt is always set properly
+    @model_validator(mode='after')
+    def validate_system_prompt(self):
+        print("Running model validator")
+        if self.system_prompt is None or (isinstance(self.system_prompt, str) and (self.system_prompt == "" or self.system_prompt.strip() == "")):
+            print("Model validator - Setting default system prompt")
+            self.system_prompt = SystemPrompts(
+                model_id=self.modelId
+            ).DefaultSysPrompt
+        return self
 
     boto3_session: Any
     """Instance of boto3.session.Session"""
@@ -338,6 +343,9 @@ class DocAnalysis(BaseModel):
             window_summary = f"Window {i+1} (Pages {start_page}-{end_page}):\n{result_str}"
             window_summaries.append(window_summary)
 
+        # Join window summaries outside the f-string
+        window_summaries_text = "\n\n".join(window_summaries)
+        
         # Create a synthesis prompt
         synthesis_prompt = f"""
         I've analyzed a document in {len(results)} sections and found information related to your question.
@@ -346,7 +354,7 @@ class DocAnalysis(BaseModel):
         
         Here are the results from each section:
         
-        {"\n\n".join(window_summaries)}
+        {window_summaries_text}
         
         Please provide a direct, concise answer to the question based on the information found. 
         Focus ONLY on the sections that contain relevant information - do not mention sections that don't have relevant information.
