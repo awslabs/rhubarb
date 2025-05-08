@@ -168,26 +168,6 @@ class VideoAnalysis(BaseModel):
             return mime_type.split('/')[-1]
         # Default to mp4 if can't determine
         return "mp4"
-        
-    def _extract_frames(self) -> None:
-        """
-        This method is no longer used since we only support Nova models with S3 videos.
-        It's kept as a placeholder for future implementation.
-        """
-        pass
-            
-    def _prepare_prompt_with_frames(self, message: str) -> str:
-        """
-        This method is no longer used since we only support Nova models with S3 videos.
-        It's kept as a placeholder for future implementation.
-        
-        Args:
-            message (str): User message/query about the video.
-            
-        Returns:
-            str: Formatted prompt with video frames.
-        """
-        return message
             
     def run(self, message: str, max_tokens: Optional[int] = None, temperature: Optional[float] = None, 
              top_p: Optional[float] = None, top_k: Optional[int] = None) -> Any:
