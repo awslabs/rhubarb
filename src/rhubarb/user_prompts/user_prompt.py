@@ -151,6 +151,7 @@ class UserMessages:
                 "maxTokens": self.max_tokens,
                 "temperature": self.temperature,
             }
+            
         else:
             # Check if it's a Nova model
             if str(self.modelId).__contains__("NOVA"):
@@ -161,5 +162,6 @@ class UserMessages:
                 body["max_tokens"] = self.max_tokens
                 body["temperature"] = self.temperature
                 body["anthropic_version"] = "bedrock-2023-05-31"
+                
 
         return body

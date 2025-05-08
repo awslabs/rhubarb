@@ -23,7 +23,8 @@ logger = logging.getLogger(__name__)
 
 class VectorSampler:
     # This is S3 specific Sampling storage
-    def __init__(self, bucket_name: str, bedrock_client: Any, s3_client: Any, modelID: str) -> None:
+    def __init__(self, bucket_name: str, bedrock_client: Any, s3_client: Any, modelID: str, session: Any) -> None:
+        self.session = session
         self.bedrock_client = bedrock_client
         self.s3_client = s3_client
         self.modelID = modelID
@@ -158,7 +159,7 @@ class VectorSampler:
             List[Any]: An embedding vector.
         """
         model_invoke = Invocations(
-            body=body, bedrock_client=self.bedrock_client, model_id=self.modelID
+            body=body, bedrock_client=self.bedrock_client, model_id=self.modelID, boto3_session=self.session, enable_cri=False, use_converse_api=False 
         )
         return model_invoke.invoke_embedding()
 

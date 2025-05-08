@@ -13,7 +13,9 @@ from rhubarb.user_prompts import UserMessages
 from rhubarb.file_converter import LargeDocumentProcessor
 from rhubarb.system_prompts import SystemPrompts
 
+
 logger = logging.getLogger(__name__)
+
 
 
 class DocAnalysis(BaseModel):
@@ -464,14 +466,14 @@ class DocAnalysis(BaseModel):
             pages=self.pages,
             use_converse_api=self.use_converse_api,
             message_history=history,
-            modelId=self.modelId,
+            modelId=self.modelId
         )
 
     def run(
         self,
         message: str,
         output_schema: Optional[dict] = None,
-        history: Optional[List[dict]] = None,
+        history: Optional[List[dict]] = None
     ) -> Any:
         """
         Invokes the specified language model with the given message and optional output schema.
@@ -479,7 +481,9 @@ class DocAnalysis(BaseModel):
         Args:
         - `message` (`str`): The input message or prompt for the language model.
         - `output_schema` (`Optional[dict]`, optional): The output JSON schema for the language model response. Defaults to None.
+        - `history` (`Optional[List[dict]]`, optional): Chat history for conversation context. Defaults to None.
         """
+            
         # If sliding window is enabled and we're not using history, use the sliding window approach
         if self.sliding_window_overlap > 0 and not history:
             return self._process_with_sliding_window(message, output_schema)
@@ -488,6 +492,7 @@ class DocAnalysis(BaseModel):
             self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V2
+            or self.modelId == LanguageModels.CLAUDE_SONNET_37
             or self.modelId == LanguageModels.NOVA_LITE
             or self.modelId == LanguageModels.NOVA_PRO
         ):
@@ -511,6 +516,7 @@ class DocAnalysis(BaseModel):
         )
         response = model_invoke.run_inference()
         self._message_history = model_invoke.message_history
+            
         return response
 
     def run_stream(
@@ -521,7 +527,9 @@ class DocAnalysis(BaseModel):
 
         Args:
         - `message` (`Any`): The input message or prompt for the language model.
+        - `history` (`Optional[List[dict]]`, optional): Chat history for conversation context. Defaults to None.
         """
+            
         # Streaming mode doesn't support sliding window approach
         if self.sliding_window_overlap > 0:
             logger.warning(
@@ -533,6 +541,7 @@ class DocAnalysis(BaseModel):
             or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V2
+            or self.modelId == LanguageModels.CLAUDE_SONNET_37
             or self.modelId == LanguageModels.NOVA_LITE
             or self.modelId == LanguageModels.NOVA_PRO
         ):
@@ -572,6 +581,7 @@ class DocAnalysis(BaseModel):
             or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V2
+            or self.modelId == LanguageModels.CLAUDE_SONNET_37
             or self.modelId == LanguageModels.NOVA_LITE
             or self.modelId == LanguageModels.NOVA_PRO
         ):
@@ -610,6 +620,7 @@ class DocAnalysis(BaseModel):
             or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V2
+            or self.modelId == LanguageModels.CLAUDE_SONNET_37
             or self.modelId == LanguageModels.NOVA_LITE
             or self.modelId == LanguageModels.NOVA_PRO
         ):
