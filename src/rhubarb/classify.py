@@ -136,6 +136,7 @@ class DocClassification(BaseModel):
                 bedrock_client=self._bedrock_client,
                 s3_client=self._s3_client,
                 modelID=self.modelId.value,
+                session=self.boto3_session
             )
             sample_id = sampler.run_sampler(
                 manifest_data=manifest_data, update_classifier=update_sample_id

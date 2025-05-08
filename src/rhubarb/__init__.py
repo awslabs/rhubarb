@@ -11,6 +11,7 @@ from .classify import DocClassification
 from .config.config import GlobalConfig
 from .schema_factory.entities import Entities
 from .system_prompts.system_prompts import SystemPrompts
+from .video_processor import VideoAnalysis
 
 logging.getLogger(__name__).addHandler(NullHandler())
 
@@ -19,6 +20,7 @@ __version__ = importlib.metadata.version("pyrhubarb")
 __all__ = [
     "DocAnalysis",
     "DocClassification",
+    "VideoAnalysis",
     "LanguageModels",
     "EmbeddingModels",
     "SystemPrompts",
