@@ -6,10 +6,12 @@ import logging
 import mimetypes
 from typing import Any, Dict, List, Optional, Generator, Union, Tuple
 
-from pydantic import Field, BaseModel, PrivateAttr, validator
+from pydantic import Field, BaseModel, PrivateAttr, model_validator
+from botocore.config import Config
 
 from rhubarb.models import LanguageModels
 from rhubarb.system_prompts import SystemPrompts
+from rhubarb.invocations import Invocations
 
 logger = logging.getLogger(__name__)
 
@@ -51,18 +53,19 @@ class VideoAnalysis(BaseModel):
     file_path: str
     """File path of the video, local or S3 path"""
 
-    modelId: LanguageModels = Field(default=LanguageModels.CLAUDE_SONNET_V2)
+    modelId: LanguageModels = Field(default=LanguageModels.NOVA_LITE)
     """Bedrock Model ID"""
 
     system_prompt: str = Field(default="")
     """System prompt"""
 
-    @validator("system_prompt", pre=True, always=True)
-    def set_system_prompt(cls, v, values):
-        # Use a video-specific system prompt
-        return SystemPrompts(
-            model_id=values.get("modelId", LanguageModels.CLAUDE_SONNET_V2)
-        ).VideoAnalysisSysPrompt
+    @model_validator(mode='after')
+    def validate_system_prompt(self):
+        if self.system_prompt is None or (isinstance(self.system_prompt, str) and (self.system_prompt == "" or self.system_prompt.strip() == "")):
+            self.system_prompt = SystemPrompts(
+                model_id=self.modelId
+            ).VideoAnalysisSysPrompt
+        return self
 
     boto3_session: Any
     """Instance of boto3.session.Session"""
@@ -109,37 +112,61 @@ class VideoAnalysis(BaseModel):
     Required for cross-account S3 access with Nova models.
     """
 
-    _bedrock_client: Optional[Any] = PrivateAttr(default=None)
-    _s3_client: Optional[Any] = PrivateAttr(default=None)
-
-    def __init__(self, **data):
-        super().__init__(**data)
+    _message_history: List[Any] = PrivateAttr(default=None)
+    """History of user/assistant messages"""
+    
+    _bedrock_client: Any = PrivateAttr(default=None)
+    """boto3 bedrock-runtime client, will get overriten by boto3_session"""
+    
+    _s3_client: Any = PrivateAttr(default=None)
+    """boto3 s3 client, will get overriten by boto3_session"""
+    
+    @model_validator(mode="before")
+    @classmethod
+    def validate_model(cls, values: dict) -> dict:
+        file_path = values.get("file_path")
         
         # Check if the model is a Nova model (only Nova models are supported for video analysis)
-        if not self._is_nova_model():
+        model_id = values.get("modelId")
+        
+        # Set default model if not provided
+        if model_id is None:
+            model_id = LanguageModels.NOVA_LITE
+            values["modelId"] = model_id
+            
+        if model_id not in [LanguageModels.NOVA_PRO, LanguageModels.NOVA_LITE]:
+            logger.error(f"Video analysis is only supported with Nova models (NOVA_PRO or NOVA_LITE). Selected model: {model_id.name}")
             raise ValueError(
                 f"Video analysis is only supported with Nova models (NOVA_PRO or NOVA_LITE). "
-                f"Selected model: {self.modelId.name}"
+                f"Selected model: {model_id.name}"
             )
-            
-        self._bedrock_client = self.boto3_session.client("bedrock-runtime")
-        self._s3_client = self.boto3_session.client("s3")
         
         # For local files, we'll need to upload to S3 (not implemented in this version)
-        if not self.file_path.startswith("s3://"):
+        if not file_path.startswith("s3://"):
+            logger.error("Video analysis currently only supports videos stored in S3.")
             raise ValueError(
                 "Video analysis currently only supports videos stored in S3. "
                 "Please upload your video to S3 and provide the S3 URI."
             )
             
-    def _is_nova_model(self) -> bool:
-        """
-        Check if the current model is a Nova model.
+        blocked_schemes = ["http://", "https://", "ftp://"]
+        if any(file_path.startswith(scheme) for scheme in blocked_schemes):
+            logger.error("file_path must be a local file system path or an s3:// path")
+            raise ValueError("file_path must be a local file system path or an s3:// path")
+            
+        s3_config = Config(
+            retries={"max_attempts": 0, "mode": "standard"}, signature_version="s3v4"
+        )
+        br_config = Config(retries={"max_attempts": 0, "mode": "standard"})
+        session = values.get("boto3_session")
+        cls._s3_client = session.client("s3", config=s3_config)
+        cls._bedrock_client = session.client("bedrock-runtime", config=br_config)
         
-        Returns:
-            bool: True if using a Nova model, False otherwise.
-        """
-        return self.modelId in [LanguageModels.NOVA_PRO, LanguageModels.NOVA_LITE]
+        return values
+            
+    @property
+    def history(self) -> Any:
+        return self._message_history
     
     def _parse_s3_path(self, s3_path: str) -> Tuple[str, str]:
         """
@@ -169,10 +196,11 @@ class VideoAnalysis(BaseModel):
         # Default to mp4 if can't determine
         return "mp4"
             
-    def run(self, message: str, max_tokens: Optional[int] = None, temperature: Optional[float] = None, 
-             top_p: Optional[float] = None, top_k: Optional[int] = None) -> Any:
+    def _get_request_body(self, message: str, max_tokens: Optional[int] = None, 
+                      temperature: Optional[float] = None, top_p: Optional[float] = None, 
+                      top_k: Optional[int] = None, output_schema: Optional[dict] = None) -> Dict:
         """
-        Run video analysis with the given message.
+        Prepare the request body for the API call.
         
         Args:
             message (str): Message/query about the video.
@@ -180,9 +208,10 @@ class VideoAnalysis(BaseModel):
             temperature (Optional[float]): Override the default temperature value.
             top_p (Optional[float]): Override the default top_p value.
             top_k (Optional[int]): Override the default top_k value.
+            output_schema (Optional[dict]): The output schema for structured responses.
             
         Returns:
-            Dict[str, Any]: Response from the model.
+            Dict: The request body for the API call.
         """
         # Create messages with direct S3 reference
         system_list = [{"text": self.system_prompt}]
@@ -223,38 +252,69 @@ class VideoAnalysis(BaseModel):
         inf_params = {
             "maxTokens": max_tokens if max_tokens is not None else self.max_tokens,
             "temperature": temperature if temperature is not None else self.temperature,
-            "topP": top_p if top_p is not None else self.top_p,
-            "topK": top_k if top_k is not None else self.top_k
+            "topP": top_p if top_p is not None else self.top_p
         }
         
+        # Add topK only for invoke_model API (not for converse API)
+        if not self.use_converse_api:
+            inf_params["topK"] = top_k if top_k is not None else self.top_k
+        
         # Create the request body with the correct schema
-        native_request = {
+        body = {
             "schemaVersion": "messages-v1",
             "messages": message_list,
             "system": system_list,
             "inferenceConfig": inf_params
         }
         
-        # Convert to JSON string for the API call
-        body_str = json.dumps(native_request)
+        return body
         
-        # Make direct API call to bedrock-runtime
-        response = self._bedrock_client.invoke_model(
-            modelId=self.modelId.value,
-            body=body_str
+    def run(self, message: str, max_tokens: Optional[int] = None, temperature: Optional[float] = None, 
+             top_p: Optional[float] = None, top_k: Optional[int] = None, 
+             output_schema: Optional[dict] = None) -> Any:
+        """
+        Run video analysis with the given message.
+        
+        Args:
+            message (str): Message/query about the video.
+            max_tokens (Optional[int]): Override the default max_tokens value.
+            temperature (Optional[float]): Override the default temperature value.
+            top_p (Optional[float]): Override the default top_p value.
+            top_k (Optional[int]): Override the default top_k value.
+            output_schema (Optional[dict]): The output schema for structured responses.
+            
+        Returns:
+            Dict[str, Any]: Response from the model.
+        """
+        # Prepare the request body
+        body = self._get_request_body(
+            message=message,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            top_p=top_p,
+            top_k=top_k,
+            output_schema=output_schema
         )
         
-        # Parse the response
-        model_response = json.loads(response["body"].read())
+        # Use the Invocations class for API calls
+        model_invoke = Invocations(
+            body=body,
+            bedrock_client=self._bedrock_client,
+            boto3_session=self.boto3_session,
+            model_id=self.modelId.value,
+            output_schema=output_schema,
+            use_converse_api=self.use_converse_api,
+            enable_cri=self.enable_cri,
+        )
         
-        # Extract the text content for easy access
-        result = {
-            "response": model_response["output"]["message"]["content"][0]["text"],
-            "full_response": model_response,
-            "video_path": self.file_path
-        }
+        response = model_invoke.run_inference()
+        self._message_history = model_invoke.message_history
         
-        return result
+        # Add video path to the response
+        if isinstance(response, dict):
+            response["video_path"] = self.file_path
+            
+        return response
     
     def run_stream(self, message: str, max_tokens: Optional[int] = None, temperature: Optional[float] = None, 
                   top_p: Optional[float] = None, top_k: Optional[int] = None) -> Generator[Dict[str, Any], None, None]:
@@ -271,59 +331,17 @@ class VideoAnalysis(BaseModel):
         Yields:
             Dict[str, Any]: Streaming response from the model.
         """
-        # Create messages with direct S3 reference
-        system_list = [{"text": self.system_prompt}]
-        
-        # Parse S3 path
-        video_format = self._get_video_format()
-        
-        # Create S3 location object
-        s3_location = {
-            "uri": self.file_path
-        }
-        
-        # Add bucket owner if provided
-        if self.s3_bucket_owner:
-            s3_location["bucketOwner"] = self.s3_bucket_owner
-        
-        # Create message with video reference
-        message_list = [
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "video": {
-                            "format": video_format,
-                            "source": {
-                                "s3Location": s3_location
-                            }
-                        }
-                    },
-                    {
-                        "text": message
-                    }
-                ]
-            }
-        ]
-        
-        # Configure inference parameters with overrides if provided
-        inf_params = {
-            "maxTokens": max_tokens if max_tokens is not None else self.max_tokens,
-            "temperature": temperature if temperature is not None else self.temperature,
-            "topP": top_p if top_p is not None else self.top_p,
-            "topK": top_k if top_k is not None else self.top_k
-        }
-        
-        # Create the request body with the correct schema
-        native_request = {
-            "schemaVersion": "messages-v1",
-            "messages": message_list,
-            "system": system_list,
-            "inferenceConfig": inf_params
-        }
+        # Prepare the request body
+        body = self._get_request_body(
+            message=message,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            top_p=top_p,
+            top_k=top_k
+        )
         
         # Convert to JSON string for the API call
-        body_str = json.dumps(native_request)
+        body_str = json.dumps(body)
         
         # Make direct API call to bedrock-runtime with streaming
         response_stream = self._bedrock_client.invoke_model_with_response_stream(
@@ -348,9 +366,21 @@ class VideoAnalysis(BaseModel):
                 elif "messageStop" in chunk_data:
                     # This indicates the end of the message
                     yield {"status": "complete", "reason": chunk_data["messageStop"].get("stopReason", "unknown")}
+        
+        # Update message history
+        if body.get("messages"):
+            messages = body["messages"]
+            messages.append({
+                "role": "assistant",
+                "content": [{"text": collected_response}]
+            })
+            self._message_history = messages
+        
+
             
     def summarize(self, max_tokens: Optional[int] = None, temperature: Optional[float] = None, 
-                top_p: Optional[float] = None, top_k: Optional[int] = None) -> Dict[str, Any]:
+                top_p: Optional[float] = None, top_k: Optional[int] = None, 
+                output_schema: Optional[dict] = None) -> Dict[str, Any]:
         """
         Generate a summary of the video content.
         
@@ -359,6 +389,7 @@ class VideoAnalysis(BaseModel):
             temperature (Optional[float]): Override the default temperature value.
             top_p (Optional[float]): Override the default top_p value.
             top_k (Optional[int]): Override the default top_k value.
+            output_schema (Optional[dict]): The output schema for structured responses.
             
         Returns:
             Dict[str, Any]: Summary of the video.
@@ -368,7 +399,8 @@ class VideoAnalysis(BaseModel):
             max_tokens=max_tokens,
             temperature=temperature,
             top_p=top_p,
-            top_k=top_k
+            top_k=top_k,
+            output_schema=output_schema
         )
     
     def summarize_stream(self, max_tokens: Optional[int] = None, temperature: Optional[float] = None, 
@@ -395,7 +427,8 @@ class VideoAnalysis(BaseModel):
             yield chunk
             
     def extract_entities(self, max_tokens: Optional[int] = None, temperature: Optional[float] = None, 
-                         top_p: Optional[float] = None, top_k: Optional[int] = None) -> Dict[str, Any]:
+                         top_p: Optional[float] = None, top_k: Optional[int] = None, 
+                         output_schema: Optional[dict] = None) -> Dict[str, Any]:
         """
         Extract entities (people, objects, locations, etc.) from the video.
         
@@ -404,6 +437,7 @@ class VideoAnalysis(BaseModel):
             temperature (Optional[float]): Override the default temperature value.
             top_p (Optional[float]): Override the default top_p value.
             top_k (Optional[int]): Override the default top_k value.
+            output_schema (Optional[dict]): The output schema for structured responses.
             
         Returns:
             Dict[str, Any]: Entities extracted from the video.
@@ -413,11 +447,13 @@ class VideoAnalysis(BaseModel):
             max_tokens=max_tokens,
             temperature=temperature,
             top_p=top_p,
-            top_k=top_k
+            top_k=top_k,
+            output_schema=output_schema
         )
     
     def analyze_action(self, max_tokens: Optional[int] = None, temperature: Optional[float] = None, 
-                       top_p: Optional[float] = None, top_k: Optional[int] = None) -> Dict[str, Any]:
+                       top_p: Optional[float] = None, top_k: Optional[int] = None, 
+                       output_schema: Optional[dict] = None) -> Dict[str, Any]:
         """
         Analyze the actions and movements in the video.
         
@@ -426,6 +462,7 @@ class VideoAnalysis(BaseModel):
             temperature (Optional[float]): Override the default temperature value.
             top_p (Optional[float]): Override the default top_p value.
             top_k (Optional[int]): Override the default top_k value.
+            output_schema (Optional[dict]): The output schema for structured responses.
             
         Returns:
             Dict[str, Any]: Analysis of actions in the video.
@@ -435,11 +472,13 @@ class VideoAnalysis(BaseModel):
             max_tokens=max_tokens,
             temperature=temperature,
             top_p=top_p,
-            top_k=top_k
+            top_k=top_k,
+            output_schema=output_schema
         )
     
     def extract_text(self, max_tokens: Optional[int] = None, temperature: Optional[float] = None, 
-                     top_p: Optional[float] = None, top_k: Optional[int] = None) -> Dict[str, Any]:
+                     top_p: Optional[float] = None, top_k: Optional[int] = None, 
+                     output_schema: Optional[dict] = None) -> Dict[str, Any]:
         """
         Extract any visible text from the video frames.
         
@@ -448,6 +487,7 @@ class VideoAnalysis(BaseModel):
             temperature (Optional[float]): Override the default temperature value.
             top_p (Optional[float]): Override the default top_p value.
             top_k (Optional[int]): Override the default top_k value.
+            output_schema (Optional[dict]): The output schema for structured responses.
             
         Returns:
             Dict[str, Any]: Text extracted from the video.
@@ -457,5 +497,6 @@ class VideoAnalysis(BaseModel):
             max_tokens=max_tokens,
             temperature=temperature,
             top_p=top_p,
-            top_k=top_k
+            top_k=top_k,
+            output_schema=output_schema
         )
