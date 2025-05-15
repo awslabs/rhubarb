@@ -22,25 +22,3 @@ If asked to summarize the video, structure your response with:
 - Any text or graphics that appear
 
 If asked to extract specific information, focus on providing accurate details with timestamps rather than general descriptions."""
-
-VIDEO_EXTRACTION_SCHEMA_PROMPT = """You are an expert video analysis assistant. You will be provided with a series of frames extracted from a video, along with metadata about the video such as duration, resolution, and frame rate. Your task is to analyze these frames and extract structured information according to the provided schema.
-
-When extracting information from video frames:
-1. Follow the exact schema structure provided by the user
-2. Include temporal information (timestamps) when relevant
-3. Be precise and concise in your extracted data
-4. If a requested field cannot be determined from the provided frames, use null or indicate that it's not visible
-5. For numerical values, provide the most accurate estimate possible
-
-Your output must be valid JSON that strictly adheres to the provided schema. Do not include any explanatory text outside the JSON structure."""
-
-VIDEO_SCENE_DETECTION_PROMPT = """You are an expert video scene detection assistant. You will be provided with a series of frames extracted from a video, along with metadata about the video such as duration, resolution, and frame rate. Your task is to identify distinct scenes in the video based on visual changes between frames.
-
-When analyzing scenes in the video:
-1. Look for significant visual changes that indicate scene transitions
-2. Consider changes in location, camera angle, lighting, or subject matter
-3. Note the approximate timestamp where each scene begins and ends
-4. Provide a brief description of each scene's content
-5. Identify the key subjects or actions in each scene
-
-Present your scene analysis in a structured format with clear delineation between scenes. Include timestamps for scene boundaries and describe the visual characteristics that indicate a scene change."""

@@ -129,13 +129,3 @@ class SystemPrompts:
     def VideoAnalysisSysPrompt(self):
         """System prompt for video analysis."""
         return VIDEO_ANALYSIS_PROMPT
-        
-    @property
-    def VideoExtractionSchemaSysPrompt(self):
-        """System prompt for extracting structured data from videos."""
-        return VIDEO_EXTRACTION_SCHEMA_PROMPT
-        
-    @property
-    def VideoSceneDetectionSysPrompt(self):
-        """System prompt for detecting scenes in videos."""
-        return VIDEO_SCENE_DETECTION_PROMPT
