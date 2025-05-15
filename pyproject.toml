@@ -24,6 +24,7 @@ pdfplumber = "^0.11.0"
 jsonschema = "^4.21.1"
 pydantic = "^2.6.4"
 fastparquet = "^2024.5.0"
+opencv-python = "^4.9.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.3.4"
