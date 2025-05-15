@@ -6,9 +6,7 @@ from datetime import datetime
 from rhubarb.models import LanguageModels
 from rhubarb.schema_factory import SchemaFactory
 from rhubarb.system_prompts.video_prompts import (
-    VIDEO_ANALYSIS_PROMPT,
-    VIDEO_EXTRACTION_SCHEMA_PROMPT,
-    VIDEO_SCENE_DETECTION_PROMPT
+    VIDEO_ANALYSIS_PROMPT
 )
 
 
