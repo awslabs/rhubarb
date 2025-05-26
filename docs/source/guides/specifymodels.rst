@@ -7,6 +7,8 @@ By default Rhubarb uses Claude Sonnet model, however you can also use Haiku, Opu
 - :code:`LanguageModel.CLAUDE_HAIKU_V1`
 - :code:`LanguageModel.CLAUDE_SONNET_V1`
 - :code:`LanguageModel.CLAUDE_SONNET_V2` (default)
+- :code:`LanguageModel.CLAUDE_SONNET_4`
+- :code:`LanguageModel.CLAUDE_OPUS_4`
 - :code:`LanguageModel.CLAUDE_OPUS_V1`
 - :code:`LanguageModel.NOVA_PRO`
 - :code:`LanguageModel.NOVA_LITE`

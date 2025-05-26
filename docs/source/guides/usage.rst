@@ -13,7 +13,7 @@
 Usage
 =====
 
-This section describes usage of Rhubarb for various common document processing and understanding tasks.
+This section describes usage of Rhubarb for various common document and video processing and understanding tasks.
 Before running codes from this section, your AWS credentials must be configured as described in :doc:`../quickstart`.
 
 .. toctree::
@@ -32,6 +32,7 @@ Before running codes from this section, your AWS credentials must be configured 
    summary
    chatdoc
    figures
+   videoanalysis
 
 .. toctree::
    :maxdepth: 2
