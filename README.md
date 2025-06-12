@@ -17,7 +17,7 @@
 
 # Rhubarb
 
-Rhubarb is a light-weight Python framework that makes it easy to build document understanding applications using Multi-modal Large Language Models (LLMs) and Embedding models. Rhubarb is created from the ground up to work with Amazon Bedrock and supports multiple foundation models including Anthropic Claude V3 Multi-modal Language Models and Amazon Nova models for document processing, along with Amazon Titan Multi-modal Embedding model for embeddings.
+Rhubarb is a light-weight Python framework that makes it easy to build document and video understanding applications using Multi-modal Large Language Models (LLMs) and Embedding models. Rhubarb is created from the ground up to work with Amazon Bedrock and supports multiple foundation models including Anthropic Claude V3 Multi-modal Language Models and Amazon Nova models for document and video processing, along with Amazon Titan Multi-modal Embedding model for embeddings.
 
 
 ## What can I do with Rhubarb?
@@ -45,9 +45,17 @@ Rhubarb can do multiple document processing tasks such as
 - ✅ Document Classification with vector sampling using multi-modal embedding models
 - ✅ Logs token usage to help keep track of costs
 
+### Video Analysis (New!)
+- ✅ Video summarization
+- ✅ Entity extraction from videos
+- ✅ Action and movement analysis
+- ✅ Text extraction from video frames
+- ✅ Streaming video analysis responses
+
 Rhubarb comes with built-in system prompts that makes it easy to use it for a number of different document understanding use-cases. You can customize Rhubarb by passing in your own system prompts. It supports exact JSON schema based output generation which makes it easy to integrate into downstream applications.
 
 - Supports PDF, TIFF, PNG, JPG, DOCX files (support for Excel, PowerPoint, CSV, Webp, eml files coming soon)
+- Supports MP4, AVI, MOV, and other common video formats for video analysis (S3 storage required)
 - Performs document to image conversion internally to work with the multi-modal models
 - Works on local files or files stored in S3
 - Supports specifying page numbers for multi-page documents
@@ -95,6 +103,26 @@ da = DocAnalysis(file_path="s3://path/to/doc/doc.pdf",
                  boto3_session=session)
 resp = da.run(message="What is the employee's name?")
 resp
+```
+
+#### Video Analysis
+
+
+```python
+from rhubarb import VideoAnalysis
+import boto3
+
+session = boto3.Session()
+
+# Initialize video analysis with a video in S3
+va = VideoAnalysis(
+    file_path="s3://my-bucket/my-video.mp4",
+    boto3_session=session
+)
+
+# Ask questions about the video
+response = va.run(message="What is happening in this video?")
+print(response)
 ```
 
 #### Large Document Processing

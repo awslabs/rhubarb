@@ -9,6 +9,7 @@ from .models import LanguageModels, EmbeddingModels
 from .analyze import DocAnalysis
 from .classify import DocClassification
 from .config.config import GlobalConfig
+from .video_processor import VideoAnalysis
 from .schema_factory.entities import Entities
 from .system_prompts.system_prompts import SystemPrompts
 
@@ -19,6 +20,7 @@ __version__ = importlib.metadata.version("pyrhubarb")
 __all__ = [
     "DocAnalysis",
     "DocClassification",
+    "VideoAnalysis",
     "LanguageModels",
     "EmbeddingModels",
     "SystemPrompts",

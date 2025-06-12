@@ -57,13 +57,14 @@ class DocAnalysis(BaseModel):
 
     system_prompt: str = Field(default=None)
     """System prompt"""
-        
-    @model_validator(mode='after')
+
+    @model_validator(mode="after")
     def validate_system_prompt(self):
-        if self.system_prompt is None or (isinstance(self.system_prompt, str) and (self.system_prompt == "" or self.system_prompt.strip() == "")):
-            self.system_prompt = SystemPrompts(
-                model_id=self.modelId
-            ).DefaultSysPrompt
+        if self.system_prompt is None or (
+            isinstance(self.system_prompt, str)
+            and (self.system_prompt == "" or self.system_prompt.strip() == "")
+        ):
+            self.system_prompt = SystemPrompts(model_id=self.modelId).DefaultSysPrompt
         return self
 
     boto3_session: Any
@@ -342,7 +343,7 @@ class DocAnalysis(BaseModel):
 
         # Join window summaries outside the f-string
         window_summaries_text = "\n\n".join(window_summaries)
-        
+
         # Create a synthesis prompt
         synthesis_prompt = f"""
         I've analyzed a document in {len(results)} sections and found information related to your question.
@@ -479,7 +480,9 @@ class DocAnalysis(BaseModel):
         Args:
         - `message` (`str`): The input message or prompt for the language model.
         - `output_schema` (`Optional[dict]`, optional): The output JSON schema for the language model response. Defaults to None.
+        - `history` (`Optional[List[dict]]`, optional): Chat history for conversation context. Defaults to None.
         """
+
         # If sliding window is enabled and we're not using history, use the sliding window approach
         if self.sliding_window_overlap > 0 and not history:
             return self._process_with_sliding_window(message, output_schema)
@@ -488,6 +491,7 @@ class DocAnalysis(BaseModel):
             self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V2
+            or self.modelId == LanguageModels.CLAUDE_SONNET_37
             or self.modelId == LanguageModels.NOVA_LITE
             or self.modelId == LanguageModels.NOVA_PRO
         ):
@@ -511,6 +515,7 @@ class DocAnalysis(BaseModel):
         )
         response = model_invoke.run_inference()
         self._message_history = model_invoke.message_history
+
         return response
 
     def run_stream(
@@ -521,7 +526,9 @@ class DocAnalysis(BaseModel):
 
         Args:
         - `message` (`Any`): The input message or prompt for the language model.
+        - `history` (`Optional[List[dict]]`, optional): Chat history for conversation context. Defaults to None.
         """
+
         # Streaming mode doesn't support sliding window approach
         if self.sliding_window_overlap > 0:
             logger.warning(
@@ -533,6 +540,7 @@ class DocAnalysis(BaseModel):
             or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V2
+            or self.modelId == LanguageModels.CLAUDE_SONNET_37
             or self.modelId == LanguageModels.NOVA_LITE
             or self.modelId == LanguageModels.NOVA_PRO
         ):
@@ -572,6 +580,7 @@ class DocAnalysis(BaseModel):
             or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V2
+            or self.modelId == LanguageModels.CLAUDE_SONNET_37
             or self.modelId == LanguageModels.NOVA_LITE
             or self.modelId == LanguageModels.NOVA_PRO
         ):
@@ -610,6 +619,7 @@ class DocAnalysis(BaseModel):
             or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V2
+            or self.modelId == LanguageModels.CLAUDE_SONNET_37
             or self.modelId == LanguageModels.NOVA_LITE
             or self.modelId == LanguageModels.NOVA_PRO
         ):

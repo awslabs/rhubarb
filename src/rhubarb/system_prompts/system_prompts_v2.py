@@ -5,6 +5,7 @@ from datetime import datetime
 
 from rhubarb.models import LanguageModels
 from rhubarb.schema_factory import SchemaFactory
+from rhubarb.system_prompts.video_prompts import VIDEO_ANALYSIS_PROMPT
 
 
 class SystemPrompts:
@@ -31,6 +32,7 @@ class SystemPrompts:
             or self.model_id == LanguageModels.CLAUDE_HAIKU_V1
             or self.model_id == LanguageModels.CLAUDE_SONNET_V1
             or self.model_id == LanguageModels.CLAUDE_SONNET_V2
+            or self.model_id == LanguageModels.CLAUDE_SONNET_37
         ):
             return "anthropic"
         elif self.model_id == LanguageModels.NOVA_LITE or self.model_id == LanguageModels.NOVA_PRO:
@@ -118,3 +120,8 @@ class SystemPrompts:
     @property
     def MultiClassificationSysPrompt(self):
         return self.get_prompt("MultiClassificationSysPrompt")
+
+    @property
+    def VideoAnalysisSysPrompt(self):
+        """System prompt for video analysis."""
+        return VIDEO_ANALYSIS_PROMPT
