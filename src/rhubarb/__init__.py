@@ -9,9 +9,9 @@ from .models import LanguageModels, EmbeddingModels
 from .analyze import DocAnalysis
 from .classify import DocClassification
 from .config.config import GlobalConfig
+from .video_processor import VideoAnalysis
 from .schema_factory.entities import Entities
 from .system_prompts.system_prompts import SystemPrompts
-from .video_processor import VideoAnalysis
 
 logging.getLogger(__name__).addHandler(NullHandler())
 

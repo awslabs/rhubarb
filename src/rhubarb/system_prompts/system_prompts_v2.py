@@ -5,9 +5,7 @@ from datetime import datetime
 
 from rhubarb.models import LanguageModels
 from rhubarb.schema_factory import SchemaFactory
-from rhubarb.system_prompts.video_prompts import (
-    VIDEO_ANALYSIS_PROMPT
-)
+from rhubarb.system_prompts.video_prompts import VIDEO_ANALYSIS_PROMPT
 
 
 class SystemPrompts:
@@ -122,7 +120,7 @@ class SystemPrompts:
     @property
     def MultiClassificationSysPrompt(self):
         return self.get_prompt("MultiClassificationSysPrompt")
-        
+
     @property
     def VideoAnalysisSysPrompt(self):
         """System prompt for video analysis."""
