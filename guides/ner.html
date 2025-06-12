@@ -6,8 +6,8 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="PII Recognition" href="pii.html" /><link rel="prev" title="Large Document Processing" href="large_document_processing.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
-        <title>Named Entity Recognition (NER) - Rhubarb 0.0.6 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+        <title>Named Entity Recognition (NER) - Rhubarb 0.0.7 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
@@ -174,7 +174,7 @@
           </label>
         </div>
         <div class="header-center">
-          <a href="../index.html"><div class="brand">Rhubarb 0.0.6 documentation</div></a>
+          <a href="../index.html"><div class="brand">Rhubarb 0.0.7 documentation</div></a>
         </div>
         <div class="header-right">
           <div class="theme-toggle-container theme-toggle-header">
@@ -200,7 +200,7 @@
     <img class="sidebar-logo" src="../_static/Rhubarb@0.5x.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Rhubarb 0.0.6 documentation</span>
+  <span class="sidebar-brand-text">Rhubarb 0.0.7 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -234,6 +234,7 @@
 <li class="toctree-l2"><a class="reference internal" href="summary.html">Document Summarization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="chatdoc.html">Chat with Documents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="figures.html">Working with images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videoanalysis.html">Video Analysis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="classification.html">Document Classification</a></li>
 </ul>
 </li>
@@ -277,7 +278,7 @@
 <p>Rhubarb comes with 50 built-in entities which includes common entities such as <code class="code docutils literal notranslate"><span class="pre">LOCATION</span></code>, <code class="code docutils literal notranslate"><span class="pre">EVENT</span></code> etc. Entities
 are available via the <code class="code docutils literal notranslate"><span class="pre">Entities</span></code> class. You can pick and choose which entities to detect and then pass them onto the
 <code class="code docutils literal notranslate"><span class="pre">run_entity()</span></code> method.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>  <span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocAnalysis</span><span class="p">,</span> <span class="n">Entities</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>  <span class="kn">from</span><span class="w"> </span><span class="nn">rhubarb</span><span class="w"> </span><span class="kn">import</span> <span class="n">DocAnalysis</span><span class="p">,</span> <span class="n">Entities</span>
 
   <span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;./test_docs/employee_enrollment.pdf&quot;</span><span class="p">,</span>
                  <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
@@ -577,7 +578,7 @@ are available via the <code class="code docutils literal notranslate"><span clas
           
         </aside>
       </div>
-    </div><script src="../_static/documentation_options.js?v=1fd71caa"></script>
+    </div><script src="../_static/documentation_options.js?v=bbaf98b3"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

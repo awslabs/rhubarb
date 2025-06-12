@@ -6,8 +6,8 @@
 <link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Usage" href="guides/usage.html" /><link rel="prev" title="Contributing" href="contributing.html" />
 
     <link rel="shortcut icon" href="_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
-        <title>Introduction - Rhubarb 0.0.6 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+        <title>Introduction - Rhubarb 0.0.7 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
@@ -174,7 +174,7 @@
           </label>
         </div>
         <div class="header-center">
-          <a href="index.html"><div class="brand">Rhubarb 0.0.6 documentation</div></a>
+          <a href="index.html"><div class="brand">Rhubarb 0.0.7 documentation</div></a>
         </div>
         <div class="header-right">
           <div class="theme-toggle-container theme-toggle-header">
@@ -200,7 +200,7 @@
     <img class="sidebar-logo" src="_static/Rhubarb@0.5x.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Rhubarb 0.0.6 documentation</span>
+  <span class="sidebar-brand-text">Rhubarb 0.0.7 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -234,6 +234,7 @@
 <li class="toctree-l2"><a class="reference internal" href="guides/summary.html">Document Summarization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="guides/chatdoc.html">Chat with Documents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="guides/figures.html">Working with images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="guides/videoanalysis.html">Video Analysis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="guides/classification.html">Document Classification</a></li>
 </ul>
 </li>
@@ -274,13 +275,15 @@
             <article role="main">
               <section id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">¶</a></h1>
-<p><strong>Rhubarb</strong> can perform multiple document processing and understanding tasks. Fundamentally, Rhubarb uses Multi-modal language
-models and multi-modal embedding models available via Amazon Bedrock to perform document extraction, summarization, Entity detection, Q&amp;A and more.
-Rhubarb comes with built-in system prompts that makes it easy to use it for a number of different document understanding use-cases. You can customize
+<p><strong>Rhubarb</strong> can perform multiple document and video processing and understanding tasks. Fundamentally, Rhubarb uses Multi-modal language
+models and multi-modal embedding models available via Amazon Bedrock to perform document extraction, summarization, Entity detection, Q&amp;A, video analysis and more.
+Rhubarb comes with built-in system prompts that makes it easy to use it for a number of different understanding use-cases. You can customize
 Rhubarb by passing in your own system and user prompts. It supports deterministic JSON schema based output generation which makes
 it easy to integrate into downstream applications.</p>
 <section id="features">
 <h2>Features<a class="headerlink" href="#features" title="Link to this heading">¶</a></h2>
+<section id="document-processing">
+<h3>Document Processing<a class="headerlink" href="#document-processing" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Document Q&amp;A</p></li>
 <li><p>Streaming chat with documents (Q&amp;A)</p></li>
@@ -323,16 +326,30 @@ it easy to integrate into downstream applications.</p>
 <li><p>Logs token usage to help keep track of costs</p></li>
 </ul>
 </section>
+<section id="video-analysis">
+<h3>Video Analysis<a class="headerlink" href="#video-analysis" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Video summarization</p></li>
+<li><p>Entity extraction from videos</p></li>
+<li><p>Action and movement analysis</p></li>
+<li><p>Text extraction from video frames</p></li>
+<li><p>Streaming video analysis responses</p></li>
+</ul>
+</section>
+</section>
 <section id="things-to-know">
 <h2>Things to know<a class="headerlink" href="#things-to-know" title="Link to this heading">¶</a></h2>
 <p>In it’s current form Rhubarb-</p>
 <ol class="arabic simple">
-<li><p>Supports PDF, TIFF, PNG, DOCX, JPG files. You can use upto 20 page PDF or TIFF documents</p></li>
+<li><p>Supports PDF, TIFF, PNG, DOCX, JPG files for document processing</p></li>
+<li><p>Supports MP4, AVI, MOV, and other common video formats for video analysis (S3 storage required)</p></li>
 <li><p>Performs document to image conversion internally to work with the multi-modal models</p></li>
-<li><p>Works on local files or files stored in S3</p></li>
+<li><p>Works on local files or files stored in S3 (video analysis requires S3 storage)</p></li>
 <li><p>Supports specifying page numbers for multi-page documents</p></li>
 <li><p>Supports chat-history based chat for documents</p></li>
 <li><p>Supports streaming and non-streaming mode</p></li>
+<li><p>Supports Converse API</p></li>
+<li><p>Supports Cross-Region Inference</p></li>
 </ol>
 </section>
 </section>
@@ -419,7 +436,11 @@ it easy to integrate into downstream applications.</p>
               <div class="toc-tree">
                 <ul>
 <li><a class="reference internal" href="#">Introduction</a><ul>
-<li><a class="reference internal" href="#features">Features</a></li>
+<li><a class="reference internal" href="#features">Features</a><ul>
+<li><a class="reference internal" href="#document-processing">Document Processing</a></li>
+<li><a class="reference internal" href="#video-analysis">Video Analysis</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#things-to-know">Things to know</a></li>
 </ul>
 </li>
@@ -432,7 +453,7 @@ it easy to integrate into downstream applications.</p>
           
         </aside>
       </div>
-    </div><script src="_static/documentation_options.js?v=1fd71caa"></script>
+    </div><script src="_static/documentation_options.js?v=bbaf98b3"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=5fa4622c"></script>

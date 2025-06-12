@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Using Converse API" href="useconverseapi.html" /><link rel="prev" title="Document Q&amp;A" href="docqa.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Document Classification" href="classification.html" /><link rel="prev" title="Working with images" href="figures.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
-        <title>Change Default Model - Rhubarb 0.0.7 documentation</title>
+        <title>Video Analysis - Rhubarb 0.0.7 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -185,7 +185,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-header-icon no-toc" id="toc-menu-open-sm" for="__toc" tabindex="0">
+          <label class="toc-overlay-icon toc-header-icon" id="toc-menu-open-sm" for="__toc" tabindex="0">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -222,7 +222,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="usage.html">Usage</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Usage</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="docqa.html">Document Q&amp;A</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Change Default Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="specifymodels.html">Change Default Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="useconverseapi.html">Using Converse API</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usecrossregioninference.html">Using Cross-Region Inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="specifypages.html">Specify Document Pages</a></li>
@@ -234,7 +234,7 @@
 <li class="toctree-l2"><a class="reference internal" href="summary.html">Document Summarization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="chatdoc.html">Chat with Documents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="figures.html">Working with images</a></li>
-<li class="toctree-l2"><a class="reference internal" href="videoanalysis.html">Video Analysis</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Video Analysis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="classification.html">Document Classification</a></li>
 </ul>
 </li>
@@ -267,53 +267,151 @@
                   <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
                 </button>
               </div>
-              <label class="toc-overlay-icon toc-content-icon no-toc" id="toc-menu-open-md" for="__toc" tabindex="0">
+              <label class="toc-overlay-icon toc-content-icon" id="toc-menu-open-md" for="__toc" tabindex="0">
                 <div class="visually-hidden">Toggle table of contents sidebar</div>
                 <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
               </label>
             </div>
             <article role="main">
-              <section id="change-default-model">
-<h1>Change Default Model<a class="headerlink" href="#change-default-model" title="Link to this heading">¶</a></h1>
-<p>By default Rhubarb uses Claude Sonnet model, however you can also use Haiku, Opus, Nova Pro, or Nova Lite. Different Language Models are available via
-<code class="code docutils literal notranslate"><span class="pre">LanguageModel</span></code> class.</p>
+              <section id="video-analysis">
+<span id="aws-boto3-examples"></span><h1>Video Analysis<a class="headerlink" href="#video-analysis" title="Link to this heading">¶</a></h1>
+<p>Rhubarb supports video analysis using Amazon Bedrock’s Nova models. This feature allows you to extract insights, summaries, and information from video content.</p>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading">¶</a></h2>
 <ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.CLAUDE_HAIKU_V1</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.CLAUDE_SONNET_V1</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.CLAUDE_SONNET_V2</span></code> (default)</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.CLAUDE_SONNET_4</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.CLAUDE_OPUS_4</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.CLAUDE_OPUS_V1</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.NOVA_PRO</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.NOVA_LITE</span></code></p></li>
+<li><p>Videos must be stored in Amazon S3</p></li>
+<li><p>Only Amazon Nova models (NOVA_PRO or NOVA_LITE) are supported</p></li>
+<li><p>A valid boto3 session with appropriate permissions</p></li>
 </ul>
-<p>Use Claude Haiku -</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>  <span class="kn">from</span><span class="w"> </span><span class="nn">rhubarb</span><span class="w"> </span><span class="kn">import</span> <span class="n">DocAnalysis</span><span class="p">,</span> <span class="n">LanguageModels</span>
+</section>
+<section id="basic-usage">
+<h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rhubarb</span><span class="w"> </span><span class="kn">import</span> <span class="n">VideoAnalysis</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">boto3</span>
 
-  <span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;s3://your-bucket/employee_enrollment.pdf&quot;</span><span class="p">,</span>
-                   <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
-<span class="hll">                   <span class="n">modelId</span><span class="o">=</span><span class="n">LanguageModels</span><span class="o">.</span><span class="n">CLAUDE_HAIKU_V1</span><span class="p">)</span>
-</span>  <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;What is the employee&#39;s name?&quot;</span><span class="p">)</span>
+<span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+
+<span class="n">va</span> <span class="o">=</span> <span class="n">VideoAnalysis</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;s3://my-bucket/my-video.mp4&quot;</span><span class="p">,</span>
+    <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span>
+<span class="p">)</span>
+
+<span class="c1"># Ask a question about the video</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">va</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;What is the main topic of this video?&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Or Claude Opus -</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>  <span class="kn">from</span><span class="w"> </span><span class="nn">rhubarb</span><span class="w"> </span><span class="kn">import</span> <span class="n">DocAnalysis</span><span class="p">,</span> <span class="n">LanguageModels</span>
+</section>
+<section id="available-methods">
+<h2>Available Methods<a class="headerlink" href="#available-methods" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">run(message)</span></code>: Ask any question about the video</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run_stream(message)</span></code>: Stream the response to any question about the video</p></li>
+</ul>
+</section>
+<section id="asking-specific-questions">
+<h2>Asking Specific Questions<a class="headerlink" href="#asking-specific-questions" title="Link to this heading">¶</a></h2>
+<p>You can ask specific questions about the video content:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">boto3</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rhubarb</span><span class="w"> </span><span class="kn">import</span> <span class="n">VideoAnalysis</span><span class="p">,</span> <span class="n">LanguageModels</span>
 
-  <span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;s3://your-bucket/employee_enrollment.pdf&quot;</span><span class="p">,</span>
-                   <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
-<span class="hll">                   <span class="n">modelId</span><span class="o">=</span><span class="n">LanguageModels</span><span class="o">.</span><span class="n">CLAUDE_OPUS_V1</span><span class="p">)</span>
-</span>  <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;What is the employee&#39;s name?&quot;</span><span class="p">)</span>
+<span class="c1"># Create a boto3 session</span>
+<span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+
+<span class="c1"># Initialize video analysis with a video in S3</span>
+<span class="n">va</span> <span class="o">=</span> <span class="n">VideoAnalysis</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;s3://my-bucket/my-video.mp4&quot;</span><span class="p">,</span>
+    <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
+    <span class="n">modelId</span><span class="o">=</span><span class="n">LanguageModels</span><span class="o">.</span><span class="n">NOVA_PRO</span>  <span class="c1"># For higher quality analysis</span>
+<span class="p">)</span>
+
+<span class="c1"># Ask questions about the video</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">va</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;What is happening in this video?&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+<span class="c1"># Ask about specific aspects of the video</span>
+<span class="n">summary_response</span> <span class="o">=</span> <span class="n">va</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Provide a comprehensive summary of this video&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">summary_response</span><span class="p">)</span>
+
+<span class="n">entities_response</span> <span class="o">=</span> <span class="n">va</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;What people, objects, and locations appear in this video?&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">entities_response</span><span class="p">)</span>
+
+<span class="n">actions_response</span> <span class="o">=</span> <span class="n">va</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Describe the main actions and movements in this video&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">actions_response</span><span class="p">)</span>
+
+<span class="n">text_response</span> <span class="o">=</span> <span class="n">va</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Extract any visible text from this video&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">text_response</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Or Nova Pro -</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>  <span class="kn">from</span><span class="w"> </span><span class="nn">rhubarb</span><span class="w"> </span><span class="kn">import</span> <span class="n">DocAnalysis</span><span class="p">,</span> <span class="n">LanguageModels</span>
-
-  <span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;s3://your-bucket/employee_enrollment.pdf&quot;</span><span class="p">,</span>
-                   <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
-<span class="hll">                   <span class="n">modelId</span><span class="o">=</span><span class="n">LanguageModels</span><span class="o">.</span><span class="n">NOVA_PRO</span><span class="p">)</span>
-</span>  <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;What is the employee&#39;s name?&quot;</span><span class="p">)</span>
+</section>
+<section id="streaming-responses">
+<h2>Streaming Responses<a class="headerlink" href="#streaming-responses" title="Link to this heading">¶</a></h2>
+<p>For faster feedback, you can stream the responses:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Stream responses for better user experience</span>
+<span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">va</span><span class="o">.</span><span class="n">run_stream</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Analyze this video in detail&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s2">&quot;response&quot;</span> <span class="ow">in</span> <span class="n">chunk</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">chunk</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">],</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+</section>
+<section id="using-different-models">
+<h2>Using Different Models<a class="headerlink" href="#using-different-models" title="Link to this heading">¶</a></h2>
+<p>You can specify which Nova model to use for video analysis:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rhubarb</span><span class="w"> </span><span class="kn">import</span> <span class="n">VideoAnalysis</span><span class="p">,</span> <span class="n">LanguageModels</span>
+
+<span class="c1"># Use Nova Pro for higher quality analysis</span>
+<span class="n">va</span> <span class="o">=</span> <span class="n">VideoAnalysis</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;s3://my-bucket/my-video.mp4&quot;</span><span class="p">,</span>
+    <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
+    <span class="n">modelId</span><span class="o">=</span><span class="n">LanguageModels</span><span class="o">.</span><span class="n">NOVA_PRO</span>
+<span class="p">)</span>
+
+<span class="c1"># Use Nova Lite for faster, more economical analysis</span>
+<span class="n">va_lite</span> <span class="o">=</span> <span class="n">VideoAnalysis</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;s3://my-bucket/my-video.mp4&quot;</span><span class="p">,</span>
+    <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
+    <span class="n">modelId</span><span class="o">=</span><span class="n">LanguageModels</span><span class="o">.</span><span class="n">NOVA_LITE</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="configuration-options">
+<h2>Configuration Options<a class="headerlink" href="#configuration-options" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">modelId</span></code>: Choose between NOVA_PRO and NOVA_LITE (default: NOVA_LITE)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">system_prompt</span></code>: Customize the system prompt for specialized analysis</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_tokens</span></code>: Control the length of the generated response</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">temperature</span></code>: Adjust the creativity of the responses</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">frame_interval</span></code>: Set the interval between frames in seconds</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_frames</span></code>: Limit the maximum number of frames to extract</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">use_converse_api</span></code>: Enable Bedrock’s converse API for tool use</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">enable_cri</span></code>: Enable Cross-region inference</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">s3_bucket_owner</span></code>: Specify the AWS account ID for cross-account S3 access</p></li>
+</ul>
+</section>
+<section id="advanced-configuration">
+<h2>Advanced Configuration<a class="headerlink" href="#advanced-configuration" title="Link to this heading">¶</a></h2>
+<p>Configure additional parameters for video analysis:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">va</span> <span class="o">=</span> <span class="n">VideoAnalysis</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;s3://my-bucket/my-video.mp4&quot;</span><span class="p">,</span>
+    <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
+    <span class="n">modelId</span><span class="o">=</span><span class="n">LanguageModels</span><span class="o">.</span><span class="n">NOVA_PRO</span><span class="p">,</span>
+    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span>           <span class="c1"># Control response length</span>
+    <span class="n">temperature</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>           <span class="c1"># Adjust creativity</span>
+    <span class="n">use_converse_api</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>     <span class="c1"># Use Bedrock&#39;s converse API</span>
+    <span class="n">enable_cri</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>           <span class="c1"># Enable cross-region inference</span>
+    <span class="n">s3_bucket_owner</span><span class="o">=</span><span class="s2">&quot;123456789012&quot;</span>  <span class="c1"># For cross-account S3 access</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="limitations">
+<h2>Limitations<a class="headerlink" href="#limitations" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Currently only supports videos stored in Amazon S3</p></li>
+<li><p>Requires Amazon Nova models (NOVA_PRO or NOVA_LITE)</p></li>
+<li><p>Video processing capabilities are determined by the underlying model’s capabilities</p></li>
+</ul>
+</section>
 </section>
 
             </article>
@@ -321,23 +419,23 @@
           <footer>
             
             <div class="related-pages">
-              <a class="next-page" href="useconverseapi.html">
+              <a class="next-page" href="classification.html">
                   <div class="page-info">
                     <div class="context">
                       <span>Next</span>
                     </div>
-                    <div class="title">Using Converse API</div>
+                    <div class="title">Document Classification</div>
                   </div>
                   <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
                 </a>
-              <a class="prev-page" href="docqa.html">
+              <a class="prev-page" href="figures.html">
                   <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
                   <div class="page-info">
                     <div class="context">
                       <span>Previous</span>
                     </div>
                     
-                    <div class="title">Document Q&amp;A</div>
+                    <div class="title">Working with images</div>
                     
                   </div>
                 </a>
@@ -379,8 +477,41 @@
             
           </footer>
         </div>
-        <aside class="toc-drawer no-toc">
+        <aside class="toc-drawer">
           
+          
+          <div class="toc-sticky toc-scroll">
+            <div class="sidebar-div show-div-md justify-content-left">
+                <label class="nav-close-icon" id="toc-menu-close" for="__toc" tabindex="0">
+                    <div class="visually-hidden">Toggle site table of content right sidebar</div>
+                    <i class="icon"><svg><use href="#svg-close"></use></svg></i>
+                </label>
+            </div>
+            <div class="toc-title-container">
+              <span class="toc-title">
+                On this page
+              </span>
+            </div>
+            <div class="toc-tree-container">
+              <div class="toc-tree">
+                <ul>
+<li><a class="reference internal" href="#">Video Analysis</a><ul>
+<li><a class="reference internal" href="#requirements">Requirements</a></li>
+<li><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+<li><a class="reference internal" href="#available-methods">Available Methods</a></li>
+<li><a class="reference internal" href="#asking-specific-questions">Asking Specific Questions</a></li>
+<li><a class="reference internal" href="#streaming-responses">Streaming Responses</a></li>
+<li><a class="reference internal" href="#using-different-models">Using Different Models</a></li>
+<li><a class="reference internal" href="#configuration-options">Configuration Options</a></li>
+<li><a class="reference internal" href="#advanced-configuration">Advanced Configuration</a></li>
+<li><a class="reference internal" href="#limitations">Limitations</a></li>
+</ul>
+</li>
+</ul>
+
+              </div>
+            </div>
+          </div>
           
           
         </aside>

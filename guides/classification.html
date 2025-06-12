@@ -3,11 +3,11 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Global Configuration" href="configurations.html" /><link rel="prev" title="Working with images" href="figures.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Global Configuration" href="configurations.html" /><link rel="prev" title="Video Analysis" href="videoanalysis.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
-        <title>Document Classification - Rhubarb 0.0.6 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+        <title>Document Classification - Rhubarb 0.0.7 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
@@ -174,7 +174,7 @@
           </label>
         </div>
         <div class="header-center">
-          <a href="../index.html"><div class="brand">Rhubarb 0.0.6 documentation</div></a>
+          <a href="../index.html"><div class="brand">Rhubarb 0.0.7 documentation</div></a>
         </div>
         <div class="header-right">
           <div class="theme-toggle-container theme-toggle-header">
@@ -200,7 +200,7 @@
     <img class="sidebar-logo" src="../_static/Rhubarb@0.5x.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Rhubarb 0.0.6 documentation</span>
+  <span class="sidebar-brand-text">Rhubarb 0.0.7 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -234,6 +234,7 @@
 <li class="toctree-l2"><a class="reference internal" href="summary.html">Document Summarization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="chatdoc.html">Chat with Documents</a></li>
 <li class="toctree-l2"><a class="reference internal" href="figures.html">Working with images</a></li>
+<li class="toctree-l2"><a class="reference internal" href="videoanalysis.html">Video Analysis</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Document Classification</a></li>
 </ul>
 </li>
@@ -325,8 +326,8 @@ RECEIPT,s3://your-bucket/samples/receipt_2.pdf,1
 <h2>Setup a classifier<a class="headerlink" href="#setup-a-classifier" title="Link to this heading">¶</a></h2>
 <p>You initialize an instance of <code class="code docutils literal notranslate"><span class="pre">DocClassification</span></code> and call the <code class="code docutils literal notranslate"><span class="pre">run_sampling()</span></code> function with the manifest file path to start the sampling process. This should be a fairly quick process and shouldn’t take more than a few minutes.
 The function will return a <code class="code docutils literal notranslate"><span class="pre">sample_id</span></code> which you can subsequently use to run document classification tasks. You will also need to provide an S3 bucket where the resulting vector samples will be stored for later use.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocClassification</span>
-<span class="kn">import</span> <span class="nn">boto3</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rhubarb</span><span class="w"> </span><span class="kn">import</span> <span class="n">DocClassification</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">boto3</span>
 
 <span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
 
@@ -345,8 +346,8 @@ The function will return a <code class="code docutils literal notranslate"><span
 <section id="using-a-classifier">
 <h2>Using a classifier<a class="headerlink" href="#using-a-classifier" title="Link to this heading">¶</a></h2>
 <p>You use the <code class="code docutils literal notranslate"><span class="pre">run_classify()</span></code> function with path to the new document you would like to classify. The file can be a multi-page document and Rhubarb will classify each page individually.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocClassification</span>
-<span class="kn">import</span> <span class="nn">boto3</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rhubarb</span><span class="w"> </span><span class="kn">import</span> <span class="n">DocClassification</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">boto3</span>
 
 <span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
 
@@ -375,8 +376,8 @@ The function will return a <code class="code docutils literal notranslate"><span
 In such cases, it can be useful to mark these documents as <code class="code docutils literal notranslate"><span class="pre">UNKNOWN</span></code> and isolate them for further analysis. This can be achieved
 using the <code class="code docutils literal notranslate"><span class="pre">unknown_threshold</span></code> parameter. By default, the value is set to <code class="code docutils literal notranslate"><span class="pre">0.8</span></code> i.e. any document below this threshold is
 automatically marked as <code class="code docutils literal notranslate"><span class="pre">UNKNOWN</span></code>. However, you can override this value to further tune your classification task.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocClassification</span>
- <span class="kn">import</span> <span class="nn">boto3</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span><span class="w"> </span><span class="nn">rhubarb</span><span class="w"> </span><span class="kn">import</span> <span class="n">DocClassification</span>
+ <span class="kn">import</span><span class="w"> </span><span class="nn">boto3</span>
 
  <span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
  <span class="n">dc</span> <span class="o">=</span> <span class="n">DocClassification</span><span class="p">(</span><span class="n">bucket_name</span><span class="o">=</span><span class="s2">&quot;your-classifier-bucket&quot;</span><span class="p">,</span> <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">)</span>
@@ -429,8 +430,8 @@ Euclidian distance for classification.</p>
 <p class="admonition-title">Note</p>
 <p>In case of Euclidian distance, your <code class="code docutils literal notranslate"><span class="pre">unknown_threshold</span></code> is the inverse of <code class="code docutils literal notranslate"><span class="pre">cosine</span></code> similarity. Which means if <code class="code docutils literal notranslate"><span class="pre">unknown_threshold</span></code> is set to <code class="code docutils literal notranslate"><span class="pre">0.5</span></code> then any class with score more than <code class="code docutils literal notranslate"><span class="pre">0.5</span></code> will be marked as <code class="code docutils literal notranslate"><span class="pre">UNKNOWN</span></code> since it is the most dissimilar to all the known classes.</p>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocClassification</span>
-<span class="kn">import</span> <span class="nn">boto3</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rhubarb</span><span class="w"> </span><span class="kn">import</span> <span class="n">DocClassification</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">boto3</span>
 
 <span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
 <span class="n">dc</span> <span class="o">=</span> <span class="n">DocClassification</span><span class="p">(</span><span class="n">bucket_name</span><span class="o">=</span><span class="s2">&quot;your-classifier-bucket&quot;</span><span class="p">,</span> <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">)</span>
@@ -457,8 +458,8 @@ Euclidian distance for classification.</p>
 <h2>Viewing a classifier<a class="headerlink" href="#viewing-a-classifier" title="Link to this heading">¶</a></h2>
 <p>You can view the details of an existing classifier using the <code class="code docutils literal notranslate"><span class="pre">view_sample()</span></code> function. This will show you the classes you
 have configured for your classifiers and the samples you used while creating the classifier.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocClassification</span>
-<span class="kn">import</span> <span class="nn">boto3</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rhubarb</span><span class="w"> </span><span class="kn">import</span> <span class="n">DocClassification</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">boto3</span>
 
 <span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
 
@@ -494,8 +495,8 @@ DISCHARGE_SUMMARY,s3://your-bucket/samples/discharge_summary_4.pdf,1
 <p class="admonition-title">Note</p>
 <p>It is recommended that you use samples that were not used before while creating the classifier (sample), since Rhubarb doesn’t do any de-duplication internally.</p>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocClassification</span>
- <span class="kn">import</span> <span class="nn">boto3</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span><span class="w"> </span><span class="nn">rhubarb</span><span class="w"> </span><span class="kn">import</span> <span class="n">DocClassification</span>
+ <span class="kn">import</span><span class="w"> </span><span class="nn">boto3</span>
 
  <span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
  <span class="n">dc</span> <span class="o">=</span> <span class="n">DocClassification</span><span class="p">(</span><span class="n">bucket_name</span><span class="o">=</span><span class="s2">&quot;your-classifier-bucket&quot;</span><span class="p">,</span>
@@ -511,8 +512,8 @@ DISCHARGE_SUMMARY,s3://your-bucket/samples/discharge_summary_4.pdf,1
 </pre></div>
 </div>
 <p>View the updated classifier</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocClassification</span>
-<span class="kn">import</span> <span class="nn">boto3</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rhubarb</span><span class="w"> </span><span class="kn">import</span> <span class="n">DocClassification</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">boto3</span>
 
 <span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
 
@@ -550,8 +551,8 @@ using the <code class="code docutils literal notranslate"><span class="pre">upda
 <p class="admonition-title">Warning</p>
 <p>The prefix must not contain any leading or trailing <code class="code docutils literal notranslate"><span class="pre">/</span></code>.</p>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>   <span class="kn">from</span> <span class="nn">rhubarb</span> <span class="kn">import</span> <span class="n">DocClassification</span><span class="p">,</span> <span class="n">GlobalConfig</span>
-   <span class="kn">import</span> <span class="nn">boto3</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>   <span class="kn">from</span><span class="w"> </span><span class="nn">rhubarb</span><span class="w"> </span><span class="kn">import</span> <span class="n">DocClassification</span><span class="p">,</span> <span class="n">GlobalConfig</span>
+   <span class="kn">import</span><span class="w"> </span><span class="nn">boto3</span>
 
    <span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
 
@@ -577,14 +578,14 @@ using the <code class="code docutils literal notranslate"><span class="pre">upda
                   </div>
                   <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
                 </a>
-              <a class="prev-page" href="figures.html">
+              <a class="prev-page" href="videoanalysis.html">
                   <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
                   <div class="page-info">
                     <div class="context">
                       <span>Previous</span>
                     </div>
                     
-                    <div class="title">Working with images</div>
+                    <div class="title">Video Analysis</div>
                     
                   </div>
                 </a>
@@ -668,7 +669,7 @@ using the <code class="code docutils literal notranslate"><span class="pre">upda
           
         </aside>
       </div>
-    </div><script src="../_static/documentation_options.js?v=1fd71caa"></script>
+    </div><script src="../_static/documentation_options.js?v=bbaf98b3"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
