@@ -160,7 +160,7 @@ class VideoAnalysis(BaseModel):
         s3_config = Config(
             retries={"max_attempts": 0, "mode": "standard"}, signature_version="s3v4"
         )
-        br_config = Config(retries={"max_attempts": 0, "mode": "standard"})
+        br_config = Config(retries={"max_attempts": 0, "mode": "standard"}, tcp_keepalive=True, read_timeout=3600)
         session = values.get("boto3_session")
         cls._s3_client = session.client("s3", config=s3_config)
         cls._bedrock_client = session.client("bedrock-runtime", config=br_config)
