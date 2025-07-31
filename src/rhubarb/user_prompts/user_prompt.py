@@ -24,6 +24,7 @@ class UserMessages:
         output_schema: Optional[dict] = None,
         message_history: Optional[List[dict]] = None,
         modelId: Optional[Any] = None,
+        include_powerpoint_notes: bool = False,
     ) -> None:
         self.file_path = file_path
         self.s3_client = s3_client
@@ -36,9 +37,15 @@ class UserMessages:
         self.use_converse_api = use_converse_api
         self.message_history = message_history
         self.modelId = modelId
+        self.include_powerpoint_notes = include_powerpoint_notes
 
     def _get_pages_from_doc(self) -> List[dict]:
-        fc = FileConverter(file_path=self.file_path, s3_client=self.s3_client, pages=self.pages)
+        fc = FileConverter(
+            file_path=self.file_path, 
+            s3_client=self.s3_client, 
+            pages=self.pages,
+            include_powerpoint_notes=self.include_powerpoint_notes
+        )
         if self.use_converse_api:
             byte_pages = fc.convert_to_bytes()
             return byte_pages
