@@ -1,9 +1,9 @@
-name: Publish pyrhubarb-mcp to PyPIs
+name: Publish pyrhubarb-mcp to PyPI
 
 on:
   push:
     branches:
-      - 'fix-mcp-pipeline'
+      - main
     tags:
       - 'mcp-v*'
     paths:
@@ -44,28 +44,28 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
-      #- name: Test MCP Server Import
-      #  run: |
-      #    echo "Testing MCP server module import..."
-      #    poetry run python -c "from pyrhubarb_mcp import RhubarbMCPServer; print('✓ MCP server module imported successfully')"
+      - name: Test MCP Server Import
+        run: |
+          echo "Testing MCP server module import..."
+          poetry run python -c "from pyrhubarb_mcp import RhubarbMCPServer; print('✓ MCP server module imported successfully')"
 
-      #- name: Test MCP Server CLI Entry Point
-      #  run: |
-      #    echo "Testing MCP server CLI entry point..."
-      #    poetry run pyrhubarb-mcp --version
-      #    echo "✓ MCP server CLI entry point working"
+      - name: Test MCP Server CLI Entry Point
+        run: |
+          echo "Testing MCP server CLI entry point..."
+          poetry run pyrhubarb-mcp --version
+          echo "✓ MCP server CLI entry point working"
 
-      #- name: Test MCP Server Dependencies
-      #  run: |
-      #    echo "Checking MCP server dependencies..."
-      #    poetry run pyrhubarb-mcp --check-deps
-      #    echo "✓ MCP server dependencies validated"
+      - name: Test MCP Server Dependencies
+        run: |
+          echo "Checking MCP server dependencies..."
+          poetry run pyrhubarb-mcp --check-deps
+          echo "✓ MCP server dependencies validated"
 
-      #- name: Test MCP Server Help
-      #  run: |
-      #    echo "Testing MCP server help system..."
-      #    poetry run pyrhubarb-mcp --help > /dev/null
-      #    echo "✓ MCP server help system working"
+      - name: Test MCP Server Help
+        run: |
+          echo "Testing MCP server help system..."
+          poetry run pyrhubarb-mcp --help > /dev/null
+          echo "✓ MCP server help system working"
 
       - name: Clean previous builds
         run: rm -rf dist
@@ -74,7 +74,7 @@ jobs:
         run: poetry build --verbose
 
       - name: Build and publish to PyPI
-        #if: startsWith(github.ref, 'refs/tags/mcp-v')
+        if: startsWith(github.ref, 'refs/tags/mcp-v')
         env:
           POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
         run: poetry publish --verbose
