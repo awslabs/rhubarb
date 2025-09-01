@@ -1,4 +1,4 @@
-name: Publish pyrhubarb-mcp to PyPI
+name: Publish pyrhubarb-mcp to PyPIs
 
 on:
   push:
