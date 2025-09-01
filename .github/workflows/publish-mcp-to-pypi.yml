@@ -3,7 +3,7 @@ name: Publish pyrhubarb-mcp to PyPI
 on:
   push:
     branches:
-      - main
+      - 'fix-mcp-pipeline'
     tags:
       - 'mcp-v*'
     paths:
