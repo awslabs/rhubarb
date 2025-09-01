@@ -1,4 +1,4 @@
-# Rhubarb MCP Server
+# Rhubarb MCP Server 
 
 A dedicated MCP server package that exposes all of [Rhubarb's](https://github.com/awslabs/rhubarb) document and video understanding capabilities through the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/).
 
