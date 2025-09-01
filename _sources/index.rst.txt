@@ -27,6 +27,14 @@ Usage
    guides/usage
    video_analysis
 
+MCP Integration
+---------------
+
+.. toctree::
+   :maxdepth: 2
+
+   guides/mcp_server
+
 Configuration
 -------------
 
