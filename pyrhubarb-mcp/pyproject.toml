@@ -1,41 +1,31 @@
 [tool.poetry]
-name = "pyrhubarb"
-version = "0.0.7"
-description = "A Python framework for multi-modal document understanding with generative AI"
+name = "pyrhubarb-mcp"
+version = "0.1.0"
+description = "MCP server for Rhubarb document and video understanding capabilities"
 authors = ["Rhubarb Developers <rhubarb-developers@amazon.com>"]
 license = "Apache 2.0"
 readme = "README.md"
 homepage = "https://github.com/awslabs/rhubarb"
 repository = "https://github.com/awslabs/rhubarb"
-documentation = "https://github.com/awslabs/rhubarb"
+documentation = "https://awslabs.github.io/rhubarb/"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
 ]
 packages = [
-    { include = "rhubarb", from = "src" },
+    { include = "pyrhubarb_mcp", from = "src" },
 ]
 
 [tool.poetry.dependencies]
 python = ">=3.11"
-pillow = "^10.3.0"
-pdfplumber = "^0.11.0"
-jsonschema = "^4.21.1"
-pydantic = "^2.6.4"
-fastparquet = "^2024.5.0"
-numpy = "^1.24.0"
-pandas = "^2.0.0"
+fastmcp = "^0.3.0"
+pyrhubarb = "^0.0.7"
 boto3 = "^1.35.20"
 botocore = "^1.35.20"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.3.4"
-pre-commit = "^3.7.0"
-sphinx = "^7.3.4"
-furo = "^2024.1.29"
-nbsphinx = "^0.9.3"
-sphinx-copybutton = "^0.5.2"
 
 [tool.ruff]
 line-length = 100
@@ -47,6 +37,8 @@ extend-select = ["I"]
 [tool.ruff.lint.isort]
 length-sort = true
 
+[tool.poetry.scripts]
+pyrhubarb-mcp = "pyrhubarb_mcp.cli:main_sync"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
