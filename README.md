@@ -10,6 +10,9 @@
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-311/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](https://github.com/awslabs/rhubarb/actions)
+[![Coverage](https://img.shields.io/badge/coverage-41%25-yellow.svg)](https://github.com/awslabs/rhubarb/actions)
+[![Security](https://img.shields.io/badge/security-scanned-blue.svg)](https://github.com/awslabs/rhubarb/security)
 
 </div>
 
@@ -195,6 +198,42 @@ Note: The sliding window technique is not yet supported for document classificat
 For more details, see the [Large Document Processing Cookbook](cookbooks/2-large-document-processing.ipynb).
 
 For more usage examples see [cookbooks](./cookbooks/).
+
+## Development & Quality Standards
+
+### Testing
+- **Coverage**: 41% (target: 80%)
+- **Test Types**: Unit, Integration, Security
+- **CI/CD**: Automated testing on all PRs
+- **Documentation**: [TESTING.md](TESTING.md)
+
+```bash
+# Run tests locally
+pytest --cov=rhubarb --cov-report=html
+
+# Run security scans
+bandit -r src/
+safety check
+```
+
+### Security
+- **Static Analysis**: Bandit security scanning
+- **Dependency Scanning**: Safety vulnerability checks
+- **Automated Scans**: Weekly security pipeline
+- **Documentation**: [SECURITY.md](SECURITY.md)
+
+### Code Quality
+- **Formatter**: Ruff
+- **Linter**: Ruff with extended rules
+- **Type Hints**: Required for public APIs
+- **Pre-commit Hooks**: Automated code quality checks
+- **Documentation**: [DEVELOPMENT.md](DEVELOPMENT.md)
+
+### Error Handling
+- **Custom Exceptions**: Domain-specific error hierarchy
+- **Validation**: Input validation at API boundaries
+- **Logging**: Structured logging with context
+- **Documentation**: Comprehensive error handling patterns
 
 ## Security
 

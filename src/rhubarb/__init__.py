@@ -12,6 +12,17 @@ from .config.config import GlobalConfig
 from .video_processor import VideoAnalysis
 from .schema_factory.entities import Entities
 from .system_prompts.system_prompts import SystemPrompts
+from .exceptions import (
+    RhubarbError,
+    DocumentProcessingError,
+    VideoProcessingError,
+    ClassificationError,
+    ModelInvocationError,
+    FileFormatError,
+    S3AccessError,
+    ValidationError,
+    ConfigurationError
+)
 
 logging.getLogger(__name__).addHandler(NullHandler())
 
@@ -26,4 +37,13 @@ __all__ = [
     "SystemPrompts",
     "Entities",
     "GlobalConfig",
+    "RhubarbError",
+    "DocumentProcessingError",
+    "VideoProcessingError",
+    "ClassificationError",
+    "ModelInvocationError",
+    "FileFormatError",
+    "S3AccessError",
+    "ValidationError",
+    "ConfigurationError",
 ]
