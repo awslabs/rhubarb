@@ -436,7 +436,7 @@ class DocAnalysis(BaseModel):
         s3_config = Config(
             retries={"max_attempts": 0, "mode": "standard"}, signature_version="s3v4"
         )
-        br_config = Config(retries={"max_attempts": 0, "mode": "standard"})
+        br_config = Config(retries={"max_attempts": 0, "mode": "standard"}, read_timeout=300)
         session = values.get("boto3_session")
         cls._s3_client = session.client("s3", config=s3_config)
         cls._bedrock_client = session.client("bedrock-runtime", config=br_config)
@@ -492,6 +492,7 @@ class DocAnalysis(BaseModel):
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V2
             or self.modelId == LanguageModels.CLAUDE_SONNET_37
+            or self.modelId == LanguageModels.CLAUDE_SONNET_45
             or self.modelId == LanguageModels.NOVA_LITE
             or self.modelId == LanguageModels.NOVA_PRO
         ):
@@ -541,6 +542,7 @@ class DocAnalysis(BaseModel):
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V2
             or self.modelId == LanguageModels.CLAUDE_SONNET_37
+            or self.modelId == LanguageModels.CLAUDE_SONNET_45
             or self.modelId == LanguageModels.NOVA_LITE
             or self.modelId == LanguageModels.NOVA_PRO
         ):
@@ -581,6 +583,7 @@ class DocAnalysis(BaseModel):
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V2
             or self.modelId == LanguageModels.CLAUDE_SONNET_37
+            or self.modelId == LanguageModels.CLAUDE_SONNET_45
             or self.modelId == LanguageModels.NOVA_LITE
             or self.modelId == LanguageModels.NOVA_PRO
         ):
@@ -620,6 +623,7 @@ class DocAnalysis(BaseModel):
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V2
             or self.modelId == LanguageModels.CLAUDE_SONNET_37
+            or self.modelId == LanguageModels.CLAUDE_SONNET_45
             or self.modelId == LanguageModels.NOVA_LITE
             or self.modelId == LanguageModels.NOVA_PRO
         ):
