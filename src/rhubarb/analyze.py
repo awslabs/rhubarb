@@ -582,6 +582,7 @@ class DocAnalysis(BaseModel):
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V2
             or self.modelId == LanguageModels.CLAUDE_SONNET_37
+            or self.modelId == LanguageModels.CLAUDE_SONNET_45
             or self.modelId == LanguageModels.NOVA_LITE
             or self.modelId == LanguageModels.NOVA_PRO
         ):
@@ -621,6 +622,7 @@ class DocAnalysis(BaseModel):
             or self.modelId == LanguageModels.CLAUDE_SONNET_V1
             or self.modelId == LanguageModels.CLAUDE_SONNET_V2
             or self.modelId == LanguageModels.CLAUDE_SONNET_37
+            or self.modelId == LanguageModels.CLAUDE_SONNET_45
             or self.modelId == LanguageModels.NOVA_LITE
             or self.modelId == LanguageModels.NOVA_PRO
         ):
