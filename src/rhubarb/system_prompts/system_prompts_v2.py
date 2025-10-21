@@ -33,6 +33,7 @@ class SystemPrompts:
             or self.model_id == LanguageModels.CLAUDE_SONNET_V1
             or self.model_id == LanguageModels.CLAUDE_SONNET_V2
             or self.model_id == LanguageModels.CLAUDE_SONNET_37
+            or self.model_id == LanguageModels.CLAUDE_SONNET_45
         ):
             return "anthropic"
         elif self.model_id == LanguageModels.NOVA_LITE or self.model_id == LanguageModels.NOVA_PRO:
