@@ -9,6 +9,10 @@ on:
       - 'pyproject.toml'
       - '.github/workflows/documentation.yml'
 
+permissions:
+  contents: write
+  pages: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
