@@ -553,11 +553,11 @@ def create_server() -> FastMCP:
     return server.mcp
 
 
-async def run_server():
+def run_server():
     """Run the Rhubarb FastMCP server."""
     server = create_server()
-    await server.run()
+    server.run()  # FastMCP.run() is synchronous
 
 
 if __name__ == "__main__":
-    asyncio.run(run_server())
+    run_server()
