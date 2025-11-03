@@ -32,6 +32,16 @@ jobs:
       - name: Configure Poetry
         run: poetry config virtualenvs.create false
 
+      - name: Update version from tag
+        if: startsWith(github.ref, 'refs/tags/mcp-v')
+        run: |
+          # Extract version from tag (e.g., mcp-v0.1.1 -> 0.1.1)
+          TAG_VERSION=${GITHUB_REF#refs/tags/mcp-v}
+          echo "Updating version to $TAG_VERSION"
+          poetry version $TAG_VERSION
+          echo "Updated pyproject.toml version:"
+          grep "^version" pyproject.toml
+
       - name: Cache Poetry dependencies
         uses: actions/cache@v4
         with:
