@@ -23,6 +23,7 @@ fastmcp = "^0.3.0"
 pyrhubarb = "^0.0.7"
 boto3 = "^1.35.20"
 botocore = "^1.35.20"
+openpyxl = "^2.0.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.3.4"
