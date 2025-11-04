@@ -8,7 +8,6 @@ Command-line interface for running the Rhubarb FastMCP server.
 """
 
 import argparse
-import asyncio
 import os
 import sys
 from typing import Optional
@@ -200,7 +199,7 @@ def check_environment() -> Optional[str]:
     return "; ".join(warnings) if warnings else None
 
 
-async def main() -> None:
+def main() -> None:
     """Main CLI entry point."""
     parser = create_parser()
     args = parser.parse_args()
@@ -213,7 +212,7 @@ async def main() -> None:
     if args.aws_region:
         os.environ['AWS_REGION'] = args.aws_region
         os.environ['AWS_DEFAULT_REGION'] = args.aws_region  # Set both for compatibility
-    
+
     # Set Rhubarb configuration
     if args.enable_cri:
         os.environ['RHUBARB_ENABLE_CRI'] = 'true'
@@ -232,14 +231,14 @@ async def main() -> None:
     # Show credential configuration
     aws_profile = os.getenv('AWS_PROFILE')
     aws_keys = os.getenv('AWS_ACCESS_KEY_ID') and os.getenv('AWS_SECRET_ACCESS_KEY')
-    
+
     if aws_profile:
         print(f"Using AWS Profile: {aws_profile}")
     elif aws_keys:
         print("Using AWS Access Keys")
     else:
         print("Using environment/default AWS credentials")
-    
+
     print(f"AWS Region: {os.getenv('AWS_REGION', 'us-east-1')}")
     print(f"Default Model: {os.getenv('RHUBARB_DEFAULT_MODEL', 'claude-sonnet')}")
 
@@ -254,8 +253,8 @@ async def main() -> None:
     print("\nConnecting to Amazon Bedrock...")
 
     try:
-        # Run the FastMCP server
-        await run_server()
+        # Run the FastMCP server (synchronous)
+        run_server()
     except KeyboardInterrupt:
         print("\n👋 Rhubarb MCP Server stopped")
     except Exception as e:
@@ -266,7 +265,7 @@ async def main() -> None:
 def main_sync() -> None:
     """Synchronous wrapper for the main function."""
     try:
-        asyncio.run(main())
+        main()
     except KeyboardInterrupt:
         print("\n👋 Rhubarb MCP Server stopped")
     except Exception as e:
