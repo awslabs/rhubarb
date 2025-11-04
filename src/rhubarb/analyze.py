@@ -32,6 +32,7 @@ class DocAnalysis(BaseModel):
     - `use_converse_api` (bool, optional): Use Bedrock `converse` API to enable tool use. Defaults to `False` and uses `invoke_model`.
     - `enable_cri` (bool, optional): Enables Cross-region inference for certain models. Defaults to `False`.
     - `sliding_window_overlap` (int, optional): Number of pages to overlap between windows when using sliding window. 0 disables sliding window, 1-10 enables it. Defaults to 0.
+    - `include_powerpoint_notes` (bool, optional): Whether to include speaker notes when processing PowerPoint presentations. Defaults to `False`.
 
     Attributes:
     - `bedrock_client` (Optional[Any]): boto3 bedrock-runtime client, will get overriten by boto3_session.
@@ -45,6 +46,13 @@ class DocAnalysis(BaseModel):
             max_tokens=2048,
             temperature=0,
             pages=[1, 3, 5]
+        )
+        
+        # PowerPoint with speaker notes
+        da_ppt = DocAnalysis(
+            file_path="presentation.pptx",
+            include_powerpoint_notes=True,
+            boto3_session=boto3.Session()
         )
         ```
     """
@@ -105,6 +113,12 @@ class DocAnalysis(BaseModel):
     - Values > 10 are not allowed
     """
 
+    include_powerpoint_notes: bool = Field(default=False)
+    """Whether to include speaker notes when processing PowerPoint presentations
+    - True: Include slide notes in the rendered images
+    - False: Only include slide content (default)
+    """
+
     _message_history: List[Any] = PrivateAttr(default=None)
     """History of user/assistant messages"""
 
@@ -128,7 +142,9 @@ class DocAnalysis(BaseModel):
         # Initialize if sliding window is enabled (overlap > 0)
         if self._large_doc_processor is None and self.sliding_window_overlap > 0:
             self._large_doc_processor = LargeDocumentProcessor(
-                file_path=self.file_path, s3_client=self._s3_client
+                file_path=self.file_path, 
+                s3_client=self._s3_client,
+                include_powerpoint_notes=self.include_powerpoint_notes
             )
 
     def _process_with_sliding_window(
@@ -466,6 +482,7 @@ class DocAnalysis(BaseModel):
             use_converse_api=self.use_converse_api,
             message_history=history,
             modelId=self.modelId,
+            include_powerpoint_notes=self.include_powerpoint_notes,
         )
 
     def run(

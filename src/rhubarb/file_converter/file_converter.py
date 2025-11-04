@@ -9,26 +9,36 @@ from typing import Dict, List, Union, Optional
 
 import boto3
 import pdfplumber
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+from openpyxl import load_workbook
+from pptx import Presentation
+from pptx.enum.shapes import MSO_SHAPE_TYPE
+import pandas as pd
 
 from .image_validator import ImageValidator
 
 logger = logging.getLogger(__name__)
 warnings.filterwarnings("ignore", message="CropBox missing from /Page, defaulting to MediaBox")
+warnings.filterwarnings("ignore", message="Glyph .* missing from font.*", category=UserWarning)
 
 
 class FileConverter:
-    def __init__(self, file_path: str, pages: List[int], s3_client: Optional[boto3.client]):
+    def __init__(self, file_path: str, pages: List[int], s3_client: Optional[boto3.client], include_powerpoint_notes: bool = False):
         """
         Initialize the FileConverter object.
 
         Args:
             file_path (str): The path to the file (local or S3).
+            pages (List[int]): List of page numbers to process.
             s3_client (boto3.client, optional): The boto3 S3 client. Defaults to None.
+            include_powerpoint_notes (bool, optional): Whether to include PowerPoint slide notes. Defaults to False.
         """
         self.file_path = file_path
         self.s3_client = s3_client
         self.pages = pages
+        self.include_powerpoint_notes = include_powerpoint_notes
         self.file_bytes, self.mime_type = self._get_file_bytes_and_mime_type()
 
     def _get_file_bytes_and_mime_type(self) -> tuple[bytes, str]:
@@ -66,7 +76,13 @@ class FileConverter:
         """
         mime_type, _ = mimetypes.guess_type(self.file_path)
         if mime_type is None:
-            raise ValueError("Unsupported file type")
+            # Check for Office formats by file extension
+            if self.file_path.lower().endswith(('.xlsx', '.xls')):
+                mime_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            elif self.file_path.lower().endswith('.pptx'):
+                mime_type = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+            else:
+                raise ValueError("Unsupported file type")
         return mime_type
 
     def _parse_s3_path(self, s3_path: str) -> tuple[str, str]:
@@ -181,6 +197,10 @@ class FileConverter:
                     return base64_strings
                 except ImportError as e:
                     raise e
+            elif self.mime_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                return self._extract_excel_as_text()
+            elif self.mime_type == "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+                return self._convert_powerpoint_to_base64()
             else:
                 logger.error("Unsupported file type")
                 raise ValueError("Unsupported file type")
@@ -294,6 +314,10 @@ class FileConverter:
                     return image_bytes_list
                 except ImportError as e:
                     raise e
+            elif self.mime_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+                return self._extract_excel_as_text()
+            elif self.mime_type == "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+                return self._convert_powerpoint_to_bytes()
             else:
                 logger.error("Unsupported file type")
                 raise ValueError("Unsupported file type")
@@ -306,3 +330,335 @@ class FileConverter:
         except Exception as e:
             logger.error(f"Error converting file to bytes: {str(e)}")
             raise RuntimeError(f"Error converting file to bytes: {str(e)}")
+
+    def _extract_excel_as_text(self) -> List[Dict[str, Union[int, str]]]:
+        """Extract Excel data as formatted text (markdown tables)."""
+        try:
+            # Read Excel file with pandas
+            if self.file_path.startswith("s3://"):
+                excel_data = pd.read_excel(BytesIO(self.file_bytes), sheet_name=None, engine='openpyxl')
+            else:
+                excel_data = pd.read_excel(self.file_path, sheet_name=None, engine='openpyxl')
+
+            text_pages = []
+            page_counter = 1
+
+            # Process each sheet
+            for sheet_name, df in excel_data.items():
+                if df.empty:
+                    continue
+
+                # Handle large sheets by showing head, tail, and stats
+                if len(df) > 100:
+                    text_content = f"# Sheet: {sheet_name}\n\n"
+                    text_content += f"**Shape:** {len(df)} rows × {len(df.columns)} columns\n\n"
+
+                    # Column info
+                    text_content += "**Columns:** " + ", ".join(df.columns.astype(str)) + "\n\n"
+
+                    # Show first 50 rows
+                    text_content += "## First 50 rows:\n\n"
+                    text_content += df.head(50).to_markdown(index=False) + "\n\n"
+
+                    # Show last 50 rows if more than 100 total
+                    if len(df) > 100:
+                        text_content += "## Last 50 rows:\n\n"
+                        text_content += df.tail(50).to_markdown(index=False) + "\n\n"
+
+                    # Summary statistics for numeric columns
+                    numeric_cols = df.select_dtypes(include=['number']).columns
+                    if len(numeric_cols) > 0:
+                        text_content += "## Summary Statistics:\n\n"
+                        text_content += df[numeric_cols].describe().to_markdown() + "\n\n"
+                else:
+                    # For smaller sheets, show everything
+                    text_content = f"# Sheet: {sheet_name}\n\n"
+                    text_content += f"**Shape:** {len(df)} rows × {len(df.columns)} columns\n\n"
+                    text_content += df.to_markdown(index=False) + "\n\n"
+
+                # Respect page filtering
+                if self.pages == [0] or page_counter in self.pages:
+                    text_pages.append({"page": page_counter, "text": text_content})
+
+                page_counter += 1
+
+                # Respect 20-page limit
+                if len(text_pages) >= 20:
+                    break
+
+            return text_pages
+
+        except Exception as e:
+            logger.error(f"Error extracting Excel data as text: {str(e)}")
+            raise RuntimeError(f"Error extracting Excel data as text: {str(e)}")
+
+    def _convert_excel_to_base64(self) -> List[Dict[str, Union[int, str]]]:
+        """Convert Excel files to base64 encoded PNG images."""
+        try:
+            # Load workbook in read-only mode for memory efficiency
+            if self.file_path.startswith("s3://"):
+                workbook = load_workbook(BytesIO(self.file_bytes), read_only=True, data_only=True)
+            else:
+                workbook = load_workbook(self.file_path, read_only=True, data_only=True)
+            
+            base64_strings = []
+            page_counter = 1
+            
+            # Process worksheets
+            for sheet_name in workbook.sheetnames:
+                worksheet = workbook[sheet_name]
+                
+                # Get data dimensions
+                max_row = worksheet.max_row
+                max_col = worksheet.max_column
+                
+                if max_row == 1 and max_col == 1:  # Skip empty sheets
+                    continue
+                    
+                # Handle large spreadsheets with chunking
+                if max_row > 1000:  # Large sheet - use chunking
+                    chunks = self._chunk_large_excel_sheet(worksheet, max_row, max_col)
+                    for chunk_data, chunk_num in chunks:
+                        if self.pages == [0] or page_counter in self.pages:
+                            base64_string = self._render_excel_chunk_to_png(chunk_data, f"{sheet_name}_chunk_{chunk_num}")
+                            base64_strings.append({"page": page_counter, "base64string": base64_string})
+                        page_counter += 1
+                        if len(base64_strings) >= 20:  # Respect 20-page limit
+                            break
+                else:  # Small sheet - render entirely
+                    if self.pages == [0] or page_counter in self.pages:
+                        # Extract all data
+                        data = []
+                        for row in worksheet.iter_rows(values_only=True, max_row=min(max_row, 500)):
+                            data.append(row)
+                        
+                        base64_string = self._render_excel_data_to_png(data, sheet_name, max_col)
+                        base64_strings.append({"page": page_counter, "base64string": base64_string})
+                    page_counter += 1
+                
+                if len(base64_strings) >= 20:  # Global 20-page limit
+                    break
+            
+            workbook.close()
+            return base64_strings
+            
+        except Exception as e:
+            logger.error(f"Error converting Excel file: {str(e)}")
+            raise RuntimeError(f"Error converting Excel file: {str(e)}")
+
+    def _convert_excel_to_bytes(self) -> List[Dict[str, Union[int, bytes]]]:
+        """Convert Excel files to bytes."""
+        base64_results = self._convert_excel_to_base64()
+        bytes_results = []
+        
+        for result in base64_results:
+            image_bytes = base64.b64decode(result["base64string"])
+            bytes_results.append({"page": result["page"], "image_bytes": image_bytes})
+        
+        return bytes_results
+
+    def _convert_powerpoint_to_base64(self) -> List[Dict[str, Union[int, str]]]:
+        """Convert PowerPoint files to base64 encoded PNG images."""
+        try:
+            # Load presentation
+            if self.file_path.startswith("s3://"):
+                prs = Presentation(BytesIO(self.file_bytes))
+            else:
+                prs = Presentation(self.file_path)
+            
+            base64_strings = []
+            
+            # Determine which slides to process
+            total_slides = len(prs.slides)
+            if self.pages == [0]:
+                slide_nums = range(min(20, total_slides))
+            else:
+                slide_nums = [p - 1 for p in self.pages if p <= total_slides and p > 0]
+            
+            for slide_idx in slide_nums:
+                slide = prs.slides[slide_idx]
+                base64_string = self._render_slide_to_png(slide, slide_idx + 1, self.include_powerpoint_notes)
+                base64_strings.append({"page": slide_idx + 1, "base64string": base64_string})
+            
+            return base64_strings
+            
+        except Exception as e:
+            logger.error(f"Error converting PowerPoint file: {str(e)}")
+            raise RuntimeError(f"Error converting PowerPoint file: {str(e)}")
+
+    def _convert_powerpoint_to_bytes(self) -> List[Dict[str, Union[int, bytes]]]:
+        """Convert PowerPoint files to bytes."""
+        base64_results = self._convert_powerpoint_to_base64()
+        bytes_results = []
+        
+        for result in base64_results:
+            image_bytes = base64.b64decode(result["base64string"])
+            bytes_results.append({"page": result["page"], "image_bytes": image_bytes})
+        
+        return bytes_results
+
+    def _chunk_large_excel_sheet(self, worksheet, max_row, max_col, chunk_size=100):
+        """Break large Excel sheets into manageable chunks."""
+        chunks = []
+        
+        # Always include headers (first 5 rows)
+        header_data = []
+        for row in worksheet.iter_rows(min_row=1, max_row=min(5, max_row), values_only=True):
+            header_data.append(row)
+        
+        chunks.append((header_data, "headers"))
+        
+        # Process data in chunks
+        for start_row in range(6, max_row + 1, chunk_size):
+            end_row = min(start_row + chunk_size - 1, max_row)
+            chunk_data = []
+            
+            # Add header context to each chunk
+            chunk_data.extend(header_data)
+            chunk_data.append(["..."] * max_col)  # Separator
+            
+            # Add chunk data
+            for row in worksheet.iter_rows(min_row=start_row, max_row=end_row, values_only=True):
+                chunk_data.append(row)
+                
+            chunks.append((chunk_data, f"rows_{start_row}_{end_row}"))
+            
+            # Limit chunks to prevent excessive processing
+            if len(chunks) >= 10:
+                break
+        
+        return chunks
+
+    def _render_excel_data_to_png(self, data, sheet_name, max_col):
+        """Render Excel data as a formatted PNG image."""
+        # Set matplotlib to use a non-interactive backend
+        plt.switch_backend('Agg')
+        
+        fig, ax = plt.subplots(figsize=(max(12, max_col * 1.2), max(8, len(data) * 0.3)))
+        ax.axis('off')
+        
+        # Create table
+        table_data = []
+        for row in data:
+            formatted_row = []
+            for cell in row:
+                if cell is None:
+                    formatted_row.append("")
+                else:
+                    formatted_row.append(str(cell)[:50])  # Limit cell content
+            table_data.append(formatted_row)
+        
+        # Limit columns for display
+        if max_col > 15:
+            table_data = [row[:15] + ["..."] for row in table_data]
+        
+        table = ax.table(cellText=table_data, loc='center', cellLoc='left')
+        table.auto_set_font_size(False)
+        table.set_fontsize(8)
+        table.scale(1, 1.5)
+        
+        # Style header row
+        for i in range(min(len(table_data[0]), 16)):
+            table[(0, i)].set_facecolor('#4CAF50')
+            table[(0, i)].set_text_props(weight='bold', color='white')
+        
+        plt.title(f"Sheet: {sheet_name}", fontsize=14, fontweight='bold')
+        
+        # Convert to PNG bytes
+        img_bytes = BytesIO()
+        plt.savefig(img_bytes, format='PNG', dpi=150, bbox_inches='tight')
+        plt.close()
+        
+        return base64.b64encode(img_bytes.getvalue()).decode('utf-8')
+
+    def _render_excel_chunk_to_png(self, chunk_data, chunk_name):
+        """Render Excel chunk data as a formatted PNG image."""
+        return self._render_excel_data_to_png(chunk_data, chunk_name, len(chunk_data[0]) if chunk_data else 1)
+
+    def _render_slide_to_png(self, slide, slide_number, include_notes=False):
+        """Render PowerPoint slide as PNG image."""
+        # Set matplotlib to use a non-interactive backend
+        plt.switch_backend('Agg')
+        
+        # Adjust figure height if including notes
+        fig_height = 12 if include_notes else 9
+        fig, ax = plt.subplots(figsize=(16, fig_height))  # 16:9 or 16:12 aspect ratio
+        ax.set_xlim(0, 10)
+        ax.set_ylim(0, fig_height * 0.83)  # Adjust y-limit based on figure height
+        ax.axis('off')
+        
+        # Set white background
+        fig.patch.set_facecolor('white')
+        
+        y_position = fig_height * 0.78
+        
+        # Extract and render slide content
+        for shape in slide.shapes:
+            if hasattr(shape, 'text') and shape.text.strip():
+                # Text content
+                text = shape.text.strip()[:200]  # Limit text length
+                
+                # Determine text size based on shape properties
+                font_size = 12
+                if hasattr(shape, 'text_frame') and shape.text_frame.paragraphs:
+                    para = shape.text_frame.paragraphs[0]
+                    if para.runs and para.runs[0].font.size:
+                        font_size = max(8, min(24, para.runs[0].font.size.pt))
+                
+                ax.text(0.5, y_position, text, fontsize=font_size, 
+                       ha='left', va='top', wrap=True, 
+                       bbox=dict(boxstyle="round,pad=0.3", facecolor="lightblue", alpha=0.7))
+                y_position -= 0.8
+                
+            elif shape.shape_type == MSO_SHAPE_TYPE.PICTURE:  # pylint: disable=no-member
+                # Image placeholder
+                ax.add_patch(patches.Rectangle((0.5, y_position-0.5), 3, 1, 
+                                             linewidth=1, edgecolor='gray',
+                                             facecolor='lightgray', alpha=0.5))
+                ax.text(2, y_position, "[IMAGE]", ha='center', va='center', fontsize=10)
+                y_position -= 1.2
+            
+            # Stop if we're running out of space (but leave room for notes if needed)
+            min_y_position = 3 if include_notes else 1
+            if y_position < min_y_position:
+                break
+        
+        # Add slide notes if requested and available
+        if include_notes and slide.has_notes_slide:
+            try:
+                notes_slide = slide.notes_slide
+                notes_text = ""
+                
+                # Extract notes text from notes slide
+                for shape in notes_slide.shapes:
+                    if hasattr(shape, 'text') and shape.text.strip():
+                        # Skip the slide thumbnail placeholder
+                        if "Click to add notes" not in shape.text:
+                            notes_text += shape.text.strip() + " "
+                
+                if notes_text.strip():
+                    # Add separator line
+                    ax.axhline(y=2.5, xmin=0.05, xmax=0.95, color='gray', linestyle='--', linewidth=1)
+                    
+                    # Add notes section title
+                    ax.text(0.5, 2.3, "Speaker Notes:", fontsize=12, fontweight='bold', 
+                           ha='left', va='top', color='darkblue')
+                    
+                    # Add notes text (limit length)
+                    notes_text = notes_text.strip()[:400]  # Limit notes length
+                    ax.text(0.5, 1.9, notes_text, fontsize=10, 
+                           ha='left', va='top', wrap=True, 
+                           bbox=dict(boxstyle="round,pad=0.3", facecolor="lightyellow", alpha=0.7))
+                           
+            except Exception as e:
+                # If notes extraction fails, just log and continue
+                logger.warning(f"Could not extract notes from slide {slide_number}: {str(e)}")
+        
+        plt.title(f"Slide {slide_number}", fontsize=16, fontweight='bold', pad=20)
+        
+        # Convert to PNG bytes
+        img_bytes = BytesIO()
+        plt.savefig(img_bytes, format='PNG', dpi=150, bbox_inches='tight', facecolor='white')
+        plt.close()
+        
+        return base64.b64encode(img_bytes.getvalue()).decode('utf-8')

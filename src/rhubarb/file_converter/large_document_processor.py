@@ -21,16 +21,18 @@ class LargeDocumentProcessor:
     providing methods to navigate through the document.
     """
 
-    def __init__(self, file_path: str, s3_client: Optional[Any] = None):
+    def __init__(self, file_path: str, s3_client: Optional[Any] = None, include_powerpoint_notes: bool = False):
         """
         Initialize the LargeDocumentProcessor.
 
         Args:
             file_path (str): The path to the file (local or S3).
             s3_client (boto3.client, optional): The boto3 S3 client. Defaults to None.
+            include_powerpoint_notes (bool, optional): Whether to include PowerPoint slide notes. Defaults to False.
         """
         self.file_path = file_path
         self.s3_client = s3_client
+        self.include_powerpoint_notes = include_powerpoint_notes
         self.total_pages = self._get_total_pages()
         self.window_size = 20  # Claude's maximum page limit
         self.current_window_start = 1  # Start with the first page
@@ -44,7 +46,7 @@ class LargeDocumentProcessor:
         """
         # Create a temporary FileConverter to get file bytes and mime type
         temp_converter = FileConverter(
-            file_path=self.file_path, pages=[0], s3_client=self.s3_client
+            file_path=self.file_path, pages=[0], s3_client=self.s3_client, include_powerpoint_notes=self.include_powerpoint_notes
         )
         file_bytes = temp_converter.file_bytes
         mime_type = temp_converter.mime_type
@@ -78,6 +80,65 @@ class LargeDocumentProcessor:
                 raise ImportError(
                     "The 'python-docx' library is not installed. Please install it to process .docx files.",
                     "pip install python-docx",
+                )
+        elif mime_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+            try:
+                from openpyxl import load_workbook
+
+                # Load workbook to count worksheets/pages
+                if self.file_path.startswith("s3://"):
+                    workbook = load_workbook(BytesIO(file_bytes), read_only=True, data_only=True)
+                else:
+                    workbook = load_workbook(self.file_path, read_only=True, data_only=True)
+                
+                page_count = 0
+                
+                # Process worksheets similar to FileConverter logic
+                for sheet_name in workbook.sheetnames:
+                    worksheet = workbook[sheet_name]
+                    max_row = worksheet.max_row
+                    max_col = worksheet.max_column
+                    
+                    if max_row == 1 and max_col == 1:  # Skip empty sheets
+                        continue
+                        
+                    if max_row > 1000:  # Large sheet - count chunks
+                        # Count chunks similar to FileConverter._chunk_large_excel_sheet
+                        chunks = 1  # Headers
+                        chunks += min(10, (max_row - 5) // 100 + 1)  # Data chunks, max 10
+                        page_count += chunks
+                    else:  # Small sheet - one page
+                        page_count += 1
+                    
+                    if page_count >= 20:  # Respect 20-page limit
+                        break
+                
+                workbook.close()
+                return min(page_count, 20)  # Cap at 20 pages
+                
+            except ImportError:
+                logger.error("openpyxl library is not installed")
+                raise ImportError(
+                    "The 'openpyxl' library is not installed. Please install it to process .xlsx files.",
+                    "pip install openpyxl",
+                )
+        elif mime_type == "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+            try:
+                from pptx import Presentation
+
+                # Load presentation to count slides
+                if self.file_path.startswith("s3://"):
+                    prs = Presentation(BytesIO(file_bytes))
+                else:
+                    prs = Presentation(self.file_path)
+                
+                return len(prs.slides)
+                
+            except ImportError:
+                logger.error("python-pptx library is not installed")
+                raise ImportError(
+                    "The 'python-pptx' library is not installed. Please install it to process .pptx files.",
+                    "pip install python-pptx",
                 )
         else:
             logger.error(f"Unsupported file type: {mime_type}")
@@ -180,7 +241,12 @@ class LargeDocumentProcessor:
             List[Dict[str, Union[int, str]]]: List of dictionaries containing page numbers and base64 encoded strings.
         """
         pages = self.get_current_window_pages()
-        converter = FileConverter(file_path=self.file_path, pages=pages, s3_client=self.s3_client)
+        converter = FileConverter(
+            file_path=self.file_path, 
+            pages=pages, 
+            s3_client=self.s3_client, 
+            include_powerpoint_notes=self.include_powerpoint_notes
+        )
         return converter.convert_to_base64()
 
     def get_pages_as_bytes(self) -> List[Dict[str, Union[int, bytes]]]:
@@ -191,7 +257,12 @@ class LargeDocumentProcessor:
             List[Dict[str, Union[int, bytes]]]: List of dictionaries containing page numbers and bytes.
         """
         pages = self.get_current_window_pages()
-        converter = FileConverter(file_path=self.file_path, pages=pages, s3_client=self.s3_client)
+        converter = FileConverter(
+            file_path=self.file_path, 
+            pages=pages, 
+            s3_client=self.s3_client,
+            include_powerpoint_notes=self.include_powerpoint_notes
+        )
         return converter.convert_to_bytes()
 
     def process_document(

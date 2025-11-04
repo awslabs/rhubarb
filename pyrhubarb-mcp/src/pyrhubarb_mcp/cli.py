@@ -12,7 +12,20 @@ import os
 import sys
 from typing import Optional
 
+try:
+    from importlib.metadata import version
+except ImportError:
+    from importlib_metadata import version  # type: ignore
+
 from .server import run_server
+
+
+def get_version() -> str:
+    """Get the package version from metadata."""
+    try:
+        return version("pyrhubarb-mcp")
+    except Exception:
+        return "unknown"
 
 
 def create_parser() -> argparse.ArgumentParser:
@@ -73,7 +86,7 @@ Resources:
     parser.add_argument(
         "--version",
         action="version",
-        version="Rhubarb MCP Server 1.0.0"
+        version=f"Rhubarb MCP Server {get_version()}"
     )
 
     parser.add_argument(

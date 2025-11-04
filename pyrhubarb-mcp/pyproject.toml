@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyrhubarb-mcp"
-version = "0.1.0"
+version = "0.1.5"
 description = "MCP server for Rhubarb document and video understanding capabilities"
 authors = ["Rhubarb Developers <rhubarb-developers@amazon.com>"]
 license = "Apache 2.0"
@@ -20,10 +20,11 @@ packages = [
 [tool.poetry.dependencies]
 python = ">=3.11"
 fastmcp = "^0.3.0"
-pyrhubarb = "^0.0.7"
+pyrhubarb = "^0"
+tabulate = "^0.9.0"
 boto3 = "^1.35.20"
 botocore = "^1.35.20"
-openpyxl = "^2.0.0"
+openpyxl = "^3.1.0"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.3.4"
