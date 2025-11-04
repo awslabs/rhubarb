@@ -15,6 +15,7 @@ import matplotlib.patches as patches
 from openpyxl import load_workbook
 from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE_TYPE
+import pandas as pd
 
 from .image_validator import ImageValidator
 
@@ -197,7 +198,7 @@ class FileConverter:
                 except ImportError as e:
                     raise e
             elif self.mime_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-                return self._convert_excel_to_base64()
+                return self._extract_excel_as_text()
             elif self.mime_type == "application/vnd.openxmlformats-officedocument.presentationml.presentation":
                 return self._convert_powerpoint_to_base64()
             else:
@@ -314,7 +315,7 @@ class FileConverter:
                 except ImportError as e:
                     raise e
             elif self.mime_type == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-                return self._convert_excel_to_bytes()
+                return self._extract_excel_as_text()
             elif self.mime_type == "application/vnd.openxmlformats-officedocument.presentationml.presentation":
                 return self._convert_powerpoint_to_bytes()
             else:
@@ -329,6 +330,67 @@ class FileConverter:
         except Exception as e:
             logger.error(f"Error converting file to bytes: {str(e)}")
             raise RuntimeError(f"Error converting file to bytes: {str(e)}")
+
+    def _extract_excel_as_text(self) -> List[Dict[str, Union[int, str]]]:
+        """Extract Excel data as formatted text (markdown tables)."""
+        try:
+            # Read Excel file with pandas
+            if self.file_path.startswith("s3://"):
+                excel_data = pd.read_excel(BytesIO(self.file_bytes), sheet_name=None, engine='openpyxl')
+            else:
+                excel_data = pd.read_excel(self.file_path, sheet_name=None, engine='openpyxl')
+
+            text_pages = []
+            page_counter = 1
+
+            # Process each sheet
+            for sheet_name, df in excel_data.items():
+                if df.empty:
+                    continue
+
+                # Handle large sheets by showing head, tail, and stats
+                if len(df) > 100:
+                    text_content = f"# Sheet: {sheet_name}\n\n"
+                    text_content += f"**Shape:** {len(df)} rows × {len(df.columns)} columns\n\n"
+
+                    # Column info
+                    text_content += "**Columns:** " + ", ".join(df.columns.astype(str)) + "\n\n"
+
+                    # Show first 50 rows
+                    text_content += "## First 50 rows:\n\n"
+                    text_content += df.head(50).to_markdown(index=False) + "\n\n"
+
+                    # Show last 50 rows if more than 100 total
+                    if len(df) > 100:
+                        text_content += "## Last 50 rows:\n\n"
+                        text_content += df.tail(50).to_markdown(index=False) + "\n\n"
+
+                    # Summary statistics for numeric columns
+                    numeric_cols = df.select_dtypes(include=['number']).columns
+                    if len(numeric_cols) > 0:
+                        text_content += "## Summary Statistics:\n\n"
+                        text_content += df[numeric_cols].describe().to_markdown() + "\n\n"
+                else:
+                    # For smaller sheets, show everything
+                    text_content = f"# Sheet: {sheet_name}\n\n"
+                    text_content += f"**Shape:** {len(df)} rows × {len(df.columns)} columns\n\n"
+                    text_content += df.to_markdown(index=False) + "\n\n"
+
+                # Respect page filtering
+                if self.pages == [0] or page_counter in self.pages:
+                    text_pages.append({"page": page_counter, "text": text_content})
+
+                page_counter += 1
+
+                # Respect 20-page limit
+                if len(text_pages) >= 20:
+                    break
+
+            return text_pages
+
+        except Exception as e:
+            logger.error(f"Error extracting Excel data as text: {str(e)}")
+            raise RuntimeError(f"Error extracting Excel data as text: {str(e)}")
 
     def _convert_excel_to_base64(self) -> List[Dict[str, Union[int, str]]]:
         """Convert Excel files to base64 encoded PNG images."""

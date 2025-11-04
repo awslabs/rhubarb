@@ -91,44 +91,56 @@ class UserMessages:
             if self.message:
                 content.append({"text": self.message})
 
-            # Add images from pages
+            # Add pages (images or text)
             for page in base64_pages:
-                content.append(
-                    {"image": {"format": "png", "source": {"bytes": page["base64string"]}}}
-                )
+                if "text" in page:
+                    # Text content (e.g., from Excel)
+                    content.append({"text": f"Page {page['page']}:\n\n{page['text']}"})
+                elif "base64string" in page:
+                    # Image content
+                    content.append(
+                        {"image": {"format": "png", "source": {"bytes": page["base64string"]}}}
+                    )
 
             # Construct the final message structure
             user_message = [{"role": "user", "content": content}]
         else:
             # Claude format
-            content = [
-                item
-                for page in base64_pages
-                for item in [
-                    {"type": "text", "text": f"Page: {page['page']}"},
-                    {
+            content = []
+            for page in base64_pages:
+                content.append({"type": "text", "text": f"Page: {page['page']}"})
+
+                if "text" in page:
+                    # Text content (e.g., from Excel)
+                    content.append({"type": "text", "text": page["text"]})
+                elif "base64string" in page:
+                    # Image content
+                    content.append({
                         "type": "image",
                         "source": {
                             "type": "base64",
                             "media_type": "image/png",
                             "data": page["base64string"],
                         },
-                    },
-                ]
-            ]
+                    })
+
             content.append({"type": "text", "text": self.message})
             user_message = [{"role": "user", "content": content}]
         return user_message
 
     def _construct_converse_messages(self, byte_pages: List[Any]) -> List[dict]:
-        content = [
-            item
-            for page in byte_pages
-            for item in [
-                {"text": f"Page: {page['page']}"},
-                {"image": {"format": "png", "source": {"bytes": page["image_bytes"]}}},
-            ]
-        ]
+        content = []
+
+        for page in byte_pages:
+            content.append({"text": f"Page: {page['page']}"})
+
+            if "text" in page:
+                # Text content (e.g., from Excel)
+                content.append({"text": page["text"]})
+            elif "image_bytes" in page:
+                # Image content
+                content.append({"image": {"format": "png", "source": {"bytes": page["image_bytes"]}}})
+
         content.append({"text": self.message})
         user_message = [{"role": "user", "content": content}]
         return user_message
