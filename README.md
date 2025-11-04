@@ -65,6 +65,52 @@ Rhubarb comes with built-in system prompts that makes it easy to use it for a nu
 - Supports Converse API 
 - Supports Cross-Region Inference
 
+## MCP Server Integration
+
+Rhubarb now includes a built-in **FastMCP server** that exposes all document and video understanding capabilities through the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/). This allows seamless integration with MCP-compatible AI assistants like Cline, Claude Desktop, and other MCP clients.
+
+### MCP Features
+- **8 Tools**: Complete access to all Rhubarb capabilities including document analysis, video processing, entity extraction, and document classification
+- **4 Resources**: Built-in discovery for entities, models, schemas, and classification samples  
+- **Native Python**: Direct integration without external dependencies
+- **Conversation Memory**: Maintains chat history across interactions
+- **Flexible Authentication**: Support for AWS profiles, access keys, and environment variables
+
+### Quick Start with MCP
+
+1. **No installation required** - The MCP server auto-installs when first used
+
+2. **Configure in your MCP client** (example for Cline):
+   ```json
+   {
+     "rhubarb": {
+       "command": "uvx",
+       "args": [
+         "pyrhubarb-mcp@latest",
+         "--aws-profile", "my-profile",
+         "--default-model", "claude-sonnet"
+       ]
+     }
+   }
+   ```
+
+3. **Alternative configurations**:
+   ```json
+   {
+     "rhubarb": {
+       "command": "uvx", 
+       "args": [
+         "pyrhubarb-mcp@latest",
+         "--aws-access-key-id", "AKIA...",
+         "--aws-secret-access-key", "your-secret",
+         "--aws-region", "us-west-2"
+       ]
+     }
+   }
+   ```
+
+For detailed MCP server documentation, see [README_MCP.md](README_MCP.md).
+
 ## Installation
 
 Start by installing Rhubarb using `pip`.
