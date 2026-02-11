@@ -19,7 +19,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.11"
-pillow = "^10.3.0"
+pillow = ">=10.3,<13.0"
 pdfplumber = "^0.11.0"
 jsonschema = "^4.21.1"
 pydantic = "^2.6.4"
