@@ -128,7 +128,7 @@ Configuration Options
 - ``frame_interval``: Set the interval between frames in seconds
 - ``max_frames``: Limit the maximum number of frames to extract
 - ``use_converse_api``: Enable Bedrock's converse API for tool use
-- ``enable_cri``: Enable Cross-region inference
+- ``cross_region_inference``: Cross-region inference prefix (``"us"``, ``"global"``, or ``None``)
 - ``s3_bucket_owner``: Specify the AWS account ID for cross-account S3 access
 
 Advanced Configuration
@@ -145,7 +145,7 @@ Configure additional parameters for video analysis:
         max_tokens=2048,           # Control response length
         temperature=0.2,           # Adjust creativity
         use_converse_api=True,     # Use Bedrock's converse API
-        enable_cri=True,           # Enable cross-region inference
+        cross_region_inference="us",  # Cross-region inference (default)
         s3_bucket_owner="123456789012"  # For cross-account S3 access
     )
 

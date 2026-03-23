@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Document Classification" href="classification.html" /><link rel="prev" title="Working with images" href="figures.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
-        <title>Video Analysis - Rhubarb 0.0.7 documentation</title>
+        <title>Video Analysis - Rhubarb 0.0.8 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -174,7 +174,7 @@
           </label>
         </div>
         <div class="header-center">
-          <a href="../index.html"><div class="brand">Rhubarb 0.0.7 documentation</div></a>
+          <a href="../index.html"><div class="brand">Rhubarb 0.0.8 documentation</div></a>
         </div>
         <div class="header-right">
           <div class="theme-toggle-container theme-toggle-header">
@@ -200,7 +200,7 @@
     <img class="sidebar-logo" src="../_static/Rhubarb@0.5x.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Rhubarb 0.0.7 documentation</span>
+  <span class="sidebar-brand-text">Rhubarb 0.0.8 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -223,6 +223,7 @@
 <li class="toctree-l1 current has-children"><a class="reference internal" href="usage.html">Usage</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Usage</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="docqa.html">Document Q&amp;A</a></li>
 <li class="toctree-l2"><a class="reference internal" href="specifymodels.html">Change Default Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="specifymodels.html#native-pdf-support">Native PDF Support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="useconverseapi.html">Using Converse API</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usecrossregioninference.html">Using Cross-Region Inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="specifypages.html">Specify Document Pages</a></li>
@@ -387,7 +388,7 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">frame_interval</span></code>: Set the interval between frames in seconds</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_frames</span></code>: Limit the maximum number of frames to extract</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">use_converse_api</span></code>: Enable Bedrock’s converse API for tool use</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">enable_cri</span></code>: Enable Cross-region inference</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cross_region_inference</span></code>: Cross-region inference prefix (<code class="docutils literal notranslate"><span class="pre">&quot;us&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;global&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">None</span></code>)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">s3_bucket_owner</span></code>: Specify the AWS account ID for cross-account S3 access</p></li>
 </ul>
 </section>
@@ -401,7 +402,7 @@
     <span class="n">max_tokens</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span>           <span class="c1"># Control response length</span>
     <span class="n">temperature</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>           <span class="c1"># Adjust creativity</span>
     <span class="n">use_converse_api</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>     <span class="c1"># Use Bedrock&#39;s converse API</span>
-    <span class="n">enable_cri</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>           <span class="c1"># Enable cross-region inference</span>
+    <span class="n">cross_region_inference</span><span class="o">=</span><span class="s2">&quot;us&quot;</span><span class="p">,</span>  <span class="c1"># Cross-region inference (default)</span>
     <span class="n">s3_bucket_owner</span><span class="o">=</span><span class="s2">&quot;123456789012&quot;</span>  <span class="c1"># For cross-account S3 access</span>
 <span class="p">)</span>
 </pre></div>
@@ -446,7 +447,7 @@
             <div class="bottom-of-page">
               <div class="left-details">
                 <div class="copyright">
-                    Copyright &#169; 2025, Amazon Web Services, Inc
+                    Copyright &#169; 2026, Amazon Web Services, Inc
                 </div>
                 Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
                 
@@ -519,7 +520,7 @@
           
         </aside>
       </div>
-    </div><script src="../_static/documentation_options.js?v=bbaf98b3"></script>
+    </div><script src="../_static/documentation_options.js?v=53b53b71"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

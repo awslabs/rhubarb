@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Specify Document Pages" href="specifypages.html" /><link rel="prev" title="Using Converse API" href="useconverseapi.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
-        <title>Using Cross-Region Inference - Rhubarb 0.0.7 documentation</title>
+        <title>Using Cross-Region Inference - Rhubarb 0.0.8 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -174,7 +174,7 @@
           </label>
         </div>
         <div class="header-center">
-          <a href="../index.html"><div class="brand">Rhubarb 0.0.7 documentation</div></a>
+          <a href="../index.html"><div class="brand">Rhubarb 0.0.8 documentation</div></a>
         </div>
         <div class="header-right">
           <div class="theme-toggle-container theme-toggle-header">
@@ -200,7 +200,7 @@
     <img class="sidebar-logo" src="../_static/Rhubarb@0.5x.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Rhubarb 0.0.7 documentation</span>
+  <span class="sidebar-brand-text">Rhubarb 0.0.8 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -223,6 +223,7 @@
 <li class="toctree-l1 current has-children"><a class="reference internal" href="usage.html">Usage</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Usage</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="docqa.html">Document Q&amp;A</a></li>
 <li class="toctree-l2"><a class="reference internal" href="specifymodels.html">Change Default Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="specifymodels.html#native-pdf-support">Native PDF Support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="useconverseapi.html">Using Converse API</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Using Cross-Region Inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="specifypages.html">Specify Document Pages</a></li>
@@ -279,26 +280,55 @@
               <section id="using-cross-region-inference">
 <h1>Using Cross-Region Inference<a class="headerlink" href="#using-cross-region-inference" title="Link to this heading">¶</a></h1>
 <p>When running model inference in on-demand mode, your requests might be restricted by service quotas or during peak usage times. Cross-region inference enables you to seamlessly manage unplanned traffic bursts by utilizing compute across different AWS Regions. With cross-region inference, you can distribute traffic across multiple AWS Regions, enabling higher throughput.</p>
+<p>Rhubarb supports cross-region inference via the <code class="docutils literal notranslate"><span class="pre">cross_region_inference</span></code> parameter:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;us&quot;</span></code> (default): Routes requests within US AWS regions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;global&quot;</span></code>: Routes requests across 20+ AWS regions worldwide. Provides ~10% cost savings and higher throughput.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">None</span></code>: Disabled, uses the model ID directly.</p></li>
+</ul>
 <section id="basic-usage">
 <h2>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">¶</a></h2>
-<p>Here’s a basic example of how to enable Cross-Region Inference:</p>
+<p>Cross-region inference is enabled by default (<code class="docutils literal notranslate"><span class="pre">&quot;us&quot;</span></code>):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="kn">from</span><span class="w"> </span><span class="nn">rhubarb</span><span class="w"> </span><span class="kn">import</span> <span class="n">DocAnalysis</span><span class="p">,</span> <span class="n">SystemPrompts</span>
  <span class="kn">import</span><span class="w"> </span><span class="nn">boto3</span>
 
  <span class="c1"># Initialize a boto3 session</span>
  <span class="n">session</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
 
- <span class="c1"># Create a DocAnalysis instance with cross-region inference</span>
+ <span class="c1"># Create a DocAnalysis instance (cross-region inference is &quot;us&quot; by default)</span>
  <span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span>
      <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;./test_docs/employee_enrollment.pdf&quot;</span><span class="p">,</span>
      <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
-<span class="hll">     <span class="n">enable_cri</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Enable cross-region inference</span>
+<span class="hll">     <span class="n">cross_region_inference</span><span class="o">=</span><span class="s2">&quot;us&quot;</span><span class="p">,</span>
 </span>     <span class="n">system_prompt</span><span class="o">=</span><span class="n">SystemPrompts</span><span class="p">()</span><span class="o">.</span><span class="n">SummarySysPrompt</span>
  <span class="p">)</span>
 
  <span class="c1"># Run document analysis</span>
  <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Give me a brief summary of this document.&quot;</span><span class="p">)</span>
  <span class="nb">print</span><span class="p">(</span><span class="n">resp</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="global-cross-region-inference">
+<h2>Global Cross-Region Inference<a class="headerlink" href="#global-cross-region-inference" title="Link to this heading">¶</a></h2>
+<p>Use global cross-region inference for higher throughput and ~10% cost savings:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span>
+     <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;./test_docs/employee_enrollment.pdf&quot;</span><span class="p">,</span>
+     <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
+     <span class="n">cross_region_inference</span><span class="o">=</span><span class="s2">&quot;global&quot;</span><span class="p">,</span>
+<span class="hll"> <span class="p">)</span>
+</span> <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Give me a brief summary of this document.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="disable-cross-region-inference">
+<h2>Disable Cross-Region Inference<a class="headerlink" href="#disable-cross-region-inference" title="Link to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span>
+     <span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;./test_docs/employee_enrollment.pdf&quot;</span><span class="p">,</span>
+     <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
+     <span class="n">cross_region_inference</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="hll"> <span class="p">)</span>
+</span> <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Give me a brief summary of this document.&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -309,10 +339,13 @@
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">file_path</span></code>: Path to the document for analysis</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">boto3_session</span></code>: AWS boto3 session for authentication</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">enable_cri</span></code>: Boolean flag to enable cross-region inference (default: False)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cross_region_inference</span></code>: <code class="docutils literal notranslate"><span class="pre">&quot;us&quot;</span></code> (default), <code class="docutils literal notranslate"><span class="pre">&quot;global&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">None</span></code> to disable</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">system_prompt</span></code>: System prompt to guide the analysis</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">target_region</span></code>: (Optional) Specify a target AWS region for inference</p></li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Not all models support global cross-region inference. Claude Opus 4.6, Sonnet 4.6, Haiku 4.5, and Nova 2 Lite support global profiles. Nova Pro and Nova Lite only support US cross-region profiles. See <a class="reference external" href="https://docs.aws.amazon.com/bedrock/latest/userguide/global-cross-region-inference.html">AWS documentation</a> for details.</p>
+</div>
 </section>
 </section>
 </section>
@@ -346,7 +379,7 @@
             <div class="bottom-of-page">
               <div class="left-details">
                 <div class="copyright">
-                    Copyright &#169; 2025, Amazon Web Services, Inc
+                    Copyright &#169; 2026, Amazon Web Services, Inc
                 </div>
                 Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
                 
@@ -400,6 +433,8 @@
                 <ul>
 <li><a class="reference internal" href="#">Using Cross-Region Inference</a><ul>
 <li><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+<li><a class="reference internal" href="#global-cross-region-inference">Global Cross-Region Inference</a></li>
+<li><a class="reference internal" href="#disable-cross-region-inference">Disable Cross-Region Inference</a></li>
 <li><a class="reference internal" href="#configuration-options">Configuration Options</a><ul>
 <li><a class="reference internal" href="#docanalysis-parameters">DocAnalysis Parameters</a></li>
 </ul>
@@ -415,7 +450,7 @@
           
         </aside>
       </div>
-    </div><script src="../_static/documentation_options.js?v=bbaf98b3"></script>
+    </div><script src="../_static/documentation_options.js?v=53b53b71"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>

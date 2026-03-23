@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Using Converse API" href="useconverseapi.html" /><link rel="prev" title="Document Q&amp;A" href="docqa.html" />
 
     <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 7.4.7 and Furo 2024.08.06 -->
-        <title>Change Default Model - Rhubarb 0.0.7 documentation</title>
+        <title>Change Default Model - Rhubarb 0.0.8 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -174,7 +174,7 @@
           </label>
         </div>
         <div class="header-center">
-          <a href="../index.html"><div class="brand">Rhubarb 0.0.7 documentation</div></a>
+          <a href="../index.html"><div class="brand">Rhubarb 0.0.8 documentation</div></a>
         </div>
         <div class="header-right">
           <div class="theme-toggle-container theme-toggle-header">
@@ -200,7 +200,7 @@
     <img class="sidebar-logo" src="../_static/Rhubarb@0.5x.png" alt="Logo"/>
   </div>
   
-  <span class="sidebar-brand-text">Rhubarb 0.0.7 documentation</span>
+  <span class="sidebar-brand-text">Rhubarb 0.0.8 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -223,6 +223,7 @@
 <li class="toctree-l1 current has-children"><a class="reference internal" href="usage.html">Usage</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Usage</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="docqa.html">Document Q&amp;A</a></li>
 <li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Change Default Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#native-pdf-support">Native PDF Support</a></li>
 <li class="toctree-l2"><a class="reference internal" href="useconverseapi.html">Using Converse API</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usecrossregioninference.html">Using Cross-Region Inference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="specifypages.html">Specify Document Pages</a></li>
@@ -278,24 +279,26 @@
             <article role="main">
               <section id="change-default-model">
 <h1>Change Default Model<a class="headerlink" href="#change-default-model" title="Link to this heading">¶</a></h1>
-<p>By default Rhubarb uses Claude Sonnet model, however you can also use Haiku, Opus, Nova Pro, or Nova Lite. Different Language Models are available via
-<code class="code docutils literal notranslate"><span class="pre">LanguageModel</span></code> class.</p>
+<p>By default Rhubarb uses Claude Sonnet 4.6 model. Different Language Models are available via
+<code class="code docutils literal notranslate"><span class="pre">LanguageModels</span></code> class.</p>
+<p><strong>Anthropic Claude Models:</strong></p>
 <ul class="simple">
-<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.CLAUDE_HAIKU_V1</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.CLAUDE_SONNET_V1</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.CLAUDE_SONNET_V2</span></code> (default)</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.CLAUDE_SONNET_4</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.CLAUDE_OPUS_4</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.CLAUDE_OPUS_V1</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.NOVA_PRO</span></code></p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModel.NOVA_LITE</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModels.CLAUDE_SONNET_4_6</span></code> (default)</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModels.CLAUDE_HAIKU_4_5</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModels.CLAUDE_OPUS_4_6</span></code></p></li>
+</ul>
+<p><strong>Amazon Nova Models:</strong></p>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModels.NOVA_PRO</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModels.NOVA_LITE</span></code></p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">LanguageModels.NOVA_2_LITE</span></code></p></li>
 </ul>
 <p>Use Claude Haiku -</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>  <span class="kn">from</span><span class="w"> </span><span class="nn">rhubarb</span><span class="w"> </span><span class="kn">import</span> <span class="n">DocAnalysis</span><span class="p">,</span> <span class="n">LanguageModels</span>
 
   <span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;s3://your-bucket/employee_enrollment.pdf&quot;</span><span class="p">,</span>
                    <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
-<span class="hll">                   <span class="n">modelId</span><span class="o">=</span><span class="n">LanguageModels</span><span class="o">.</span><span class="n">CLAUDE_HAIKU_V1</span><span class="p">)</span>
+<span class="hll">                   <span class="n">modelId</span><span class="o">=</span><span class="n">LanguageModels</span><span class="o">.</span><span class="n">CLAUDE_HAIKU_4_5</span><span class="p">)</span>
 </span>  <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;What is the employee&#39;s name?&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -304,7 +307,16 @@
 
   <span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;s3://your-bucket/employee_enrollment.pdf&quot;</span><span class="p">,</span>
                    <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
-<span class="hll">                   <span class="n">modelId</span><span class="o">=</span><span class="n">LanguageModels</span><span class="o">.</span><span class="n">CLAUDE_OPUS_V1</span><span class="p">)</span>
+<span class="hll">                   <span class="n">modelId</span><span class="o">=</span><span class="n">LanguageModels</span><span class="o">.</span><span class="n">CLAUDE_OPUS_4_6</span><span class="p">)</span>
+</span>  <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;What is the employee&#39;s name?&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Or Amazon Nova 2 Lite -</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>  <span class="kn">from</span><span class="w"> </span><span class="nn">rhubarb</span><span class="w"> </span><span class="kn">import</span> <span class="n">DocAnalysis</span><span class="p">,</span> <span class="n">LanguageModels</span>
+
+  <span class="n">da</span> <span class="o">=</span> <span class="n">DocAnalysis</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="s2">&quot;s3://your-bucket/employee_enrollment.pdf&quot;</span><span class="p">,</span>
+                   <span class="n">boto3_session</span><span class="o">=</span><span class="n">session</span><span class="p">,</span>
+<span class="hll">                   <span class="n">modelId</span><span class="o">=</span><span class="n">LanguageModels</span><span class="o">.</span><span class="n">NOVA_2_LITE</span><span class="p">)</span>
 </span>  <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;What is the employee&#39;s name?&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -316,6 +328,16 @@
 <span class="hll">                   <span class="n">modelId</span><span class="o">=</span><span class="n">LanguageModels</span><span class="o">.</span><span class="n">NOVA_PRO</span><span class="p">)</span>
 </span>  <span class="n">resp</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;What is the employee&#39;s name?&quot;</span><span class="p">)</span>
 </pre></div>
+</div>
+</section>
+<section id="native-pdf-support">
+<h1>Native PDF Support<a class="headerlink" href="#native-pdf-support" title="Link to this heading">¶</a></h1>
+<p>Claude models support native PDF processing, sending PDFs directly as document blocks instead of converting pages to images.
+This supports up to <strong>600 pages</strong> per request and provides better text extraction alongside visual understanding.</p>
+<p>Native PDF support is automatic — when you pass a PDF file with a Claude model, Rhubarb uses the native path. No code changes needed.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Native PDF support is only available for Claude models using the <code class="docutils literal notranslate"><span class="pre">invoke_model</span></code> API (not Converse API). Nova models and image files (PNG, JPG, TIFF) continue using image-based conversion.</p>
 </div>
 </section>
 
@@ -348,7 +370,7 @@
             <div class="bottom-of-page">
               <div class="left-details">
                 <div class="copyright">
-                    Copyright &#169; 2025, Amazon Web Services, Inc
+                    Copyright &#169; 2026, Amazon Web Services, Inc
                 </div>
                 Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
                 
@@ -388,7 +410,7 @@
           
         </aside>
       </div>
-    </div><script src="../_static/documentation_options.js?v=bbaf98b3"></script>
+    </div><script src="../_static/documentation_options.js?v=53b53b71"></script>
     <script src="../_static/doctools.js?v=9a2dae69"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
