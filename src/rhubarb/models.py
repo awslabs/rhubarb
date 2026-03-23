@@ -5,13 +5,12 @@ from enum import Enum
 
 
 class LanguageModels(Enum):
-    CLAUDE_OPUS_V1 = "anthropic.claude-3-opus-20240229-v1:0"
-    CLAUDE_SONNET_V1 = "anthropic.claude-3-sonnet-20240229-v1:0"
-    CLAUDE_HAIKU_V1 = "anthropic.claude-3-haiku-20240307-v1:0"
-    CLAUDE_SONNET_V2 = "anthropic.claude-3-5-sonnet-20240620-v1:0"
-    CLAUDE_SONNET_37 = "anthropic.claude-3-7-sonnet-20250219-v1:0"
+    CLAUDE_OPUS_4_6 = "anthropic.claude-opus-4-6-v1"
+    CLAUDE_SONNET_4_6 = "anthropic.claude-sonnet-4-6"
+    CLAUDE_HAIKU_4_5 = "anthropic.claude-haiku-4-5-20251001-v1:0"
     NOVA_PRO = "amazon.nova-pro-v1:0"
     NOVA_LITE = "amazon.nova-lite-v1:0"
+    NOVA_2_LITE = "amazon.nova-2-lite-v1:0"
 
 
 class EmbeddingModels(Enum):

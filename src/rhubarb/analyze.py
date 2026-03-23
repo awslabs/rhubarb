@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from typing import Any, Dict, List, Optional, Generator
+from typing import Any, Dict, List, Literal, Optional, Generator
 
 from pydantic import Field, BaseModel, PrivateAttr, model_validator
 from botocore.config import Config
@@ -22,7 +22,7 @@ class DocAnalysis(BaseModel):
 
     Args:
     - `file_path` (str): File path of the document, local or S3 path.
-    - `modelId` (LanguageModels, optional): Bedrock Model ID. Defaults to LanguageModels.CLAUDE_SONNET_V2.
+    - `modelId` (LanguageModels, optional): Bedrock Model ID. Defaults to LanguageModels.CLAUDE_SONNET_4_6.
     - `system_prompt` (str, optional): System prompt. Defaults to SystemPrompts().DefaultSysPrompt.
     - `boto3_session` (Any): Instance of boto3.session.Session.
     - `max_tokens` (int, optional): The maximum number of tokens to generate before stopping. Max 4096 tokens for Claude models. Defaults to 1024.
@@ -30,7 +30,7 @@ class DocAnalysis(BaseModel):
     - `pages` (List[int], optional): Pages of a multi-page PDF or TIF to process. [0] will process all pages upto 20 pages max,
     [1,3,5] will process pages 1, 3 and 5. Defaults to [0].
     - `use_converse_api` (bool, optional): Use Bedrock `converse` API to enable tool use. Defaults to `False` and uses `invoke_model`.
-    - `enable_cri` (bool, optional): Enables Cross-region inference for certain models. Defaults to `False`.
+    - `cross_region_inference` (str, optional): Cross-region inference profile prefix. "us" (default), "global", or None to disable.
     - `sliding_window_overlap` (int, optional): Number of pages to overlap between windows when using sliding window. 0 disables sliding window, 1-10 enables it. Defaults to 0.
 
     Attributes:
@@ -52,7 +52,7 @@ class DocAnalysis(BaseModel):
     file_path: str
     """File path of the document, local or S3 path"""
 
-    modelId: LanguageModels = Field(default=LanguageModels.CLAUDE_SONNET_V2)
+    modelId: LanguageModels = Field(default=LanguageModels.CLAUDE_SONNET_4_6)
     """Bedrock Model ID"""
 
     system_prompt: str = Field(default=None)
@@ -92,10 +92,11 @@ class DocAnalysis(BaseModel):
     https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-runtime/client/converse.html
     """
 
-    enable_cri: bool = Field(default=False)
-    """Whether to use Cross-region inference (CRI) or not
-    Some models may only be available via `inference_profiles` for CRI
-    https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference.html
+    cross_region_inference: Optional[Literal["us", "global"]] = Field(default="us")
+    """Cross-region inference profile prefix for Bedrock model routing.
+    - "us": Routes requests within US regions (default)
+    - "global": Routes requests across 20+ AWS regions (~10% cost savings, higher throughput)
+    - None: Disabled, uses the model ID directly
     """
 
     sliding_window_overlap: int = Field(default=0)
@@ -216,10 +217,10 @@ class DocAnalysis(BaseModel):
                 body=body,
                 bedrock_client=self._bedrock_client,
                 boto3_session=self.boto3_session,
-                model_id=self.modelId.value,
+                model_id=self._resolved_model_id,
                 output_schema=output_schema,
                 use_converse_api=self.use_converse_api,
-                enable_cri=self.enable_cri,
+                cross_region_inference=self.cross_region_inference,
             )
 
             response = model_invoke.run_inference()
@@ -401,10 +402,10 @@ class DocAnalysis(BaseModel):
             body=body,
             bedrock_client=self._bedrock_client,
             boto3_session=self.boto3_session,
-            model_id=self.modelId.value,
+            model_id=self._resolved_model_id,
             output_schema=output_schema,
             use_converse_api=False,
-            enable_cri=self.enable_cri,
+            cross_region_inference=self.cross_region_inference,
         )
 
         synthesis_response = model_invoke.run_inference()
@@ -447,6 +448,24 @@ class DocAnalysis(BaseModel):
     def history(self) -> Any:
         return self._message_history
 
+    @property
+    def _uses_native_pdf(self) -> bool:
+        """Claude models support native PDF processing (up to 600 pages) via invoke_model API."""
+        import mimetypes
+
+        mime_type, _ = mimetypes.guess_type(self.file_path)
+        is_nova = str(self.modelId).__contains__("NOVA")
+        return not is_nova and mime_type == "application/pdf" and not self.use_converse_api
+
+    @property
+    def _resolved_model_id(self) -> str:
+        model_id = self.modelId.value
+        if self.cross_region_inference:
+            prefix = f"{self.cross_region_inference}."
+            if not model_id.startswith(prefix):
+                return f"{prefix}{model_id}"
+        return model_id
+
     def _get_user_prompt(
         self,
         message: Any,
@@ -483,35 +502,29 @@ class DocAnalysis(BaseModel):
         - `history` (`Optional[List[dict]]`, optional): Chat history for conversation context. Defaults to None.
         """
 
-        # If sliding window is enabled and we're not using history, use the sliding window approach
-        if self.sliding_window_overlap > 0 and not history:
+        # Claude models with PDF files use native PDF support (up to 600 pages),
+        # bypassing the sliding window and image conversion entirely.
+        if self._uses_native_pdf and not history:
+            pass  # Skip sliding window, process directly below
+        elif self.sliding_window_overlap > 0 and not history:
             return self._process_with_sliding_window(message, output_schema)
 
-        if (
-            self.modelId == LanguageModels.CLAUDE_HAIKU_V1
-            or self.modelId == LanguageModels.CLAUDE_SONNET_V1
-            or self.modelId == LanguageModels.CLAUDE_SONNET_V2
-            or self.modelId == LanguageModels.CLAUDE_SONNET_37
-            or self.modelId == LanguageModels.NOVA_LITE
-            or self.modelId == LanguageModels.NOVA_PRO
-        ):
-            # sys_prompt = SystemPrompts(model_id=self.modelId).DefaultSysPrompt
-            a_msg = self._get_user_prompt(
-                message=message,
-                output_schema=output_schema,
-                sys_prompt=self.system_prompt,
-                history=history,
-            )
-            body = a_msg.messages()
+        a_msg = self._get_user_prompt(
+            message=message,
+            output_schema=output_schema,
+            sys_prompt=self.system_prompt,
+            history=history,
+        )
+        body = a_msg.messages()
 
         model_invoke = Invocations(
             body=body,
             bedrock_client=self._bedrock_client,
             boto3_session=self.boto3_session,
-            model_id=self.modelId.value,
+            model_id=self._resolved_model_id,
             output_schema=output_schema,
             use_converse_api=self.use_converse_api,
-            enable_cri=self.enable_cri,
+            cross_region_inference=self.cross_region_inference,
         )
         response = model_invoke.run_inference()
         self._message_history = model_invoke.message_history
@@ -535,27 +548,18 @@ class DocAnalysis(BaseModel):
                 "Sliding window approach is not supported in streaming mode. Using standard approach."
             )
 
-        if (
-            self.modelId == LanguageModels.CLAUDE_OPUS_V1
-            or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
-            or self.modelId == LanguageModels.CLAUDE_SONNET_V1
-            or self.modelId == LanguageModels.CLAUDE_SONNET_V2
-            or self.modelId == LanguageModels.CLAUDE_SONNET_37
-            or self.modelId == LanguageModels.NOVA_LITE
-            or self.modelId == LanguageModels.NOVA_PRO
-        ):
-            a_msg = self._get_user_prompt(
-                message=message, sys_prompt=self.system_prompt, history=history
-            )
-            body = a_msg.messages()
+        a_msg = self._get_user_prompt(
+            message=message, sys_prompt=self.system_prompt, history=history
+        )
+        body = a_msg.messages()
 
         model_invoke = Invocations(
             body=body,
             bedrock_client=self._bedrock_client,
             boto3_session=self.boto3_session,
-            model_id=self.modelId.value,
+            model_id=self._resolved_model_id,
             use_converse_api=self.use_converse_api,
-            enable_cri=self.enable_cri,
+            cross_region_inference=self.cross_region_inference,
         )
         for response in model_invoke.run_inference_stream():
             yield response
@@ -575,26 +579,17 @@ class DocAnalysis(BaseModel):
                 "Sliding window approach is not supported for entity extraction. Using standard approach."
             )
 
-        if (
-            self.modelId == LanguageModels.CLAUDE_OPUS_V1
-            or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
-            or self.modelId == LanguageModels.CLAUDE_SONNET_V1
-            or self.modelId == LanguageModels.CLAUDE_SONNET_V2
-            or self.modelId == LanguageModels.CLAUDE_SONNET_37
-            or self.modelId == LanguageModels.NOVA_LITE
-            or self.modelId == LanguageModels.NOVA_PRO
-        ):
-            sys_prompt = SystemPrompts(entities=entities, model_id=self.modelId).NERSysPrompt
-            a_msg = self._get_user_prompt(message=message, sys_prompt=sys_prompt)
-            body = a_msg.messages()
+        sys_prompt = SystemPrompts(entities=entities, model_id=self.modelId).NERSysPrompt
+        a_msg = self._get_user_prompt(message=message, sys_prompt=sys_prompt)
+        body = a_msg.messages()
 
         model_invoke = Invocations(
             body=body,
             bedrock_client=self._bedrock_client,
             boto3_session=self.boto3_session,
-            model_id=self.modelId.value,
+            model_id=self._resolved_model_id,
             use_converse_api=self.use_converse_api,
-            enable_cri=self.enable_cri,
+            cross_region_inference=self.cross_region_inference,
         )
         response = model_invoke.run_inference()
         return response
@@ -614,29 +609,20 @@ class DocAnalysis(BaseModel):
                 "Sliding window approach is not supported for schema generation. Using standard approach."
             )
 
-        if (
-            self.modelId == LanguageModels.CLAUDE_OPUS_V1
-            or self.modelId == LanguageModels.CLAUDE_HAIKU_V1
-            or self.modelId == LanguageModels.CLAUDE_SONNET_V1
-            or self.modelId == LanguageModels.CLAUDE_SONNET_V2
-            or self.modelId == LanguageModels.CLAUDE_SONNET_37
-            or self.modelId == LanguageModels.NOVA_LITE
-            or self.modelId == LanguageModels.NOVA_PRO
-        ):
-            if assistive_rephrase:
-                sys_prompt = SystemPrompts(model_id=self.modelId).SchemaGenSysPromptWithRephrase
-            else:
-                sys_prompt = SystemPrompts(model_id=self.modelId).SchemaGenSysPrompt
-            a_msg = self._get_user_prompt(message=message, sys_prompt=sys_prompt)
-            body = a_msg.messages()
+        if assistive_rephrase:
+            sys_prompt = SystemPrompts(model_id=self.modelId).SchemaGenSysPromptWithRephrase
+        else:
+            sys_prompt = SystemPrompts(model_id=self.modelId).SchemaGenSysPrompt
+        a_msg = self._get_user_prompt(message=message, sys_prompt=sys_prompt)
+        body = a_msg.messages()
 
         model_invoke = Invocations(
             body=body,
             bedrock_client=self._bedrock_client,
             boto3_session=self.boto3_session,
-            model_id=self.modelId.value,
+            model_id=self._resolved_model_id,
             use_converse_api=self.use_converse_api,
-            enable_cri=self.enable_cri,
+            cross_region_inference=self.cross_region_inference,
         )
         response = model_invoke.run_inference()
         return response

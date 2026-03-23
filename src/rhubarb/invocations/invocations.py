@@ -13,7 +13,6 @@ from jsonschema import ValidationError, validate
 
 from rhubarb.config import GlobalConfig
 from rhubarb.models import EmbeddingModels
-from rhubarb.services import BedrockService
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +66,7 @@ class Invocations:
         boto3_session: Any,
         model_id: str,
         use_converse_api: bool,
-        enable_cri: bool,
+        cross_region_inference: Optional[str] = None,
         output_schema: Optional[Any] = None,
     ):
         self.body = body
@@ -81,18 +80,12 @@ class Invocations:
         self.token_usage = None
         self.use_converse_api = use_converse_api
 
-        if enable_cri and boto3_session:
-            self._get_inference_profile()
-        else:
-            logger.warning(
-                f"Cross-region Inference (CRI) is not enabled, parameter enable_cri={enable_cri}."
-                f"Certain models may only be available via CRI."
-                f"Refer to Amazon Bedrock Documentation for more details"
+        if not cross_region_inference:
+            logger.info(
+                "Cross-region inference is not enabled. "
+                "Certain models may only be available via cross-region inference profiles. "
+                "Set cross_region_inference='us' or 'global' to enable."
             )
-
-    def _get_inference_profile(self) -> str:
-        bedrock = BedrockService(session=self.session, model_id=self.model_id)
-        self.model_id = bedrock.get_inference_profile()
 
     def _reprompt_for_proper_json(self) -> None:
         self.reprompt_count = self.reprompt_count - 1

@@ -48,9 +48,9 @@ Things to know
 
 In it's current form Rhubarb-
 
-1. Supports PDF, TIFF, PNG, DOCX, JPG files for document processing
+1. Supports PDF, TIFF, PNG, DOCX, JPG files for document processing. Claude models support native PDF processing for up to 600 pages.
 2. Supports MP4, AVI, MOV, and other common video formats for video analysis (S3 storage required)
-3. Performs document to image conversion internally to work with the multi-modal models
+3. Claude models send PDFs natively as document blocks. Nova models and image files use document-to-image conversion internally.
 4. Works on local files or files stored in S3 (video analysis requires S3 storage)
 5. Supports specifying page numbers for multi-page documents
 6. Supports chat-history based chat for documents

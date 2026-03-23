@@ -22,7 +22,7 @@ class VideoAnalysis(BaseModel):
 
     Args:
     - `file_path` (str): File path of the video, local or S3 path.
-    - `modelId` (LanguageModels, optional): Bedrock Model ID. Defaults to LanguageModels.CLAUDE_SONNET_V2.
+    - `modelId` (LanguageModels, optional): Bedrock Model ID. Defaults to LanguageModels.CLAUDE_SONNET_4_6.
     - `system_prompt` (str, optional): System prompt. Defaults to SystemPrompts().VideoAnalysisSysPrompt.
     - `boto3_session` (Any): Instance of boto3.session.Session.
     - `max_tokens` (int, optional): The maximum number of tokens to generate before stopping. Max 4096 tokens for Claude models. Defaults to 1024.
@@ -30,7 +30,7 @@ class VideoAnalysis(BaseModel):
     - `frame_interval` (float, optional): Interval between frames in seconds. Defaults to 1.0.
     - `max_frames` (int, optional): Maximum number of frames to extract. Defaults to 20.
     - `use_converse_api` (bool, optional): Use Bedrock `converse` API to enable tool use. Defaults to `False` and uses `invoke_model`.
-    - `enable_cri` (bool, optional): Enables Cross-region inference for certain models. Defaults to `False`.
+    - `cross_region_inference` (str, optional): Cross-region inference profile prefix. "us" (default), "global", or None to disable.
     - `s3_bucket_owner` (str, optional): AWS account ID of the S3 bucket owner. Required for cross-account S3 access with Nova models.
 
     Attributes:
@@ -102,10 +102,11 @@ class VideoAnalysis(BaseModel):
     https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/bedrock-runtime/client/converse.html
     """
 
-    enable_cri: bool = Field(default=False)
-    """Whether to use Cross-region inference (CRI) or not
-    Some models may only be available via `inference_profiles` for CRI
-    https://docs.aws.amazon.com/bedrock/latest/userguide/cross-region-inference.html
+    cross_region_inference: Optional[str] = Field(default="us")
+    """Cross-region inference profile prefix for Bedrock model routing.
+    - "us": Routes requests within US regions (default)
+    - "global": Routes requests across 20+ AWS regions
+    - None: Disabled, uses the model ID directly
     """
 
     s3_bucket_owner: Optional[str] = Field(default=None)
@@ -308,7 +309,7 @@ class VideoAnalysis(BaseModel):
             model_id=self.modelId.value,
             output_schema=output_schema,
             use_converse_api=self.use_converse_api,
-            enable_cri=self.enable_cri,
+            cross_region_inference=self.cross_region_inference,
         )
 
         response = model_invoke.run_inference()
