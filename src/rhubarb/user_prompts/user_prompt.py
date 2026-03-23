@@ -2,6 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import json
+import base64
+import mimetypes
 from typing import Any, List, Optional
 
 import jsonschema
@@ -36,6 +38,39 @@ class UserMessages:
         self.use_converse_api = use_converse_api
         self.message_history = message_history
         self.modelId = modelId
+
+    def _is_native_pdf(self) -> bool:
+        """Check if this is a PDF file with a non-Nova model (eligible for native PDF support)."""
+        mime_type, _ = mimetypes.guess_type(self.file_path)
+        is_nova = str(self.modelId).__contains__("NOVA")
+        return not is_nova and mime_type == "application/pdf" and not self.use_converse_api
+
+    def _get_pdf_base64(self) -> str:
+        """Read the raw PDF file and return base64-encoded string."""
+        if self.file_path.startswith("s3://"):
+            from rhubarb.utility.s3utility import S3Utility
+
+            s3_util = S3Utility(s3_client=self.s3_client)
+            file_bytes = s3_util.read_file(self.file_path)
+        else:
+            with open(self.file_path, "rb") as f:
+                file_bytes = f.read()
+        return base64.standard_b64encode(file_bytes).decode("utf-8")
+
+    def _construct_pdf_messages(self, pdf_base64: str) -> List[dict]:
+        """Construct messages with native PDF document block for Claude models."""
+        content = [
+            {
+                "type": "document",
+                "source": {
+                    "type": "base64",
+                    "media_type": "application/pdf",
+                    "data": pdf_base64,
+                },
+            },
+            {"type": "text", "text": self.message},
+        ]
+        return [{"role": "user", "content": content}]
 
     def _get_pages_from_doc(self) -> List[dict]:
         fc = FileConverter(file_path=self.file_path, s3_client=self.s3_client, pages=self.pages)
@@ -135,11 +170,16 @@ class UserMessages:
         messages = []
         if not self.message_history:
             self._validate_if_schema()
-            doc_pages = self._get_pages_from_doc()
-            if self.use_converse_api:
-                messages = self._construct_converse_messages(byte_pages=doc_pages)
+            if self._is_native_pdf():
+                # Native PDF support for Claude models (up to 600 pages)
+                pdf_base64 = self._get_pdf_base64()
+                messages = self._construct_pdf_messages(pdf_base64)
             else:
-                messages = self._construct_invoke_messages(base64_pages=doc_pages)
+                doc_pages = self._get_pages_from_doc()
+                if self.use_converse_api:
+                    messages = self._construct_converse_messages(byte_pages=doc_pages)
+                else:
+                    messages = self._construct_invoke_messages(base64_pages=doc_pages)
             body["messages"] = messages
         else:
             messages = self._construct_messages_with_history()
@@ -151,7 +191,7 @@ class UserMessages:
                 "maxTokens": self.max_tokens,
                 "temperature": self.temperature,
             }
-            
+
         else:
             # Check if it's a Nova model
             if str(self.modelId).__contains__("NOVA"):
@@ -162,6 +202,5 @@ class UserMessages:
                 body["max_tokens"] = self.max_tokens
                 body["temperature"] = self.temperature
                 body["anthropic_version"] = "bedrock-2023-05-31"
-                
 
         return body

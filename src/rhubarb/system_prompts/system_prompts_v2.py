@@ -11,7 +11,7 @@ from rhubarb.system_prompts.video_prompts import VIDEO_ANALYSIS_PROMPT
 class SystemPrompts:
     def __init__(
         self,
-        model_id: LanguageModels = LanguageModels.CLAUDE_SONNET_V2,
+        model_id: LanguageModels = LanguageModels.CLAUDE_SONNET_4_6,
         entities: List[dict] = None,
         streaming: bool = False,
     ):
@@ -27,16 +27,9 @@ class SystemPrompts:
             self.prompts = json.load(f)
 
     def _get_model_name(self) -> str:
-        if (
-            self.model_id == LanguageModels.CLAUDE_OPUS_V1
-            or self.model_id == LanguageModels.CLAUDE_HAIKU_V1
-            or self.model_id == LanguageModels.CLAUDE_SONNET_V1
-            or self.model_id == LanguageModels.CLAUDE_SONNET_V2
-            or self.model_id == LanguageModels.CLAUDE_SONNET_37
-        ):
-            return "anthropic"
-        elif self.model_id == LanguageModels.NOVA_LITE or self.model_id == LanguageModels.NOVA_PRO:
+        if str(self.model_id).__contains__("NOVA"):
             return "nova"
+        return "anthropic"
 
     def get_prompt(self, prompt_name: str) -> str:
         if prompt_name not in self.prompts:

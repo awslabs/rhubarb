@@ -55,7 +55,7 @@ Navigate into the project directory on the terminal and perform the following st
 Configuration
 -------------
 
-.. note:: You must have Anthropic Claude V3 model and Amazon Titan Multi-modal Embedding model access enabled in Amazon Bedrock. To enable models, see `Amazon Bedrock documentation <https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html>`_.
+.. note:: You must have Anthropic Claude models (e.g. Claude Sonnet 4.6, Claude Haiku 4.5) and Amazon Titan Multi-modal Embedding model access enabled in Amazon Bedrock. To enable models, see `Amazon Bedrock documentation <https://docs.aws.amazon.com/bedrock/latest/userguide/model-access.html>`_.
 
 Before using Boto3, you need to set up authentication credentials for your AWS account using either
 the `IAM Console <https://console.aws.amazon.com/iam/home>`_ or the AWS CLI. You can either choose

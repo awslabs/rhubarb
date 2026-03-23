@@ -7,9 +7,9 @@ Rhubarb MCP Server CLI
 Command-line interface for running the Rhubarb FastMCP server.
 """
 
-import argparse
 import os
 import sys
+import argparse
 from typing import Optional
 
 from .server import run_server
@@ -67,48 +67,44 @@ Resources:
   - rhubarb://models/supported: Supported models and capabilities
   - rhubarb://schemas/built-in/{type}: Built-in schemas
   - rhubarb://classification-samples/{bucket}/{id}: Sample details
-        """
+        """,
     )
 
-    parser.add_argument(
-        "--version",
-        action="version",
-        version="Rhubarb MCP Server 1.0.0"
-    )
+    parser.add_argument("--version", action="version", version="Rhubarb MCP Server 1.0.0")
 
     parser.add_argument(
-        "--check-deps",
-        action="store_true",
-        help="Check if all required dependencies are available"
+        "--check-deps", action="store_true", help="Check if all required dependencies are available"
     )
 
     # Configuration Arguments
-    config_group = parser.add_argument_group('Configuration')
+    config_group = parser.add_argument_group("Configuration")
     config_group.add_argument(
-        "--aws-region",
-        default="us-east-1",
-        help="AWS region (default: us-east-1)"
+        "--aws-region", default="us-east-1", help="AWS region (default: us-east-1)"
     )
 
     # Rhubarb Configuration Arguments
-    rhubarb_group = parser.add_argument_group('Rhubarb Configuration')
+    rhubarb_group = parser.add_argument_group("Rhubarb Configuration")
     rhubarb_group.add_argument(
-        "--enable-cri",
-        action="store_true",
-        help="Enable cross-region inference"
+        "--cross-region-inference",
+        default="us",
+        choices=["us", "global"],
+        help="Cross-region inference prefix (default: us)",
     )
     rhubarb_group.add_argument(
         "--default-model",
         default="claude-sonnet",
         choices=[
-            "claude-opus", "claude-sonnet", "claude-sonnet-v1", "claude-sonnet-v2",
-            "claude-sonnet-37", "claude-haiku", "nova-pro", "nova-lite"
+            "claude-opus",
+            "claude-sonnet",
+            "claude-haiku",
+            "nova-pro",
+            "nova-lite",
+            "nova-2-lite",
         ],
-        help="Default model to use (default: claude-sonnet)"
+        help="Default model to use (default: claude-sonnet)",
     )
     rhubarb_group.add_argument(
-        "--default-bucket",
-        help="Default S3 bucket for classification samples"
+        "--default-bucket", help="Default S3 bucket for classification samples"
     )
 
     return parser
@@ -121,6 +117,7 @@ def check_dependencies() -> bool:
     # Check FastMCP
     try:
         import fastmcp
+
         print(f"✓ FastMCP: {fastmcp.__version__}")
     except ImportError:
         print("✗ FastMCP: Not installed. Run: pip install fastmcp")
@@ -128,7 +125,8 @@ def check_dependencies() -> bool:
 
     # Check Rhubarb core
     try:
-        from rhubarb import DocAnalysis, DocClassification
+        from rhubarb import DocAnalysis, DocClassification  # noqa: F401
+
         print("✓ Rhubarb: Core modules available")
     except ImportError as e:
         print(f"✗ Rhubarb: Import error - {e}")
@@ -136,17 +134,18 @@ def check_dependencies() -> bool:
 
     # Check VideoAnalysis (may not be available in all environments)
     try:
-        from rhubarb import VideoAnalysis
+        from rhubarb import VideoAnalysis  # noqa: F401
+
         print("✓ Rhubarb: Video analysis available")
     except ImportError:
         print("⚠ Rhubarb: Video analysis not available (this is OK)")
 
     # Check AWS credentials
     aws_configured = False
-    if os.getenv('AWS_PROFILE'):
+    if os.getenv("AWS_PROFILE"):
         print(f"✓ AWS: Profile configured - {os.getenv('AWS_PROFILE')}")
         aws_configured = True
-    elif os.getenv('AWS_ACCESS_KEY_ID') and os.getenv('AWS_SECRET_ACCESS_KEY'):
+    elif os.getenv("AWS_ACCESS_KEY_ID") and os.getenv("AWS_SECRET_ACCESS_KEY"):
         print("✓ AWS: Access keys configured")
         aws_configured = True
     else:
@@ -155,16 +154,17 @@ def check_dependencies() -> bool:
     # Check boto3
     try:
         import boto3
+
         session = boto3.Session()
         if aws_configured:
             try:
                 # Try to get caller identity to verify credentials work
-                sts = session.client('sts')
+                sts = session.client("sts")
                 identity = sts.get_caller_identity()
                 print(f"✓ AWS: Credentials valid - Account: {identity.get('Account', 'unknown')}")
             except Exception as e:
                 print(f"⚠ AWS: Credentials may be invalid - {e}")
-        print(f"✓ Boto3: Available")
+        print("✓ Boto3: Available")
     except ImportError:
         print("✗ Boto3: Not installed. Run: pip install boto3")
         return False
@@ -178,21 +178,22 @@ def check_environment() -> Optional[str]:
     warnings = []
 
     # Check AWS region
-    region = os.getenv('AWS_REGION', 'us-east-1')
-    if region != 'us-east-1':
+    region = os.getenv("AWS_REGION", "us-east-1")
+    if region != "us-east-1":
         warnings.append(f"Using AWS region: {region}")
 
-    # Check if CRI is enabled
-    if os.getenv('RHUBARB_ENABLE_CRI', 'false').lower() == 'true':
-        warnings.append("Cross-region inference is enabled")
+    # Check cross-region inference
+    cri = os.getenv("RHUBARB_CROSS_REGION", "us")
+    if cri:
+        warnings.append(f"Cross-region inference: {cri}")
 
     # Check default model
-    model = os.getenv('RHUBARB_DEFAULT_MODEL', 'claude-sonnet')
-    if model != 'claude-sonnet':
+    model = os.getenv("RHUBARB_DEFAULT_MODEL", "claude-sonnet")
+    if model != "claude-sonnet":
         warnings.append(f"Default model: {model}")
 
     # Check default bucket
-    bucket = os.getenv('RHUBARB_DEFAULT_BUCKET')
+    bucket = os.getenv("RHUBARB_DEFAULT_BUCKET")
     if bucket:
         warnings.append(f"Default S3 bucket: {bucket}")
 
@@ -210,16 +211,16 @@ def main() -> None:
 
     # Set environment variables from CLI arguments (only for non-AWS settings)
     if args.aws_region:
-        os.environ['AWS_REGION'] = args.aws_region
-        os.environ['AWS_DEFAULT_REGION'] = args.aws_region  # Set both for compatibility
+        os.environ["AWS_REGION"] = args.aws_region
+        os.environ["AWS_DEFAULT_REGION"] = args.aws_region  # Set both for compatibility
 
     # Set Rhubarb configuration
-    if args.enable_cri:
-        os.environ['RHUBARB_ENABLE_CRI'] = 'true'
+    if args.cross_region_inference:
+        os.environ["RHUBARB_CROSS_REGION"] = args.cross_region_inference
     if args.default_model:
-        os.environ['RHUBARB_DEFAULT_MODEL'] = args.default_model
+        os.environ["RHUBARB_DEFAULT_MODEL"] = args.default_model
     if args.default_bucket:
-        os.environ['RHUBARB_DEFAULT_BUCKET'] = args.default_bucket
+        os.environ["RHUBARB_DEFAULT_BUCKET"] = args.default_bucket
 
     print("🍃 Starting Rhubarb MCP Server...")
 
@@ -229,8 +230,8 @@ def main() -> None:
         print(f"Environment: {env_info}")
 
     # Show credential configuration
-    aws_profile = os.getenv('AWS_PROFILE')
-    aws_keys = os.getenv('AWS_ACCESS_KEY_ID') and os.getenv('AWS_SECRET_ACCESS_KEY')
+    aws_profile = os.getenv("AWS_PROFILE")
+    aws_keys = os.getenv("AWS_ACCESS_KEY_ID") and os.getenv("AWS_SECRET_ACCESS_KEY")
 
     if aws_profile:
         print(f"Using AWS Profile: {aws_profile}")
